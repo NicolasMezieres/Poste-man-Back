@@ -22,14 +22,14 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: ESLint test
+        run: npm run lint
+
+      - name: Prettier format
+        run: npm run format
+
       - name: Unit test
         run: npm test
 
       - name: Build
         run: npm run build
-
-      - name: ESLint test
-        run: npm lint
-
-      - name: Prettier format
-        run: npm run format
