@@ -1,0 +1,33 @@
+services:
+  postgres_db:
+    image: postgres:17.6
+    restart: always
+    volumes:
+      - postgres-data:/var/lib/postgresql
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - '5434:5432'
+    networks:
+      - poste_man
+
+  test_db:
+    image: postgres:17.6
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD_TEST}
+      POSTGRES_USER: ${POSTGRES_USER_TEST}
+      POSTGRES_DB: ${POSTGRES_DB_TEST}
+    ports:
+      - '5435:5432'
+    networks:
+      - poste_man
+
+networks:
+  poste_man:
+    external: true
+
+volumes:
+  postgres-data:
