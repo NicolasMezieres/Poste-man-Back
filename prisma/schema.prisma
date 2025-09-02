@@ -26,6 +26,15 @@ model User {
   role Role @relation(fields: [roleId], references: [id])
   message Message[]
   post Post[]
+  notif Notification[]
+}
+
+model Notification {
+  id Int @id @default(autoincrement())
+  text String @db.VarChar(255)
+  userId String
+  createdAt DateTime @db.Timestamp() @default(now())
+  user User @relation(fields: [userId], references: [id])
 }
 
 model Icon {
