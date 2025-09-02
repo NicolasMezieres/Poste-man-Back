@@ -11,18 +11,18 @@ datasource db {
 model User {
   id String @id @default(uuid())
   roleId String
-  iconId Int 
+  iconId Int? 
   firstName String @db.VarChar(35)
   lastName String @db.VarChar(35) 
   email String @db.VarChar(320) @unique
   username String @db.VarChar(16) @unique
-  password String @db.VarChar(32)
+  password String @db.VarChar(255)
   isActive Boolean @default(false)
   activationToke String? @db.VarChar(32)
   gdpr Boolean @default(true)
-  createdAt DateTime @db.Timestamp()
-  updatedAt DateTime @db.Timestamp()
-  icon Icon @relation(fields: [iconId], references: [id])
+  createdAt DateTime @db.Timestamp() @default(now())
+  updatedAt DateTime @db.Timestamp() @default(now())
+  icon Icon? @relation(fields: [iconId], references: [id])
   role Role @relation(fields: [roleId], references: [id])
   message Message[]
   post Post[]
@@ -44,7 +44,7 @@ model User_Has_Project{
   projectId String
   roleProjectId String
   isBanned Boolean @default(false)
-  createdAt DateTime @db.Timestamp()
+  createdAt DateTime @db.Timestamp() @default(now())
   role Role_Project @relation(fields: [roleProjectId], references: [id])
   project Project @relation(fields: [projectId], references: [id])
 }
@@ -52,8 +52,8 @@ model User_Has_Project{
 model Project {
   id String @id @default(uuid())
   name String @db.VarChar(16)
-  createdAt DateTime @db.Timestamp()
-  updatedAt DateTime @db.Timestamp() 
+  createdAt DateTime @db.Timestamp() @default(now())
+  updatedAt DateTime @db.Timestamp() @default(now())
   link Link_Project[]
   section Section[]
   message Message[]
@@ -75,8 +75,8 @@ model Post {
   poseX Int
   poseY Int
   isVisible Boolean @default(true)
-  createdAt DateTime @db.Timestamp()
-  updatedAt DateTime @db.Timestamp()
+  createdAt DateTime @db.Timestamp() @default(now())
+  updatedAt DateTime @db.Timestamp() @default(now())
   user User @relation(fields: [userId] , references: [id])
   section Section @relation(fields: [sectionId], references: [id])
   }
@@ -87,8 +87,8 @@ model Message{
   authorId String 
   message String @db.VarChar(255) 
   isVisible Boolean @default(true)
-  createdAt DateTime @db.Timestamp()
-  updatedAt DateTime @db.Timestamp()
+  createdAt DateTime @db.Timestamp() @default(now())
+  updatedAt DateTime @db.Timestamp() @default(now())
   user User @relation(fields: [authorId], references: [id])
   project Project @relation(fields: [projectId], references: [id])
 }
@@ -97,7 +97,7 @@ model Link_Project {
   id String @id @default(uuid())
   projectId String  
   numberUsage Int @db.SmallInt() @default(10)
-  createdAt DateTime @db.Timestamp() 
+  createdAt DateTime @db.Timestamp() @default(now())
   outdatedAt DateTime
   projet Project @relation(fields: [projectId], references: [id])
 }
