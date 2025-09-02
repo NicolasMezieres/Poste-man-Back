@@ -1,12 +1,11 @@
-import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
-// import cookieParser from 'cookie-parser';
 import { ValidationPipe } from '@nestjs/common';
+import { NestFactory } from '@nestjs/core';
+import cookieParser from 'cookie-parser';
+import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
-  // app.use(cookieParser());
   // app.enableCors({
   //   origin: [
   //     'https://lost-web-nicolasmezieres-nicolas-projects-d55648f9.vercel.app',
@@ -14,6 +13,7 @@ async function bootstrap() {
   //   ],
   //   credentials: true,
   // });
+  app.use(cookieParser());
   await app.listen(process.env.PORT ?? 3000);
 }
 bootstrap().catch((err) => console.log(err));
