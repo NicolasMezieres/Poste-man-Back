@@ -32,7 +32,6 @@ export class resetPasswordStrategy extends PassportStrategy(
       },
     });
     if (!user) {
-      
       throw new UnauthorizedException('You are not authorized 😡');
     } else if (user.isActive === false) {
       throw new ForbiddenException('Your account is not active 😱');

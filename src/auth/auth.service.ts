@@ -126,7 +126,7 @@ export class AuthService {
     }
     if (existingEmail && existingEmail.isActive) {
       const token = await this.signToken(existingEmail, '10m');
-      this.email.forgetPassword(existingEmail, token.token_connexion);
+      await this.email.forgetPassword(existingEmail, token.token_connexion);
     } else if (existingEmail && !existingEmail.isActive) {
       return { message: 'Your account s not activate' };
     }
