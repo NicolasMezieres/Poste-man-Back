@@ -72,8 +72,8 @@ model Post {
   userId String  
   sectionId String 
   text String @db.VarChar(255) 
-  poseX Int
-  poseY Int
+  poseX Int?
+  poseY Int?
   isVisible Boolean @default(true)
   createdAt DateTime @db.Timestamp() @default(now())
   updatedAt DateTime @db.Timestamp() @default(now())
