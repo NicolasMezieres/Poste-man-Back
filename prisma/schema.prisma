@@ -35,7 +35,7 @@ model Icon {
 }
 model Role {
   id String @id @default(uuid())
-  name String @db.VarChar(32)
+  name String @db.VarChar(32) @unique
   user User[]
 }
 model User_Has_Project{
@@ -104,6 +104,6 @@ model Link_Project {
 
 model Role_Project{
   id String @id @default(uuid())
-  name String @db.VarChar(50) 
+  name String @db.VarChar(50)  @unique
   users User_Has_Project[]
 }
