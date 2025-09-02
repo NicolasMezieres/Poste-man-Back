@@ -2,17 +2,17 @@
 CREATE TABLE "public"."User" (
     "id" TEXT NOT NULL,
     "roleId" TEXT NOT NULL,
-    "iconId" INTEGER NOT NULL,
+    "iconId" INTEGER,
     "firstName" VARCHAR(35) NOT NULL,
     "lastName" VARCHAR(35) NOT NULL,
     "email" VARCHAR(320) NOT NULL,
     "username" VARCHAR(16) NOT NULL,
-    "password" VARCHAR(32) NOT NULL,
+    "password" VARCHAR(255) NOT NULL,
     "isActive" BOOLEAN NOT NULL DEFAULT false,
     "activationToke" VARCHAR(32),
     "gdpr" BOOLEAN NOT NULL DEFAULT true,
-    "createdAt" TIMESTAMP NOT NULL,
-    "updatedAt" TIMESTAMP NOT NULL,
+    "createdAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
 );
@@ -40,7 +40,7 @@ CREATE TABLE "public"."User_Has_Project" (
     "projectId" TEXT NOT NULL,
     "roleProjectId" TEXT NOT NULL,
     "isBanned" BOOLEAN NOT NULL DEFAULT false,
-    "createdAt" TIMESTAMP NOT NULL,
+    "createdAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "User_Has_Project_pkey" PRIMARY KEY ("id")
 );
@@ -49,8 +49,8 @@ CREATE TABLE "public"."User_Has_Project" (
 CREATE TABLE "public"."Project" (
     "id" TEXT NOT NULL,
     "name" VARCHAR(16) NOT NULL,
-    "createdAt" TIMESTAMP NOT NULL,
-    "updatedAt" TIMESTAMP NOT NULL,
+    "createdAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "Project_pkey" PRIMARY KEY ("id")
 );
@@ -70,11 +70,11 @@ CREATE TABLE "public"."Post" (
     "userId" TEXT NOT NULL,
     "sectionId" TEXT NOT NULL,
     "text" VARCHAR(255) NOT NULL,
-    "poseX" INTEGER NOT NULL,
-    "poseY" INTEGER NOT NULL,
+    "poseX" INTEGER,
+    "poseY" INTEGER,
     "isVisible" BOOLEAN NOT NULL DEFAULT true,
-    "createdAt" TIMESTAMP NOT NULL,
-    "updatedAt" TIMESTAMP NOT NULL,
+    "createdAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "Post_pkey" PRIMARY KEY ("id")
 );
@@ -86,8 +86,8 @@ CREATE TABLE "public"."Message" (
     "authorId" TEXT NOT NULL,
     "message" VARCHAR(255) NOT NULL,
     "isVisible" BOOLEAN NOT NULL DEFAULT true,
-    "createdAt" TIMESTAMP NOT NULL,
-    "updatedAt" TIMESTAMP NOT NULL,
+    "createdAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "Message_pkey" PRIMARY KEY ("id")
 );
@@ -97,7 +97,7 @@ CREATE TABLE "public"."Link_Project" (
     "id" TEXT NOT NULL,
     "projectId" TEXT NOT NULL,
     "numberUsage" SMALLINT NOT NULL DEFAULT 10,
-    "createdAt" TIMESTAMP NOT NULL,
+    "createdAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "outdatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "Link_Project_pkey" PRIMARY KEY ("id")
@@ -117,8 +117,14 @@ CREATE UNIQUE INDEX "User_email_key" ON "public"."User"("email");
 -- CreateIndex
 CREATE UNIQUE INDEX "User_username_key" ON "public"."User"("username");
 
+-- CreateIndex
+CREATE UNIQUE INDEX "Role_name_key" ON "public"."Role"("name");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Role_Project_name_key" ON "public"."Role_Project"("name");
+
 -- AddForeignKey
-ALTER TABLE "public"."User" ADD CONSTRAINT "User_iconId_fkey" FOREIGN KEY ("iconId") REFERENCES "public"."Icon"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "public"."User" ADD CONSTRAINT "User_iconId_fkey" FOREIGN KEY ("iconId") REFERENCES "public"."Icon"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "public"."User" ADD CONSTRAINT "User_roleId_fkey" FOREIGN KEY ("roleId") REFERENCES "public"."Role"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

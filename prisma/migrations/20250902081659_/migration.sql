@@ -1,3 +1,0 @@
--- AlterTable
-ALTER TABLE "public"."Post" ALTER COLUMN "poseX" DROP NOT NULL,
-ALTER COLUMN "poseY" DROP NOT NULL;
