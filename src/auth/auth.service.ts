@@ -7,11 +7,10 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import * as argon from 'argon2';
 import { Response } from 'express';
 import { EmailService } from 'src/email/email.service';
+import { HashService } from 'src/hash/hash.service';
 import { User } from 'src/prisma/generated';
-
 import { PrismaService } from 'src/prisma/prisma.service';
 import { role } from 'src/utils/enum';
 import {
@@ -27,13 +26,14 @@ export class AuthService {
     private prisma: PrismaService,
     private email: EmailService,
     private jwt: JwtService,
+    private hash: HashService,
     private config: ConfigService,
   ) {}
 
   async signToken(user: User, delay: string) {
     const payload = { sub: user.id };
     return {
-      token_connexion: await this.jwt.signAsync(payload, {
+      connexion_token: await this.jwt.signAsync(payload, {
         secret: this.config.get('JWT_SECRET'),
         expiresIn: delay,
       }),
@@ -58,8 +58,8 @@ export class AuthService {
     if (!existingRole) {
       throw new InternalServerErrorException();
     }
-    const hashPassword = await argon.hash(dto.password);
-    const activateToken = await argon.hash(dto.password + dto.email);
+    const hashPassword = await this.hash.hash(dto.password);
+    const activateToken = await this.hash.hash(dto.password + dto.email);
     const newToken = activateToken.replaceAll('/', '');
     const newUser = await this.prisma.user.create({
       data: {
@@ -86,7 +86,7 @@ export class AuthService {
         isActive: true,
       },
     });
-    return { message: 'Your acount is active !' };
+    return { message: 'Your account is active !' };
   }
   async signin(dto: SignInDTO, res: Response) {
     const existingUser = await this.prisma.user.findFirst({
@@ -101,7 +101,7 @@ export class AuthService {
       throw new UnauthorizedException('Your account is not activate');
     }
 
-    const isSamePassword = await argon.verify(
+    const isSamePassword = await this.hash.verify(
       existingUser.password,
       dto.password,
     );
@@ -109,7 +109,7 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credential');
     }
     const token = await this.signToken(existingUser, '1d');
-    res.cookie('access_token', token.token_connexion, {
+    res.cookie('access_token', token.connexion_token, {
       httpOnly: true,
       sameSite: 'none',
       maxAge: 1000 * 60 * 60 * 24 * 7,
@@ -126,18 +126,21 @@ export class AuthService {
     }
     if (existingEmail && existingEmail.isActive) {
       const token = await this.signToken(existingEmail, '10m');
-      await this.email.forgetPassword(existingEmail, token.token_connexion);
+      await this.email.forgetPassword(existingEmail, token.connexion_token);
     } else if (existingEmail && !existingEmail.isActive) {
       return { message: 'Your account s not activate' };
     }
     return { message: 'Check your email' };
   }
   async resetPassword(user: User, dto: ResetPasswordDTO) {
-    const hash = await argon.hash(dto.password);
+    const hash = await this.hash.hash(dto.password);
     await this.prisma.user.update({
       where: { id: user.id },
       data: { password: hash },
     });
     return { message: 'Your password has been change' };
   }
+
+  //todo:
+  // async logout(id: string) {}
 }

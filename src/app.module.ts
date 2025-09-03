@@ -4,6 +4,8 @@ import { JwtModule } from '@nestjs/jwt';
 import { AuthModule } from './auth/auth.module';
 import { EmailModule } from './email/email.module';
 import { PrismaModule } from './prisma/prisma.module';
+import { HashModule } from './hash/hash.module';
+import { HashModule } from './hash/hash.module';
 @Module({
   imports: [
     PrismaModule,
@@ -11,6 +13,7 @@ import { PrismaModule } from './prisma/prisma.module';
     AuthModule,
     EmailModule,
     JwtModule,
+    HashModule,
   ],
 })
 export class AppModule {}
