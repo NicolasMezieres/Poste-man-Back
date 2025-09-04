@@ -3,12 +3,10 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
 import { EmailService } from 'src/email/email.service';
-import { HashService } from 'src/hash/hash.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { AuthService } from './auth.service';
 import { AuthConfigMock } from './mock/auth.config.mock';
 import { AuthEmailMock } from './mock/auth.email.mock';
-import { hashMock } from './mock/auth.hash.mock';
 import { JwtMock } from './mock/auth.jwt.mock';
 import {
   cookieRuleMock,
@@ -19,6 +17,7 @@ import {
   tokenMock,
   userMock,
 } from './mock/auth.mock';
+import * as argon from 'argon2';
 import { AuthPrismaMock } from './mock/auth.prisma.mock';
 import { AuthServiceMock } from './mock/auth.service.mock';
 
@@ -33,7 +32,6 @@ describe('AuthService', () => {
         { provide: JwtService, useValue: JwtMock },
         { provide: ConfigService, useValue: AuthConfigMock },
         { provide: PrismaService, useValue: AuthPrismaMock },
-        { provide: HashService, useValue: hashMock },
       ],
     }).compile();
 
@@ -69,7 +67,7 @@ describe('AuthService', () => {
         .mockResolvedValue(undefined);
       jest.spyOn(AuthPrismaMock.role, 'findUnique').mockResolvedValue(roleMock);
       jest
-        .spyOn(hashMock, 'hash')
+        .spyOn(argon, 'hash')
         .mockResolvedValueOnce('hashed password')
         .mockResolvedValueOnce('token hashed');
       jest.spyOn(AuthPrismaMock.user, 'create').mockResolvedValue(userMock);
@@ -106,7 +104,7 @@ describe('AuthService', () => {
     it("should return a { message: 'Connexion succesfully', role:'role'}", async () => {
       const dataUser = { ...userMock, role: { name: 'role' } };
       jest.spyOn(AuthPrismaMock.user, 'findFirst').mockResolvedValue(dataUser);
-      jest.spyOn(hashMock, 'verify').mockResolvedValue(true);
+      jest.spyOn(argon, 'verify').mockResolvedValue(true);
       jest.spyOn(authService, 'signToken').mockResolvedValue(tokenMock);
       expect(await authService.signin(dto, resMock)).toEqual(
         signinResponseMock,
@@ -133,7 +131,7 @@ describe('AuthService', () => {
     });
     it('should return unauthorized exception Invalid credential', async () => {
       jest.spyOn(AuthPrismaMock.user, 'findFirst').mockResolvedValue(userMock);
-      jest.spyOn(hashMock, 'verify').mockResolvedValue(false);
+      jest.spyOn(argon, 'verify').mockResolvedValue(false);
       await expect(authService.signin(dto, resMock)).rejects.toEqual(
         new UnauthorizedException('Invalid credential'),
       );

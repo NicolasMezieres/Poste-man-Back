@@ -9,7 +9,7 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Response } from 'express';
 import { EmailService } from 'src/email/email.service';
-import { HashService } from 'src/hash/hash.service';
+import * as argon from 'argon2';
 import { User } from 'src/prisma/generated';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { role } from 'src/utils/enum';
@@ -26,7 +26,6 @@ export class AuthService {
     private prisma: PrismaService,
     private email: EmailService,
     private jwt: JwtService,
-    private hash: HashService,
     private config: ConfigService,
   ) {}
 
@@ -58,8 +57,8 @@ export class AuthService {
     if (!existingRole) {
       throw new InternalServerErrorException();
     }
-    const hashPassword = await this.hash.hash(dto.password);
-    const activateToken = await this.hash.hash(dto.password + dto.email);
+    const hashPassword = await argon.hash(dto.password);
+    const activateToken = await argon.hash(dto.password + dto.email);
     const newToken = activateToken.replaceAll('/', '');
     const newUser = await this.prisma.user.create({
       data: {
@@ -101,10 +100,11 @@ export class AuthService {
       throw new UnauthorizedException('Your account is not activate');
     }
 
-    const isSamePassword = await this.hash.verify(
+    const isSamePassword = await argon.verify(
       existingUser.password,
       dto.password,
     );
+
     if (!isSamePassword) {
       throw new UnauthorizedException('Invalid credential');
     }
@@ -133,7 +133,7 @@ export class AuthService {
     return { message: 'Check your email' };
   }
   async resetPassword(user: User, dto: ResetPasswordDTO) {
-    const hash = await this.hash.hash(dto.password);
+    const hash = await argon.hash(dto.password);
     await this.prisma.user.update({
       where: { id: user.id },
       data: { password: hash },
