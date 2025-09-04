@@ -18,7 +18,7 @@ model User {
   username String @db.VarChar(16) @unique
   password String @db.VarChar(255)
   isActive Boolean @default(false)
-  activationToke String? @db.VarChar(32)
+  activateToken String? @db.VarChar(255)
   gdpr Boolean @default(true)
   createdAt DateTime @db.Timestamp() @default(now())
   updatedAt DateTime @db.Timestamp() @default(now())
