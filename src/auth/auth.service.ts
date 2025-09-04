@@ -1,5 +1,4 @@
 import {
-  ForbiddenException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -7,9 +6,9 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
+import * as argon from 'argon2';
 import { Response } from 'express';
 import { EmailService } from 'src/email/email.service';
-import * as argon from 'argon2';
 import { User } from 'src/prisma/generated';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { role } from 'src/utils/enum';
@@ -43,13 +42,13 @@ export class AuthService {
       where: { username: dto.username },
     });
     if (existingUsername) {
-      throw new ForbiddenException('Username already taken 😱');
+      throw new UnauthorizedException('Username already taken 😱');
     }
     const existingEmail = await this.prisma.user.findUnique({
       where: { email: dto.email },
     });
     if (existingEmail) {
-      throw new ForbiddenException('Email already taken 😱');
+      throw new UnauthorizedException('Email already taken 😱');
     }
     const existingRole = await this.prisma.role.findUnique({
       where: { name: role.USER },
@@ -121,16 +120,15 @@ export class AuthService {
     const existingEmail = await this.prisma.user.findUnique({
       where: { email: dto.email },
     });
-    if (!existingEmail) {
-      throw new ForbiddenException('No account at this email');
-    }
     if (existingEmail && existingEmail.isActive) {
       const token = await this.signToken(existingEmail, '10m');
       await this.email.forgetPassword(existingEmail, token.connexion_token);
     } else if (existingEmail && !existingEmail.isActive) {
-      return { message: 'Your account s not activate' };
+      return { message: 'Your account is not activate' };
     }
-    return { message: 'Check your email' };
+    return {
+      message: 'A mail was send.',
+    };
   }
   async resetPassword(user: User, dto: ResetPasswordDTO) {
     const hash = await argon.hash(dto.password);
@@ -141,6 +139,5 @@ export class AuthService {
     return { message: 'Your password has been change' };
   }
 
-  //todo:
   // async logout(id: string) {}
 }
