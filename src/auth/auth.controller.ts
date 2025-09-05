@@ -17,7 +17,7 @@ import {
   SignInDTO,
   SignUpDTO,
 } from './dto';
-import { ResetPasswordGuard } from './Guards';
+import { JwtGuard, ResetPasswordGuard } from './Guards';
 
 @Controller('auth')
 export class AuthController {
@@ -47,5 +47,16 @@ export class AuthController {
   @Post('resetPassword')
   resetPassword(@GetUser() user: User, @Body() dto: ResetPasswordDTO) {
     return this.authService.resetPassword(user, dto);
+  }
+
+  @UseGuards(JwtGuard)
+  @Post('logout')
+  logout(@Res({ passthrough: true }) res: Response) {
+    res.clearCookie('access_token', {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'strict',
+    });
+    return { message: 'Deconnection Success' };
   }
 }

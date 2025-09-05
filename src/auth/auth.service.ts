@@ -138,6 +138,4 @@ export class AuthService {
     });
     return { message: 'Your password has been change' };
   }
-
-  // async logout(id: string) {}
 }

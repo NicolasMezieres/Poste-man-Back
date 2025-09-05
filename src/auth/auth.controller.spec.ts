@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { Response } from 'express';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import {
@@ -74,6 +75,21 @@ describe('AuthController', () => {
       await expect(
         authController.resetPassword(userMock, dto),
       ).resolves.toEqual(messageMock);
+    });
+  });
+
+  describe('logout', () => {
+    it('should return a { message: "Deconnection Success"', () => {
+      const clearCookie = jest.fn();
+      const res = { clearCookie } as unknown as Response;
+      const result = authController.logout(res);
+
+      expect(clearCookie).toHaveBeenCalledWith('access_token', {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'strict',
+      });
+      expect(result).toEqual({ message: 'Deconnection Success' });
     });
   });
 });
