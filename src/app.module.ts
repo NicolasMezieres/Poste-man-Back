@@ -7,6 +7,7 @@ import { JwtStrategy } from './auth/strategy/jwt.strategy';
 import { EmailModule } from './email/email.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { NotificationModule } from './notification/notification.module';
+import { MessageModule } from './message/message.module';
 @Module({
   imports: [
     PrismaModule,
@@ -17,6 +18,7 @@ import { NotificationModule } from './notification/notification.module';
     JwtStrategy,
     JwtAdminStrategy,
     NotificationModule,
+    MessageModule,
   ],
 })
 export class AppModule {}
