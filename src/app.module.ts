@@ -2,9 +2,10 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { AuthModule } from './auth/auth.module';
+import { JwtAdminStrategy } from './auth/strategy/admin.strategy';
+import { JwtStrategy } from './auth/strategy/jwt.strategy';
 import { EmailModule } from './email/email.module';
 import { PrismaModule } from './prisma/prisma.module';
-import { PouletModule } from './poulet/poulet.module';
 @Module({
   imports: [
     PrismaModule,
@@ -12,7 +13,8 @@ import { PouletModule } from './poulet/poulet.module';
     AuthModule,
     EmailModule,
     JwtModule,
-    PouletModule,
+    JwtStrategy,
+    JwtAdminStrategy,
   ],
 })
 export class AppModule {}
