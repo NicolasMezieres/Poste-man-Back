@@ -8,43 +8,29 @@ import { projectDTO } from './dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { roleProject } from 'src/utils/enum';
 import { isEndList } from 'src/utils/const';
-export type querySearchProject = {
-  page: number;
-  search: string;
-};
-type querySearchAdminProject = {
-  page: number;
-  search: string;
-  from: string;
-  to: string;
-};
+import { User } from 'src/prisma/generated';
+import { querySearchAdminProject, querySearchProject } from 'src/utils/type';
 
 @Injectable()
 export class ProjectService {
   constructor(private prisma: PrismaService) {}
   //todo: rajouter l'utilisateur jwt
-  async getProject(projectId: string) {
-    const existingProject = await this.prisma.user_Has_Project.findFirst({
-      where: { userId: 'userId', projectId: projectId, isBanned: false },
-      select: null,
-    });
-    if (!existingProject) {
-      throw new NotFoundException('Project not found !');
-    }
-    return { message: 'nothing' };
-  }
-  async search(query: querySearchProject) {
+
+  async search(query: querySearchProject, user: User) {
     const take = 10;
     const skip =
       Number(query.page) - 1 <= 0 || isNaN(Number(query.page))
         ? 0
         : (Number(query.page) - 1) * take;
     const countProject = await this.prisma.user_Has_Project.count({
-      where: { userId: 'userId', isBanned: false },
+      where: { userId: user.id, isBanned: false },
     });
     const listProject = await this.prisma.user_Has_Project.findMany({
-      where: { userId: 'userId', isBanned: false },
-      select: { project: { select: { id: true, name: true } } },
+      where: { userId: user.id, isBanned: false },
+      select: {
+        project: { select: { id: true, name: true } },
+      },
+      orderBy: { project: { updatedAt: 'desc' } },
       skip,
       take,
     });
@@ -60,28 +46,65 @@ export class ProjectService {
       Number(query.page) - 1 <= 0 || isNaN(Number(query.page))
         ? 0
         : (Number(query.page) - 1) * take;
-    const countProject = await this.prisma.user_Has_Project.count({
-      where: {
-        userId: query?.search,
-        project: {
-          name: query?.search,
-          updatedAt: { gte: new Date(), lte: new Date() },
+    const whereData = {
+      OR: [
+        {
+          users: {
+            some: {
+              AND: [
+                {
+                  user: { username: { contains: query?.search } },
+                  role: { name: roleProject.MODERATOR },
+                },
+              ],
+            },
+          },
         },
+        { name: { contains: query?.search } },
+      ],
+      updatedAt: {
+        gte:
+          new Date(query.fromDate).toString() != 'Invalid Date'
+            ? new Date(query.fromDate)
+            : undefined,
+        lte:
+          new Date(query.toDate).toString() != 'Invalid Date'
+            ? new Date(
+                new Date(query.toDate).setDate(
+                  new Date(query.toDate).getDate() + 1,
+                ),
+              )
+            : undefined,
       },
+    };
+    const countProject = await this.prisma.project.count({
+      where: whereData,
     });
-    const listProject = await this.prisma.user_Has_Project.findMany({
-      where: { userId: 'userId', isBanned: false },
-      select: { project: { select: { id: true, name: true } } },
+    const listProject = await this.prisma.project.findMany({
+      where: whereData,
+      select: {
+        id: true,
+        name: true,
+        createdAt: true,
+        updatedAt: true,
+        users: {
+          where: { role: { name: roleProject.MODERATOR } },
+          select: { user: { select: { username: true } } },
+        },
+        _count: { select: { users: true, section: true } },
+        section: { select: { _count: { select: { post: true } } } },
+      },
       skip,
       take,
     });
+
     return {
       data: listProject,
       total: countProject,
       isEndList: isEndList(skip, take, countProject),
     };
   }
-  async create(dto: projectDTO) {
+  async create(dto: projectDTO, user: User) {
     const moderatorRole = await this.prisma.role_Project.findUnique({
       where: { name: roleProject.MODERATOR },
       select: { id: true },
@@ -95,7 +118,7 @@ export class ProjectService {
     });
     await this.prisma.user_Has_Project.create({
       data: {
-        userId: 'userId à modifier',
+        userId: user.id,
         projectId: newProject.id,
         roleProjectId: moderatorRole.id,
       },
@@ -103,42 +126,57 @@ export class ProjectService {
     });
     return { message: 'Project successfully create !' };
   }
-  async createInvitationLink(projectId: string) {
+  async createInvitationLink(projectId: string, user: User) {
     const existingProject = await this.prisma.user_Has_Project.findFirst({
       where: {
         projectId: projectId,
-        userId: 'userId à modifier',
+        userId: user.id,
         role: { name: roleProject.MODERATOR },
       },
-      select: { id: true },
+      select: { project: { select: { id: true } } },
     });
     if (!existingProject) {
       throw new NotFoundException('Project not found !');
     }
     const link = await this.prisma.link_Project.create({
       data: {
-        projectId: existingProject.id,
-        outdatedAt: new Date(new Date().getMinutes() + 10),
+        projectId: existingProject.project.id,
+        outdatedAt: new Date(
+          new Date().setMinutes(new Date().getMinutes() + 10),
+        ),
       },
       select: { id: true, outdatedAt: true },
     });
     return { message: 'Link created !', data: link };
   }
 
-  async joinProject(linkId: string) {
+  async joinProject(linkId: string, user: User) {
     const existingLink = await this.prisma.link_Project.findFirst({
       where: {
         id: linkId,
-        outdatedAt: { gt: new Date() },
-        numberUsage: { gt: 0 },
+        // projet: { users: { none: { userId: user.id } } },
       },
-      select: { projectId: true, numberUsage: true },
+      select: {
+        numberUsage: true,
+        projet: {
+          select: { id: true, name: true, users: { select: { userId: true } } },
+        },
+        outdatedAt: true,
+      },
     });
-    if (!existingLink) {
+    if (!existingLink || existingLink.numberUsage <= 0) {
       throw new NotFoundException('Link invalid !');
+    } else if (existingLink.outdatedAt > new Date()) {
+      throw new ForbiddenException('Link expired !');
+    } else if (
+      existingLink.projet.users.some(
+        (userProject) => userProject.userId === user.id,
+      )
+    ) {
+      throw new ForbiddenException('You are already in the project !');
     }
     const existingUserInProject = await this.prisma.user_Has_Project.findFirst({
-      where: { projectId: existingLink.projectId, userId: 'userId' },
+      where: { projectId: existingLink.projet.id, userId: 'userId' },
       select: { id: true },
     });
     if (existingUserInProject) {
@@ -154,8 +192,8 @@ export class ProjectService {
     await this.prisma.$transaction([
       this.prisma.user_Has_Project.create({
         data: {
-          userId: 'userId',
-          projectId: existingLink.projectId,
+          userId: user.id,
+          projectId: existingLink.projet.id,
           roleProjectId: memberRole.id,
         },
         select: null,
@@ -166,19 +204,49 @@ export class ProjectService {
         select: null,
       }),
     ]);
+    return { message: `Welcome to ${existingLink.projet.name} !` };
   }
-
-  async rename(dto: projectDTO, projectId: string) {
+  async ban(projectId: string, userId: string, user: User) {
     const existingModerator = await this.prisma.user_Has_Project.findFirst({
-      where: { id: projectId, userId: 'userId' },
-      select: { projectId: true, role: { select: { name: true } } },
+      where: {
+        userId: user.id,
+        projectId: projectId,
+        role: { name: roleProject.MODERATOR },
+      },
+      select: { id: true, projectId: true },
+    });
+    if (!existingModerator) {
+      throw new ForbiddenException('You are unauthorized 😡 !');
+    }
+    const existingMember = await this.prisma.user_Has_Project.findFirst({
+      where: {
+        userId: userId,
+        projectId: projectId,
+        role: { name: { not: roleProject.MODERATOR } },
+      },
+      select: { id: true, isBanned: true },
+    });
+    if (!existingMember) {
+      throw new NotFoundException('Not found member !');
+    }
+    await this.prisma.user_Has_Project.update({
+      where: { id: existingMember.id },
+      data: { isBanned: !existingMember.isBanned },
+      select: null,
+    });
+    return { message: 'Ban status updated' };
+  }
+  async rename(dto: projectDTO, projectId: string, user: User) {
+    const existingModerator = await this.prisma.user_Has_Project.findFirst({
+      where: {
+        projectId: projectId,
+        userId: user.id,
+        role: { name: roleProject.MODERATOR },
+      },
+      select: { projectId: true },
     });
     if (!existingModerator) {
       throw new NotFoundException('Project not found !');
-    } else if (
-      (existingModerator.role.name as roleProject) != roleProject.MODERATOR
-    ) {
-      throw new ForbiddenException('You are unauthorized 😡');
     }
     await this.prisma.project.update({
       where: { id: existingModerator.projectId },
@@ -188,32 +256,39 @@ export class ProjectService {
     return { message: 'Project modified !' };
   }
 
-  //todo: rajouter l'utilisateur jwt
-  async remove(projectId: string) {
+  async remove(projectId: string, user: User) {
     const existingProject = await this.prisma.user_Has_Project.findFirst({
-      where: { projectId, userId: 'userId' },
-      select: { projectId: true, role: { select: { name: true } } },
+      where: { projectId, userId: user.id },
+      select: { id: true, projectId: true, role: { select: { name: true } } },
     });
     if (!existingProject) {
       throw new NotFoundException('Project not found');
     } else if (
-      (existingProject.role.name as roleProject) != roleProject.MODERATOR
+      (existingProject.role.name as roleProject) === roleProject.MEMBER
     ) {
+      await this.prisma.user_Has_Project.delete({
+        where: { id: existingProject.id },
+      });
+      return { message: 'Project leaved !' };
+    } else if (
+      (existingProject.role.name as roleProject) === roleProject.MODERATOR
+    ) {
+      await this.prisma.post.deleteMany({
+        where: { section: { projectId: existingProject.projectId } },
+      });
+      await this.prisma.section.deleteMany({
+        where: { projectId: existingProject.projectId },
+      });
+      await this.prisma.message.deleteMany({
+        where: { projectId: existingProject.projectId },
+      });
+      await this.prisma.project.delete({
+        where: { id: existingProject.projectId },
+      });
+      return { message: 'Project deleted !' };
+    } else {
       throw new ForbiddenException('You are unauthorized 😡');
     }
-    await this.prisma.post.deleteMany({
-      where: { section: { projectId: existingProject.projectId } },
-    });
-    await this.prisma.section.deleteMany({
-      where: { projectId: existingProject.projectId },
-    });
-    await this.prisma.message.deleteMany({
-      where: { projectId: existingProject.projectId },
-    });
-    await this.prisma.project.delete({
-      where: { id: existingProject.projectId },
-    });
-    return { message: 'Project deleted !' };
   }
   async removeByAdmin(projectId: string) {
     const existingProject = await this.prisma.project.findUnique({
