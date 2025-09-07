@@ -24,6 +24,7 @@ model User {
   updatedAt DateTime @db.Timestamp() @default(now())
   icon Icon? @relation(fields: [iconId], references: [id])
   role Role @relation(fields: [roleId], references: [id])
+  participationProject User_Has_Project[]
   message Message[]
   post Post[]
   notif Notification[]
@@ -34,7 +35,7 @@ model Notification {
   text String @db.VarChar(255)
   userId String
   createdAt DateTime @db.Timestamp() @default(now())
-  user User @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Icon {
@@ -54,8 +55,9 @@ model User_Has_Project{
   roleProjectId String
   isBanned Boolean @default(false)
   createdAt DateTime @db.Timestamp() @default(now())
+  user User @relation(fields: [userId],references: [id], onDelete: Cascade)
   role Role_Project @relation(fields: [roleProjectId], references: [id])
-  project Project @relation(fields: [projectId], references: [id])
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 }
 
 model Project {
@@ -72,7 +74,7 @@ model Section {
   id String @id @default(uuid())
   name String @db.VarChar(16)
   projectId String
-  post Post[]
+  post Post[] 
   project Project @relation(fields: [projectId], references: [id])
 }
 
@@ -108,7 +110,7 @@ model Link_Project {
   numberUsage Int @db.SmallInt() @default(10)
   createdAt DateTime @db.Timestamp() @default(now())
   outdatedAt DateTime
-  projet Project @relation(fields: [projectId], references: [id])
+  projet Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 }
 
 model Role_Project{

@@ -39,5 +39,6 @@ export class JwtAdminStrategy extends PassportStrategy(Strategy, 'admin') {
     if (!user || user.role.name !== role.ADMIN) {
       throw new UnauthorizedException('You are not authorized 😡');
     }
+    return user;
   }
 }

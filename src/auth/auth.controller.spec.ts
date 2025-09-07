@@ -36,7 +36,6 @@ describe('AuthController', () => {
         email: 'example@example.com',
         password: 'StrongP@ssword123',
       };
-      console.log(signupMessageMock);
       await expect(authController.signup(dto)).resolves.toEqual(
         signupMessageMock,
       );

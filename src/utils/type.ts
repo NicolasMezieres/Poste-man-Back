@@ -18,3 +18,14 @@ export type JwtValidatedUser = {
   username: string;
   email: string;
 };
+
+export type querySearchProject = {
+  page: number;
+  search: string;
+};
+export type querySearchAdminProject = {
+  page: number;
+  search: string;
+  fromDate: string;
+  toDate: string;
+};
