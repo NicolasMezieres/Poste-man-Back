@@ -14,7 +14,6 @@ import { querySearchAdminProject, querySearchProject } from 'src/utils/type';
 @Injectable()
 export class ProjectService {
   constructor(private prisma: PrismaService) {}
-  //todo: rajouter l'utilisateur jwt
 
   async search(query: querySearchProject, user: User) {
     const take = 10;
@@ -151,10 +150,9 @@ export class ProjectService {
   }
 
   async joinProject(linkId: string, user: User) {
-    const existingLink = await this.prisma.link_Project.findFirst({
+    const existingLink = await this.prisma.link_Project.findUnique({
       where: {
         id: linkId,
-        // projet: { users: { none: { userId: user.id } } },
       },
       select: {
         numberUsage: true,
@@ -166,7 +164,7 @@ export class ProjectService {
     });
     if (!existingLink || existingLink.numberUsage <= 0) {
       throw new NotFoundException('Link invalid !');
-    } else if (existingLink.outdatedAt > new Date()) {
+    } else if (existingLink.outdatedAt < new Date()) {
       throw new ForbiddenException('Link expired !');
     } else if (
       existingLink.projet.users.some(
@@ -174,13 +172,6 @@ export class ProjectService {
       )
     ) {
       throw new ForbiddenException('You are already in the project !');
-    }
-    const existingUserInProject = await this.prisma.user_Has_Project.findFirst({
-      where: { projectId: existingLink.projet.id, userId: 'userId' },
-      select: { id: true },
-    });
-    if (existingUserInProject) {
-      throw new ForbiddenException('You are already in the project');
     }
     const memberRole = await this.prisma.role_Project.findUnique({
       where: { name: roleProject.MEMBER },
@@ -200,7 +191,7 @@ export class ProjectService {
       }),
       this.prisma.link_Project.update({
         where: { id: linkId },
-        data: { numberUsage: existingLink.numberUsage - 1 },
+        data: { numberUsage: { decrement: 1 } },
         select: null,
       }),
     ]);
@@ -258,36 +249,34 @@ export class ProjectService {
 
   async remove(projectId: string, user: User) {
     const existingProject = await this.prisma.user_Has_Project.findFirst({
-      where: { projectId, userId: user.id },
+      where: { projectId, userId: user.id, isBanned: false },
       select: { id: true, projectId: true, role: { select: { name: true } } },
     });
     if (!existingProject) {
       throw new NotFoundException('Project not found');
     } else if (
-      (existingProject.role.name as roleProject) === roleProject.MEMBER
+      (existingProject.role.name as roleProject) === roleProject.MODERATOR
     ) {
+      await this.prisma.$transaction(async (tPrisma) => {
+        await tPrisma.post.deleteMany({
+          where: { section: { projectId: existingProject.projectId } },
+        });
+        await tPrisma.section.deleteMany({
+          where: { projectId: existingProject.projectId },
+        });
+        await tPrisma.message.deleteMany({
+          where: { projectId: existingProject.projectId },
+        });
+        await tPrisma.project.delete({
+          where: { id: existingProject.projectId },
+        });
+      });
+      return { message: 'Project deleted !' };
+    } else {
       await this.prisma.user_Has_Project.delete({
         where: { id: existingProject.id },
       });
       return { message: 'Project leaved !' };
-    } else if (
-      (existingProject.role.name as roleProject) === roleProject.MODERATOR
-    ) {
-      await this.prisma.post.deleteMany({
-        where: { section: { projectId: existingProject.projectId } },
-      });
-      await this.prisma.section.deleteMany({
-        where: { projectId: existingProject.projectId },
-      });
-      await this.prisma.message.deleteMany({
-        where: { projectId: existingProject.projectId },
-      });
-      await this.prisma.project.delete({
-        where: { id: existingProject.projectId },
-      });
-      return { message: 'Project deleted !' };
-    } else {
-      throw new ForbiddenException('You are unauthorized 😡');
     }
   }
   async removeByAdmin(projectId: string) {
@@ -298,18 +287,21 @@ export class ProjectService {
     if (!existingProject) {
       throw new NotFoundException('Project not found !');
     }
-    await this.prisma.post.deleteMany({
-      where: { section: { projectId: existingProject.id } },
+    await this.prisma.$transaction(async (tPrisma) => {
+      await tPrisma.post.deleteMany({
+        where: { section: { projectId: existingProject.id } },
+      });
+      await tPrisma.section.deleteMany({
+        where: { projectId: existingProject.id },
+      });
+      await tPrisma.message.deleteMany({
+        where: { projectId: existingProject.id },
+      });
+      await tPrisma.project.delete({
+        where: { id: existingProject.id },
+      });
     });
-    await this.prisma.section.deleteMany({
-      where: { projectId: existingProject.id },
-    });
-    await this.prisma.message.deleteMany({
-      where: { projectId: existingProject.id },
-    });
-    await this.prisma.project.delete({
-      where: { id: existingProject.id },
-    });
+
     return { message: 'Project deleted !' };
   }
 }
