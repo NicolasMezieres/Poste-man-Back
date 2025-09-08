@@ -9,34 +9,34 @@ import {
 } from 'class-validator';
 
 export class SignUpDTO {
-  @ApiProperty()
+  @ApiProperty({ example: 'Lasnico' })
   @IsString()
   @IsNotEmpty()
   @MinLength(2)
   @MaxLength(35)
   firstName: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: 'DaPendorero' })
   @IsString()
   @IsNotEmpty()
   @MinLength(2)
   @MaxLength(35)
   lastName: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: 'DaPendorero@gmail.com' })
   @IsEmail()
   @IsNotEmpty()
   @MaxLength(320)
   email: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: 'DaPendoreropoi' })
   @IsString()
   @IsNotEmpty()
   @MinLength(3)
   @MaxLength(16)
   username: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: 'StrongP@ssword123' })
   @IsString()
   @IsNotEmpty()
   @IsStrongPassword({ minLength: 16 })

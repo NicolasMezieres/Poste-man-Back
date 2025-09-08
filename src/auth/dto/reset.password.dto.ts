@@ -7,7 +7,7 @@ import {
 } from 'class-validator';
 
 export class ResetPasswordDTO {
-  @ApiProperty()
+  @ApiProperty({ example: 'StrongP@ssword123' })
   @IsStrongPassword({ minLength: 16 })
   @IsNotEmpty()
   @IsString()
