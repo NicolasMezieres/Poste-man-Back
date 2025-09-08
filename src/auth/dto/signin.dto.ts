@@ -7,13 +7,15 @@ import {
 } from 'class-validator';
 
 export class SignInDTO {
-  @ApiProperty()
+  @ApiProperty({
+    example: ['email: DaPendorero@gmail.com', 'username: DaPendoreropoi'],
+  })
   @IsNotEmpty()
   @IsString()
   @MaxLength(320)
   identifier: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: 'StronP@ssword123' })
   @IsString()
   @IsNotEmpty()
   @IsStrongPassword({ minLength: 16 })

@@ -2,8 +2,6 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { AuthModule } from './auth/auth.module';
-import { JwtAdminStrategy } from './auth/strategy/admin.strategy';
-import { JwtStrategy } from './auth/strategy/jwt.strategy';
 import { EmailModule } from './email/email.module';
 import { PrismaModule } from './prisma/prisma.module';
 @Module({
@@ -13,8 +11,6 @@ import { PrismaModule } from './prisma/prisma.module';
     AuthModule,
     EmailModule,
     JwtModule,
-    JwtStrategy,
-    JwtAdminStrategy,
   ],
 })
 export class AppModule {}
