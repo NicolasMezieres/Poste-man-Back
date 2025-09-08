@@ -7,7 +7,7 @@ import {
   Res,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
+import { ApiCookieAuth, ApiResponse } from '@nestjs/swagger';
 import type { Response } from 'express';
 import type { User } from 'src/prisma/generated';
 import { AuthService } from './auth.service';
@@ -48,7 +48,7 @@ export class AuthController {
     return this.authService.forgetPassword(dto);
   }
 
-  @ApiBearerAuth()
+  @ApiCookieAuth()
   @ApiResponse({ status: 201, description: 'Your password has been change' })
   @ApiResponse({ status: 401, description: 'UnAuthorized' })
   @UseGuards(ResetPasswordGuard)
