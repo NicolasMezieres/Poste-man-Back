@@ -16,7 +16,6 @@ jest.mock('src/utils/templateemail', () => ({
 
 describe('EmailService', () => {
   let service: EmailService;
-  let configService: ConfigService;
   let sendMailMock: jest.Mock;
 
   beforeEach(async () => {
@@ -51,7 +50,6 @@ describe('EmailService', () => {
     }).compile();
 
     service = module.get<EmailService>(EmailService);
-    configService = module.get<ConfigService>(ConfigService);
 
     process.env.FRONT_URL = 'http://localhost:3000/';
     process.env.MAILER_SECURE = 'false';
