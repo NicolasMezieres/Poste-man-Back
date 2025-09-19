@@ -29,3 +29,12 @@ export type querySearchAdminProject = {
   fromDate: string;
   toDate: string;
 };
+
+export type message = {
+  id: string;
+  createdAt: Date;
+  updatedAt: Date;
+  projectId: string;
+  message: string;
+  user: { username: string };
+};

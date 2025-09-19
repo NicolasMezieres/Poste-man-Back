@@ -57,6 +57,7 @@ export class AuthController {
     return this.authService.resetPassword(user, dto);
   }
 
+
   @ApiResponse({ status: 201, description: 'Deconnection Success' })
   @UseGuards(JwtGuard)
   @Post('logout')

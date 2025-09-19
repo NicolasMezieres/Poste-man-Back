@@ -13,7 +13,7 @@ export const tokenMock = { connexion_token: 'jwtToken' };
 export const resMock = { cookie: jest.fn() } as unknown as Response;
 export const cookieRuleMock = {
   httpOnly: true,
-  sameSite: 'none',
+  sameSite: process.env.IS_PRODUCTION === 'true' ? 'none' : 'lax',
   maxAge: 1000 * 60 * 60 * 24 * 7,
   secure: process.env.IS_PRODUCTION === 'true' ? true : false,
 };
@@ -39,7 +39,7 @@ export const userMock = {
   updatedAt: new Date(),
 };
 
-export const adminMok = {
+export const adminMock = {
   id: '2',
   roleId: '2',
   iconId: null,
