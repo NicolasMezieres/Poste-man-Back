@@ -1,5 +1,6 @@
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as cookieParser from 'cookie-parser';
 import { AppModule } from './app.module';
 
@@ -11,6 +12,17 @@ async function bootstrap() {
     credentials: true,
   });
   app.use(cookieParser());
+  const config = new DocumentBuilder()
+    .setTitle('Poste Man')
+    .setDescription('Poste Man API')
+    .setVersion('11.2')
+    .addTag('Poste Man')
+    .addBearerAuth({ type: 'http', in: 'header', scheme: 'bearer' })
+    .build();
+
+  const documentFactory = () => SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api', app, documentFactory);
+
   await app.listen(process.env.PORT ?? 3000);
 }
 bootstrap().catch((err) => console.log(err));

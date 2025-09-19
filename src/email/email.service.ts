@@ -2,6 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
 import { User } from 'src/prisma/generated';
+import {
+  inscriptionEmailTemplate,
+  sendPasswordResetTemplate,
+} from 'src/utils/templateemail';
 
 @Injectable()
 export class EmailService {
@@ -20,25 +24,21 @@ export class EmailService {
 
   async accountConfirmation(user: User, token: string) {
     const url = `${process.env.FRONT_URL}?token=${token}`;
-    const emailHTML = `<h1>${user.username} salut bg</h1>
-    <p>Utilise ce lien pour valider ton compte <a href=${url}>Nique</a></p>`;
     await this.transporter.sendMail({
       from: this.config.get('SMTP_EMAIL'),
       to: user.email,
       subject: 'Validation account',
-      html: emailHTML,
+      html: inscriptionEmailTemplate(url, user.username),
     });
   }
 
   async forgetPassword(user: User, token: string) {
     const url = `${process.env.FRONT_URL}forgetPassword/?=${token}`;
-    const emailHTML = `<h1>${user.username}</h1>
-    <p>Y faut croire que t'es Dory tiens clique ici : <a href=${url}>Nique</a></p>`;
     await this.transporter.sendMail({
       from: this.config.get('SMTP_EMAIL'),
       to: user.email,
       subject: 'Reset your password',
-      html: emailHTML,
+      html: sendPasswordResetTemplate(user.username, url),
     });
   }
 }
