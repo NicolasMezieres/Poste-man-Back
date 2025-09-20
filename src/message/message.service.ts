@@ -7,10 +7,14 @@ import { User } from 'src/prisma/generated';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { messageDTO } from './dto';
 import { roleProject } from 'src/utils/enum';
+import { MessageGateway } from './message.gateway';
 
 @Injectable()
 export class MessageService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private socket: MessageGateway,
+  ) {}
   private selectProjectMessages = {
     id: true,
     message: true,
@@ -62,10 +66,22 @@ export class MessageService {
     if (!existingProject) {
       throw new NotFoundException('Project not found !');
     }
-    await this.prisma.message.create({
+    const newMessage = await this.prisma.message.create({
       data: { ...dto, projectId, authorId: user.id },
-      select: null,
+      select: {
+        id: true,
+        createdAt: true,
+        updatedAt: true,
+        projectId: true,
+        message: true,
+        user: {
+          select: {
+            username: true,
+          },
+        },
+      },
     });
+    this.socket.emitNewMessage(newMessage, projectId);
     return { message: 'Message created !' };
   }
   async deleteMessage(messageId: string, user: User) {
@@ -73,7 +89,7 @@ export class MessageService {
       where: {
         id: messageId,
         OR: [
-          { user: { id: user.id, isActive: true } },
+          { authorId: user.id },
           {
             project: {
               users: {
@@ -86,14 +102,22 @@ export class MessageService {
           },
         ],
       },
-      select: { id: true },
+      select: { id: true, projectId: true },
     });
+
     if (!existingMessage) {
       throw new NotFoundException('Message not found !');
     }
+
     await this.prisma.message.delete({
       where: { id: existingMessage.id },
     });
+
+    this.socket.emitDeleteMessage(
+      existingMessage.id,
+      existingMessage.projectId,
+    );
+
     return { message: 'Message deleted !' };
   }
 
@@ -112,6 +136,7 @@ export class MessageService {
     await this.prisma.message.deleteMany({
       where: { projectId },
     });
+    this.socket.emitResetMessage(projectId);
     return { message: 'Messages deleted !' };
   }
 }
