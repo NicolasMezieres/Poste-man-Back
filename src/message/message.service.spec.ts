@@ -4,6 +4,8 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { messagePrismaMock } from './mock/message.prisma.mock';
 import { userMock } from 'src/auth/mock/auth.mock';
 import { ForbiddenException, NotFoundException } from '@nestjs/common';
+import { MessageGateway } from './message.gateway';
+import { messageGatewayMock } from './mock/message.gateway.mock';
 
 describe('MessageService', () => {
   let service: MessageService;
@@ -13,6 +15,7 @@ describe('MessageService', () => {
       providers: [
         MessageService,
         { provide: PrismaService, useValue: messagePrismaMock },
+        { provide: MessageGateway, useValue: messageGatewayMock },
       ],
     }).compile();
 
@@ -72,7 +75,7 @@ describe('MessageService', () => {
       jest
         .spyOn(messagePrismaMock.project, 'findUnique')
         .mockResolvedValue({ id: '1' });
-      await expect(
+      const newMessage = await expect(
         service.createMessage(messageDTO, projectId, userMock),
       ).resolves.toEqual({
         message: 'Message created !',
@@ -83,8 +86,23 @@ describe('MessageService', () => {
           projectId,
           authorId: userMock.id,
         },
-        select: null,
+        select: {
+          id: true,
+          createdAt: true,
+          updatedAt: true,
+          projectId: true,
+          message: true,
+          user: {
+            select: {
+              username: true,
+            },
+          },
+        },
       });
+      expect(messageGatewayMock.emitNewMessage).toHaveBeenCalledWith(
+        newMessage,
+        projectId,
+      );
     });
     it('should return Not Found Exception', async () => {
       jest
@@ -98,9 +116,10 @@ describe('MessageService', () => {
   describe('Delete Message', () => {
     const messageId = '1';
     it('should return Message deleted !', async () => {
+      const existingMessage = { id: '1', projectId: '1' };
       jest
         .spyOn(messagePrismaMock.message, 'findFirst')
-        .mockResolvedValue({ id: messageId });
+        .mockResolvedValue(existingMessage);
       await expect(service.deleteMessage(messageId, userMock)).resolves.toEqual(
         {
           message: 'Message deleted !',
@@ -111,6 +130,10 @@ describe('MessageService', () => {
           id: messageId,
         },
       });
+      expect(messageGatewayMock.emitDeleteMessage).toHaveBeenCalledWith(
+        existingMessage.id,
+        existingMessage.projectId,
+      );
     });
     it('should return Not Found Exception', async () => {
       jest
@@ -136,6 +159,9 @@ describe('MessageService', () => {
           projectId,
         },
       });
+      expect(messageGatewayMock.emitResetMessage).toHaveBeenCalledWith(
+        projectId,
+      );
     });
     it('should return Not Found Exception', async () => {
       jest
