@@ -1,25 +1,23 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { MessageGateway } from './message.gateway';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { messagePrismaMock } from './mock/message.prisma.mock';
 import { Socket, Server } from 'socket.io';
 import { socketMock } from './mock/socket.mock';
-import { userMock } from 'src/auth/mock/auth.mock';
-import { WsException } from '@nestjs/websockets';
 import { message } from 'src/utils/type';
 import { serverMock } from './mock/server.mock';
+import { MessageService } from './message.service';
+import { messageServiceMock } from './mock/message.service.mock';
+import { userMock } from 'src/auth/mock/auth.mock';
 describe('MessageGateway', () => {
   let gateway: MessageGateway;
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         MessageGateway,
-        { provide: PrismaService, useValue: messagePrismaMock },
+        { provide: MessageService, useValue: messageServiceMock },
         { provide: Socket, useValue: socketMock },
         { provide: Server, useValue: serverMock },
       ],
     }).compile();
-
     gateway = module.get<MessageGateway>(MessageGateway);
     gateway.server = serverMock;
   });
@@ -38,22 +36,9 @@ describe('MessageGateway', () => {
     expect(gateway).toBeDefined();
   });
   describe('Join Room Message', () => {
-    it('should join rooom', async () => {
-      jest
-        .spyOn(messagePrismaMock.user_Has_Project, 'findFirst')
-        .mockResolvedValue({ id: '1' });
-      await expect(
-        gateway.joinRoomMessage(socketMock, projectId, userMock),
-      ).resolves.toEqual(undefined);
-      expect(socketMock.join).toHaveBeenCalledWith(projectId);
-    });
-    it('should return WsException You arent a member !', async () => {
-      jest
-        .spyOn(messagePrismaMock.user_Has_Project, 'findFirst')
-        .mockResolvedValue(undefined);
-      await expect(
-        gateway.joinRoomMessage(socketMock, projectId, userMock),
-      ).rejects.toEqual(new WsException("You aren't a member !"));
+    it('should join rooom', () => {
+      jest.spyOn(messageServiceMock, 'joinRoomMessage').mockResolvedValue(null);
+      expect(gateway.joinRoomMessage(socketMock, projectId, userMock));
     });
   });
   describe('Emit New Message', () => {

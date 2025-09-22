@@ -6,6 +6,8 @@ import { userMock } from 'src/auth/mock/auth.mock';
 import { ForbiddenException, NotFoundException } from '@nestjs/common';
 import { MessageGateway } from './message.gateway';
 import { messageGatewayMock } from './mock/message.gateway.mock';
+import { socketMock } from './mock/socket.mock';
+import { WsException } from '@nestjs/websockets';
 
 describe('MessageService', () => {
   let service: MessageService;
@@ -172,6 +174,25 @@ describe('MessageService', () => {
       ).rejects.toEqual(
         new ForbiddenException("You doesn't have access to this action !"),
       );
+    });
+  });
+  describe('Join Room Message', () => {
+    it('should join rooom', async () => {
+      jest
+        .spyOn(messagePrismaMock.user_Has_Project, 'findFirst')
+        .mockResolvedValue({ id: '1' });
+      await expect(
+        service.joinRoomMessage(socketMock, projectId, userMock),
+      ).resolves.toEqual(undefined);
+      expect(socketMock.join).toHaveBeenCalledWith(projectId);
+    });
+    it('should return WsException You arent a member !', async () => {
+      jest
+        .spyOn(messagePrismaMock.user_Has_Project, 'findFirst')
+        .mockResolvedValue(undefined);
+      await expect(
+        service.joinRoomMessage(socketMock, projectId, userMock),
+      ).rejects.toEqual(new WsException("You aren't a member !"));
     });
   });
 });

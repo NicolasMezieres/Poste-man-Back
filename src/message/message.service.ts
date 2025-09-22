@@ -1,5 +1,7 @@
 import {
   ForbiddenException,
+  forwardRef,
+  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -8,11 +10,14 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { messageDTO } from './dto';
 import { roleProject } from 'src/utils/enum';
 import { MessageGateway } from './message.gateway';
+import { Socket } from 'socket.io';
+import { WsException } from '@nestjs/websockets';
 
 @Injectable()
 export class MessageService {
   constructor(
     private prisma: PrismaService,
+    @Inject(forwardRef(() => MessageGateway))
     private socket: MessageGateway,
   ) {}
   private selectProjectMessages = {
@@ -138,5 +143,16 @@ export class MessageService {
     });
     this.socket.emitResetMessage(projectId);
     return { message: 'Messages deleted !' };
+  }
+  async joinRoomMessage(client: Socket, projectId: string, user: User) {
+    const existingUserProject = await this.prisma.user_Has_Project.findFirst({
+      where: { projectId, userId: user.id, isBanned: false },
+      select: { id: true },
+    });
+    if (!existingUserProject) {
+      throw new WsException("You aren't a member !");
+    }
+    await client.join(projectId);
+    return;
   }
 }
