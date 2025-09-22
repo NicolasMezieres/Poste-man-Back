@@ -1,11 +1,11 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
-import { Request } from 'express';
 import { User } from 'src/prisma/generated';
+import { AuthenticatedSocket } from 'src/utils/interface';
 
-export const GetUser = createParamDecorator(
+export const getClient = createParamDecorator(
   (data: keyof User | undefined, ctx: ExecutionContext): unknown => {
-    const request = ctx.switchToHttp().getRequest<Request>();
-    const user = request.user;
+    const client = ctx.switchToWs().getClient<AuthenticatedSocket>();
+    const user: User = client.user;
     return data ? user?.[data] : user;
   },
 );

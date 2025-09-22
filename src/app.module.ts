@@ -4,6 +4,8 @@ import { JwtModule } from '@nestjs/jwt';
 import { AuthModule } from './auth/auth.module';
 import { EmailModule } from './email/email.module';
 import { PrismaModule } from './prisma/prisma.module';
+import { NotificationModule } from './notification/notification.module';
+import { MessageModule } from './message/message.module';
 import { ProjectModule } from './project/project.module';
 import { SectionModule } from './section/section.module';
 @Module({
@@ -13,6 +15,8 @@ import { SectionModule } from './section/section.module';
     AuthModule,
     EmailModule,
     JwtModule,
+    NotificationModule,
+    MessageModule,
     ProjectModule,
     SectionModule,
   ],

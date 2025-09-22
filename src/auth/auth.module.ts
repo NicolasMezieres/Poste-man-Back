@@ -8,6 +8,7 @@ import { AuthService } from './auth.service';
 import { resetPasswordStrategy } from './strategy/reset.password.strategy';
 import { JwtStrategy } from './strategy/jwt.strategy';
 import { JwtAdminStrategy } from './strategy/admin.strategy';
+import { WsJwtStrategy } from './strategy/ws.jwt.strategy';
 
 @Module({
   controllers: [AuthController],
@@ -19,6 +20,7 @@ import { JwtAdminStrategy } from './strategy/admin.strategy';
     JwtStrategy,
     JwtAdminStrategy,
     resetPasswordStrategy,
+    WsJwtStrategy,
     ConfigService,
   ],
 })
