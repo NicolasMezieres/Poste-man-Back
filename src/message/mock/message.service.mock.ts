@@ -8,4 +8,5 @@ export const messageServiceMock = {
   deleteAllMessage: jest
     .fn()
     .mockResolvedValue({ message: 'Messages deleted !' }),
+  joinRoomMessage: jest.fn().mockResolvedValue(null),
 };

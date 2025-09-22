@@ -35,7 +35,7 @@ model Notification {
   text String @db.VarChar(255)
   userId String
   projectId String
-  theme String 
+  theme String @db.VarChar(30)
   createdAt DateTime @db.Timestamp() @default(now())
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
