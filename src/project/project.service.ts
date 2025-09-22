@@ -4,12 +4,12 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { projectDTO } from './dto';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { roleProject } from 'src/utils/enum';
-import { isEndList } from 'src/utils/const';
 import { User } from 'src/prisma/generated';
+import { PrismaService } from 'src/prisma/prisma.service';
+import { isEndList } from 'src/utils/const';
+import { roleProject } from 'src/utils/enum';
 import { querySearchAdminProject, querySearchProject } from 'src/utils/type';
+import { projectDTO } from './dto';
 
 @Injectable()
 export class ProjectService {

@@ -7,7 +7,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { NotificationModule } from './notification/notification.module';
 import { MessageModule } from './message/message.module';
 import { ProjectModule } from './project/project.module';
-
+import { SectionModule } from './section/section.module';
 @Module({
   imports: [
     PrismaModule,
@@ -18,6 +18,7 @@ import { ProjectModule } from './project/project.module';
     NotificationModule,
     MessageModule,
     ProjectModule,
+    SectionModule,
   ],
 })
 export class AppModule {}
