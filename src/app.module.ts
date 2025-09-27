@@ -1,13 +1,16 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
+import { ScheduleModule } from '@nestjs/schedule';
 import { AuthModule } from './auth/auth.module';
 import { EmailModule } from './email/email.module';
-import { PrismaModule } from './prisma/prisma.module';
-import { NotificationModule } from './notification/notification.module';
 import { MessageModule } from './message/message.module';
+import { NotificationModule } from './notification/notification.module';
+import { PrismaModule } from './prisma/prisma.module';
 import { ProjectModule } from './project/project.module';
 import { SectionModule } from './section/section.module';
+import { CleangdprModule } from './cleangdpr/cleangdpr.module';
+import { CronModule } from './cron/cron.module';
 @Module({
   imports: [
     PrismaModule,
@@ -19,6 +22,9 @@ import { SectionModule } from './section/section.module';
     MessageModule,
     ProjectModule,
     SectionModule,
+    ScheduleModule.forRoot(),
+    CleangdprModule,
+    CronModule,
   ],
 })
 export class AppModule {}

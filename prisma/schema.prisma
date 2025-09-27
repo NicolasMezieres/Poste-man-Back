@@ -17,6 +17,7 @@ model User {
   email String @db.VarChar(320) @unique
   username String @db.VarChar(16) @unique
   password String @db.VarChar(255)
+  isArchive Boolean @default(false)
   isActive Boolean @default(false)
   activateToken String? @db.VarChar(255)
   gdpr Boolean @default(true)
@@ -65,6 +66,7 @@ model User_Has_Project{
 model Project {
   id String @id @default(uuid())
   name String @db.VarChar(16)
+  isArchive Boolean @default(false)
   createdAt DateTime @db.Timestamp() @default(now())
   updatedAt DateTime @db.Timestamp() @default(now())
   link Link_Project[]
@@ -76,6 +78,7 @@ model Section {
   id String @id @default(uuid())
   name String @db.VarChar(16)
   projectId String
+  isArchive Boolean @default(false)
   post Post[] 
   project Project @relation(fields: [projectId], references: [id])
 }
@@ -87,6 +90,7 @@ model Post {
   text String @db.VarChar(255) 
   poseX Int?
   poseY Int?
+  isArchive Boolean @default(false)
   isVisible Boolean @default(true)
   createdAt DateTime @db.Timestamp() @default(now())
   updatedAt DateTime @db.Timestamp() @default(now())
@@ -99,6 +103,7 @@ model Message{
   projectId String 
   authorId String 
   message String @db.VarChar(255) 
+  isArchive Boolean @default(false)
   isVisible Boolean @default(true)
   createdAt DateTime @db.Timestamp() @default(now())
   updatedAt DateTime @db.Timestamp() @default(now())
