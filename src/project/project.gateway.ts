@@ -127,11 +127,8 @@ export class ProjectGateway implements OnGatewayDisconnect {
     );
     const isConnected = existingUser ? true : false;
     this.userConnected.forEach((user) => {
-      console.log(data.userId, user.userId);
       if (user.projectId === projectId) {
-        console.log("cas ou l'utilisateur est dans le projet");
         if (isUserJoin && !user.projectMemberIds.includes(data.userId)) {
-          console.log('emit join project');
           user.projectMemberIds.push(data.userId);
           this.server
             .to(user.clientId)
@@ -141,18 +138,8 @@ export class ProjectGateway implements OnGatewayDisconnect {
             (userList) => userList !== data.userId,
           );
           if (user.userId === data.userId) {
-            console.log(
-              "emit deconnection de l'user kick",
-              user.clientId,
-              user.userId,
-            );
             this.server.to(user.clientId).disconnectSockets();
           } else {
-            console.log(
-              'emit user leave project or kick',
-              user.clientId,
-              user.userId,
-            );
             this.server
               .to(user.clientId)
               .emit('userLeaveProject', { userId: data.userId });
