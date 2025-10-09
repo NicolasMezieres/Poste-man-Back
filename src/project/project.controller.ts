@@ -31,6 +31,10 @@ export class ProjectController {
   searchByAdmin(@Query() query: querySearchAdminProject) {
     return this.projectService.searchByAdmin(query);
   }
+  // @Get('/:projectId/listMember')
+  // listMember(@Param('projectId') projectId: string, @GetUser() user: User) {
+  //   return this.projectService.listMember(projectId, user);
+  // }
 
   @Post('/create')
   create(@Body() dto: projectDTO, @GetUser() user: User) {
@@ -65,14 +69,23 @@ export class ProjectController {
     return this.projectService.rename(dto, id, user);
   }
 
-  @Delete('/:id')
-  remove(@Param('id') id: string, @GetUser() user: User) {
-    return this.projectService.remove(id, user);
+  @Delete('/:projectId/user/:userId')
+  kickUser(
+    @Param('projectId') projectId: string,
+    @Param('userId') userId: string,
+    @GetUser() user: User,
+  ) {
+    return this.projectService.kickUser(projectId, userId, user);
   }
 
   @UseGuards(AdminGuard)
   @Delete('/admin/:id')
   removeByAdmin(@Param('id') id: string) {
     return this.projectService.removeByAdmin(id);
+  }
+
+  @Delete('/:id')
+  remove(@Param('id') id: string, @GetUser() user: User) {
+    return this.projectService.remove(id, user);
   }
 }

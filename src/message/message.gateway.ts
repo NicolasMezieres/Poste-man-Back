@@ -16,6 +16,7 @@ import { MessageService } from './message.service';
 @WebSocketGateway(Number(process.env.PORT_GATEWAY) || 3001, {
   cors: { origin: ['http://localhost:4200'], credentials: true },
 })
+@UseGuards(WsJwtGuard)
 export class MessageGateway {
   constructor(
     @Inject(forwardRef(() => MessageService))
@@ -23,7 +24,6 @@ export class MessageGateway {
   ) {}
   @WebSocketServer() server: Server;
 
-  @UseGuards(WsJwtGuard)
   @SubscribeMessage('messageJoinRoom')
   joinRoomMessage(
     @ConnectedSocket() client: Socket,
