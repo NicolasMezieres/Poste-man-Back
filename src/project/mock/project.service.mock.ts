@@ -17,4 +17,5 @@ export const projectServiceMock = {
   rename: jest.fn().mockResolvedValue(messageProjectMock),
   remove: jest.fn().mockResolvedValue(messageProjectMock),
   removeByAdmin: jest.fn().mockResolvedValue(messageProjectMock),
+  kickUser: jest.fn().mockResolvedValue(messageProjectMock),
 };

@@ -129,7 +129,7 @@ export class ProjectService {
       },
     });
     if (!listMember) {
-      throw new NotFoundException('Project Not found');
+      throw new NotFoundException('Project not found');
     }
     return { data: listMember, projectId };
   }

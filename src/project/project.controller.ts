@@ -31,10 +31,6 @@ export class ProjectController {
   searchByAdmin(@Query() query: querySearchAdminProject) {
     return this.projectService.searchByAdmin(query);
   }
-  // @Get('/:projectId/listMember')
-  // listMember(@Param('projectId') projectId: string, @GetUser() user: User) {
-  //   return this.projectService.listMember(projectId, user);
-  // }
 
   @Post('/create')
   create(@Body() dto: projectDTO, @GetUser() user: User) {

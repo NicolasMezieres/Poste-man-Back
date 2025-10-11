@@ -13,6 +13,7 @@ import { getClient } from 'src/auth/decorator/get-client.decorator';
 import { User } from 'src/prisma/generated';
 import { Server, Socket } from 'socket.io';
 import { ProjectService } from './project.service';
+import { memberGateway, userGateway } from 'src/utils/type';
 
 @UseGuards(WsJwtGuard)
 @WebSocketGateway(Number(process.env.PORT_GATEWAY) || 3001, {
@@ -27,12 +28,7 @@ export class ProjectGateway implements OnGatewayDisconnect {
   @WebSocketServer()
   server: Server;
 
-  private userConnected: {
-    clientId: string;
-    userId: string;
-    projectMemberIds: string[];
-    projectId?: string;
-  }[] = [];
+  private userConnected: userGateway[] = [];
 
   handleDisconnect(client: Socket) {
     const existingUser = this.userConnected.find(
@@ -64,17 +60,7 @@ export class ProjectGateway implements OnGatewayDisconnect {
     }
     findUser.projectMemberIds = [];
     const dataMember = await this.projectService.listMember(data, user);
-    const memberConnected: {
-      user: {
-        username: string;
-        icon: {
-          image: string;
-        } | null;
-      };
-      userId: string;
-      isBanned: boolean;
-      isConnected: boolean;
-    }[] = [];
+    const memberConnected: memberGateway[] = [];
     dataMember.data.users.forEach((dataUser) => {
       if (this.userConnected.some((user) => user.userId === dataUser.userId)) {
         memberConnected.push({ ...dataUser, isConnected: true });
@@ -109,16 +95,7 @@ export class ProjectGateway implements OnGatewayDisconnect {
   }
 
   emitUserUpdateProject(
-    data: {
-      user: {
-        username: string;
-        icon: {
-          image: string;
-        } | null;
-      };
-      userId: string;
-      isBanned: boolean;
-    },
+    data: Omit<memberGateway, 'isConnected'>,
     projectId: string,
     isUserJoin: boolean,
   ) {
