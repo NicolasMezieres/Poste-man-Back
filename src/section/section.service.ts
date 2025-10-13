@@ -2,6 +2,7 @@ import {
   BadRequestException,
   ForbiddenException,
   Injectable,
+  NotFoundException,
 } from '@nestjs/common';
 import { User } from 'src/prisma/generated';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -11,6 +12,23 @@ import { createDTO, updateDTO } from './dto';
 @Injectable()
 export class SectionService {
   constructor(private prisma: PrismaService) {}
+  async sections(projectId: string, user: User, isAdmin: boolean) {
+    const existingSection = await this.prisma.project.findUnique({
+      where: {
+        id: projectId,
+        AND: [
+          !isAdmin
+            ? { users: { some: { userId: user.id, isBanned: false } } }
+            : {},
+        ],
+      },
+      select: { section: { omit: { projectId: true } } },
+    });
+    if (!existingSection) {
+      throw new NotFoundException('Project not found !');
+    }
+    return { data: existingSection };
+  }
 
   async createSection(dto: createDTO, projectId: string, user: User) {
     const existingUserProject = await this.prisma.user_Has_Project.findFirst({
