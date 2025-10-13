@@ -26,3 +26,12 @@ export const mockUpdateDTO = {
 export const roleProject = {
   MODERATOR: 'Moderator',
 };
+
+export const sectionDataMock = {
+  section: [
+    {
+      name: 'section',
+      id: 'sectionId',
+    },
+  ],
+};

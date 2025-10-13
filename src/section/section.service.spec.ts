@@ -1,10 +1,20 @@
-import { BadRequestException, ForbiddenException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  NotFoundException,
+} from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { mockCreateDTO, mockUpdateDTO, roleProject } from './mock/section.mock';
+import {
+  mockCreateDTO,
+  mockUpdateDTO,
+  roleProject,
+  sectionDataMock,
+} from './mock/section.mock';
 import { sectionPrismaMock } from './mock/section.prisma.mock';
 import { mockUser } from './mock/user.mock';
 import { SectionService } from './section.service';
+import { adminMock, userMock } from 'src/auth/mock/auth.mock';
 
 describe('SectionService', () => {
   let service: SectionService;
@@ -24,6 +34,30 @@ describe('SectionService', () => {
     jest.clearAllMocks();
   });
 
+  describe('sections', () => {
+    it('Should return a section list with an account user', async () => {
+      jest
+        .spyOn(prisma.project, 'findUnique')
+        .mockResolvedValue(sectionDataMock);
+      await expect(
+        service.sections('projectId', userMock, false),
+      ).resolves.toEqual({ data: sectionDataMock });
+    });
+    it('Should return a section list with an account admin', async () => {
+      jest
+        .spyOn(prisma.project, 'findUnique')
+        .mockResolvedValue(sectionDataMock);
+      await expect(
+        service.sections('projectId', adminMock, true),
+      ).resolves.toEqual({ data: sectionDataMock });
+    });
+    it('Should return a Not Found Exception', async () => {
+      jest.spyOn(prisma.project, 'findUnique').mockResolvedValue(null);
+      await expect(
+        service.sections('projectId', adminMock, true),
+      ).rejects.toEqual(new NotFoundException('Project not found !'));
+    });
+  });
   describe('createSection', () => {
     it('should create a section successfully', async () => {
       prisma.user_Has_Project.findFirst.mockResolvedValue({ id: 'up-1' });

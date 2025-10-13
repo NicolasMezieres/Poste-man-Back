@@ -1,9 +1,14 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { mockCreateDTO, mockUpdateDTO } from './mock/section.mock';
+import {
+  mockCreateDTO,
+  mockUpdateDTO,
+  sectionDataMock,
+} from './mock/section.mock';
 import { SectionServiceMock } from './mock/section.service.mock';
 import { mockUser } from './mock/user.mock';
 import { SectionController } from './section.controller';
 import { SectionService } from './section.service';
+import { userMock } from 'src/auth/mock/auth.mock';
 
 describe('SectionController', () => {
   let controller: SectionController;
@@ -21,6 +26,32 @@ describe('SectionController', () => {
 
   afterEach(() => {
     jest.clearAllMocks();
+  });
+
+  describe('get all section by user', () => {
+    it('Should return list of section', async () => {
+      await expect(controller.sections('projectId', userMock)).resolves.toEqual(
+        sectionDataMock,
+      );
+      expect(service.sections).toHaveBeenCalledWith(
+        'projectId',
+        userMock,
+        false,
+      );
+    });
+  });
+
+  describe('get all section by admin', () => {
+    it('Should return list of section', async () => {
+      await expect(
+        controller.sectionsByAdmin('projectId', userMock),
+      ).resolves.toEqual(sectionDataMock);
+      expect(service.sections).toHaveBeenCalledWith(
+        'projectId',
+        userMock,
+        true,
+      );
+    });
   });
 
   describe('createSection', () => {
