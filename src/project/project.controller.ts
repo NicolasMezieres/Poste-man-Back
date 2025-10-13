@@ -65,14 +65,23 @@ export class ProjectController {
     return this.projectService.rename(dto, id, user);
   }
 
-  @Delete('/:id')
-  remove(@Param('id') id: string, @GetUser() user: User) {
-    return this.projectService.remove(id, user);
+  @Delete('/:projectId/user/:userId')
+  kickUser(
+    @Param('projectId') projectId: string,
+    @Param('userId') userId: string,
+    @GetUser() user: User,
+  ) {
+    return this.projectService.kickUser(projectId, userId, user);
   }
 
   @UseGuards(AdminGuard)
   @Delete('/admin/:id')
   removeByAdmin(@Param('id') id: string) {
     return this.projectService.removeByAdmin(id);
+  }
+
+  @Delete('/:id')
+  remove(@Param('id') id: string, @GetUser() user: User) {
+    return this.projectService.remove(id, user);
   }
 }

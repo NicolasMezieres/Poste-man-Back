@@ -35,3 +35,21 @@ export const createLinkProjectMock = {
   messageProjectMock,
   data: { id: '1', outdatedAt: '2025-09-06' },
 };
+
+export const dataMemberMock = {
+  data: {
+    users: [
+      {
+        user: {
+          username: 'bidule',
+          icon: {
+            image: null,
+          },
+        },
+        userId: 'userId',
+        isBanned: false,
+        isConnected: true,
+      },
+    ],
+  },
+};

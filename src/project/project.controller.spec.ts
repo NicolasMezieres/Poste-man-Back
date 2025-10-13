@@ -21,6 +21,8 @@ describe('ProjectController', () => {
 
     controller = module.get<ProjectController>(ProjectController);
   });
+  const userId = 'id';
+  const projectId = 'id';
 
   it('should be defined', () => {
     expect(controller).toBeDefined();
@@ -67,8 +69,6 @@ describe('ProjectController', () => {
   });
   describe('ban', () => {
     it('should return message', async () => {
-      const projectId = 'id';
-      const userId = 'id';
       await expect(
         controller.ban(projectId, userId, userMock),
       ).resolves.toEqual(messageProjectMock);
@@ -77,9 +77,16 @@ describe('ProjectController', () => {
   describe('rename', () => {
     it('should return message', async () => {
       const dto = { name: 'project' };
-      const projectId = 'id';
+
       await expect(
         controller.rename(projectId, dto, userMock),
+      ).resolves.toEqual(messageProjectMock);
+    });
+  });
+  describe('kick User', () => {
+    it('should return message', async () => {
+      await expect(
+        controller.kickUser(projectId, userId, userMock),
       ).resolves.toEqual(messageProjectMock);
     });
   });

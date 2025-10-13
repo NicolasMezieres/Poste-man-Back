@@ -1,5 +1,7 @@
 import {
   ForbiddenException,
+  forwardRef,
+  Inject,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -10,10 +12,15 @@ import { isEndList } from 'src/utils/const';
 import { roleProject } from 'src/utils/enum';
 import { querySearchAdminProject, querySearchProject } from 'src/utils/type';
 import { projectDTO } from './dto';
+import { ProjectGateway } from './project.gateway';
 
 @Injectable()
 export class ProjectService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    @Inject(forwardRef(() => ProjectGateway))
+    private socket: ProjectGateway,
+  ) {}
 
   async search(query: querySearchProject, user: User) {
     const take = 10;
@@ -103,6 +110,30 @@ export class ProjectService {
       isEndList: isEndList(skip, take, countProject),
     };
   }
+
+  async listMember(projectId: string, user: User) {
+    const listMember = await this.prisma.project.findFirst({
+      where: {
+        users: { some: { projectId, userId: user.id, isBanned: false } },
+      },
+      select: {
+        users: {
+          select: {
+            userId: true,
+            user: {
+              select: { username: true, icon: { select: { image: true } } },
+            },
+            isBanned: true,
+          },
+        },
+      },
+    });
+    if (!listMember) {
+      throw new NotFoundException('Project not found');
+    }
+    return { data: listMember, projectId };
+  }
+
   async create(dto: projectDTO, user: User) {
     const moderatorRole = await this.prisma.role_Project.findUnique({
       where: { name: roleProject.MODERATOR },
@@ -125,6 +156,7 @@ export class ProjectService {
     });
     return { message: 'Project successfully create !' };
   }
+
   async createInvitationLink(projectId: string, user: User) {
     const existingProject = await this.prisma.user_Has_Project.findFirst({
       where: {
@@ -180,14 +212,20 @@ export class ProjectService {
     if (!memberRole) {
       throw new InternalServerErrorException('Role not found !');
     }
-    await this.prisma.$transaction([
+    const [userMember] = await this.prisma.$transaction([
       this.prisma.user_Has_Project.create({
         data: {
           userId: user.id,
           projectId: existingLink.projet.id,
           roleProjectId: memberRole.id,
         },
-        select: null,
+        select: {
+          userId: true,
+          isBanned: true,
+          user: {
+            select: { username: true, icon: { select: { image: true } } },
+          },
+        },
       }),
       this.prisma.link_Project.update({
         where: { id: linkId },
@@ -195,6 +233,12 @@ export class ProjectService {
         select: null,
       }),
     ]);
+    if (!userMember) {
+      throw new InternalServerErrorException(
+        'Failed to create user project member',
+      );
+    }
+    this.socket.emitUserUpdateProject(userMember, existingLink.projet.id, true);
     return { message: `Welcome to ${existingLink.projet.name} !` };
   }
   async ban(projectId: string, userId: string, user: User) {
@@ -279,6 +323,55 @@ export class ProjectService {
       return { message: 'Project leaved !' };
     }
   }
+
+  async kickUser(projectId: string, userId: string, user: User) {
+    const existingProject = await this.prisma.project.findFirst({
+      where: {
+        id: projectId,
+        AND: [
+          {
+            users: {
+              some: {
+                userId,
+                role: { name: roleProject.MEMBER },
+              },
+            },
+          },
+          {
+            users: {
+              some: { userId: user.id, role: { name: roleProject.MODERATOR } },
+            },
+          },
+        ],
+      },
+      select: {
+        users: {
+          where: { userId },
+          select: {
+            id: true,
+            userId: true,
+            isBanned: true,
+            user: {
+              select: { username: true, icon: { select: { image: true } } },
+            },
+          },
+        },
+      },
+    });
+    if (!existingProject || existingProject.users[0].userId != userId) {
+      throw new ForbiddenException('User not found');
+    }
+    await this.prisma.user_Has_Project.delete({
+      where: { id: existingProject.users[0].id },
+    });
+    this.socket.emitUserUpdateProject(
+      existingProject.users[0],
+      projectId,
+      false,
+    );
+    return { message: 'User kick' };
+  }
+
   async removeByAdmin(projectId: string) {
     const existingProject = await this.prisma.project.findUnique({
       where: { id: projectId },

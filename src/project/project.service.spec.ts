@@ -8,6 +8,8 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
+import { ProjectGateway } from './project.gateway';
+import { projectGatewayMock } from './mock/project.gateway.mock';
 
 describe('ProjectService', () => {
   let service: ProjectService;
@@ -17,6 +19,7 @@ describe('ProjectService', () => {
       providers: [
         ProjectService,
         { provide: PrismaService, useValue: projectPrismaMock },
+        { provide: ProjectGateway, useValue: projectGatewayMock },
       ],
     }).compile();
 
@@ -133,7 +136,9 @@ describe('ProjectService', () => {
       jest
         .spyOn(projectPrismaMock.role_Project, 'findUnique')
         .mockResolvedValue({ id: '1' });
-      jest.spyOn(projectPrismaMock, '$transaction').mockResolvedValue(null);
+      jest
+        .spyOn(projectPrismaMock, '$transaction')
+        .mockResolvedValue([userMock]);
 
       jest
         .spyOn(projectPrismaMock.user_Has_Project, 'create')
@@ -141,9 +146,15 @@ describe('ProjectService', () => {
       jest
         .spyOn(projectPrismaMock.link_Project, 'update')
         .mockResolvedValue(null);
+
       await expect(service.joinProject(linkId, userMock)).resolves.toEqual({
         message: `Welcome to ${linkProject.projet.name} !`,
       });
+      expect(projectGatewayMock.emitUserUpdateProject).toHaveBeenCalledWith(
+        userMock,
+        projectId,
+        true,
+      );
     });
     it('should be return Not found Exception link invalid when link not found', async () => {
       jest
@@ -185,7 +196,7 @@ describe('ProjectService', () => {
         new ForbiddenException('You are already in the project !'),
       );
     });
-    it('should be return Internal Server Error Exception', async () => {
+    it('should be return Internal Server Error Exception Role not found !', async () => {
       linkProject.projet.users[0].userId = '2';
       jest
         .spyOn(projectPrismaMock.link_Project, 'findUnique')
@@ -195,6 +206,28 @@ describe('ProjectService', () => {
         .mockResolvedValue(null);
       await expect(service.joinProject(linkId, userMock)).rejects.toEqual(
         new InternalServerErrorException('Role not found !'),
+      );
+    });
+    it('should be return Internal Server Error Exception failed to create user project member', async () => {
+      jest
+        .spyOn(projectPrismaMock.link_Project, 'findUnique')
+        .mockResolvedValue(linkProject);
+      jest
+        .spyOn(projectPrismaMock.role_Project, 'findUnique')
+        .mockResolvedValue({ id: '1' });
+      jest.spyOn(projectPrismaMock, '$transaction').mockResolvedValue([]);
+
+      jest
+        .spyOn(projectPrismaMock.user_Has_Project, 'create')
+        .mockResolvedValue(null);
+      jest
+        .spyOn(projectPrismaMock.link_Project, 'update')
+        .mockResolvedValue(null);
+
+      await expect(service.joinProject(linkId, userMock)).rejects.toEqual(
+        new InternalServerErrorException(
+          'Failed to create user project member',
+        ),
       );
     });
   });
@@ -317,6 +350,85 @@ describe('ProjectService', () => {
       await expect(service.removeByAdmin(projectId)).rejects.toEqual(
         new NotFoundException('Project not found !'),
       );
+    });
+  });
+  describe('list Member', () => {
+    const userId = 'userId';
+    it('should return list member', async () => {
+      jest.spyOn(projectPrismaMock.project, 'findFirst').mockResolvedValue({
+        users: [
+          {
+            id: 'id',
+            userId: userId,
+            isBanned: false,
+            user: { username: 'user', icon: { image: null } },
+          },
+        ],
+      });
+      await expect(service.listMember(projectId, userMock)).resolves.toEqual({
+        data: {
+          users: [
+            {
+              id: 'id',
+              userId: userId,
+              isBanned: false,
+              user: { username: 'user', icon: { image: null } },
+            },
+          ],
+        },
+        projectId,
+      });
+    });
+    it('should return list member', async () => {
+      jest
+        .spyOn(projectPrismaMock.project, 'findFirst')
+        .mockResolvedValue(null);
+      await expect(service.listMember(projectId, userMock)).rejects.toEqual(
+        new NotFoundException('Project not found'),
+      );
+    });
+  });
+  describe('kick User', () => {
+    const userId = 'userId';
+    it('should return a message', async () => {
+      jest.spyOn(projectPrismaMock.project, 'findFirst').mockResolvedValue({
+        users: [
+          {
+            id: 'id',
+            userId: userId,
+            isBanned: false,
+            user: { username: 'user', icon: { image: null } },
+          },
+        ],
+      });
+      jest
+        .spyOn(projectPrismaMock.user_Has_Project, 'delete')
+        .mockResolvedValue(null);
+      await expect(
+        service.kickUser(projectId, userId, userMock),
+      ).resolves.toEqual({ message: 'User kick' });
+      expect(projectPrismaMock.user_Has_Project.delete).toHaveBeenCalledWith({
+        where: { id: 'id' },
+      });
+      expect(projectGatewayMock.emitUserUpdateProject).toHaveBeenCalledWith(
+        {
+          id: 'id',
+          userId: userId,
+          isBanned: false,
+          user: { username: 'user', icon: { image: null } },
+        },
+        projectId,
+        false,
+      );
+    });
+    it('should return a forbidden Exception', async () => {
+      jest
+        .spyOn(projectPrismaMock.project, 'findFirst')
+        .mockResolvedValue(null);
+
+      await expect(
+        service.kickUser(projectId, userId, userMock),
+      ).rejects.toEqual(new ForbiddenException('User not found'));
     });
   });
 });

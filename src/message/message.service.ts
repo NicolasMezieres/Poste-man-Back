@@ -39,9 +39,6 @@ export class MessageService {
       orderBy: { createdAt: 'desc' },
       select: this.selectProjectMessages,
     });
-    if (!existingProject || existingProject.length === 0) {
-      throw new NotFoundException('Project not found !');
-    }
     return { data: existingProject };
   }
   async projectMessagesAdmin(projectId: string) {
@@ -55,9 +52,6 @@ export class MessageService {
       orderBy: { createdAt: 'desc' },
       select: this.selectProjectMessages,
     });
-    if (!existingProject || existingProject.length === 0) {
-      throw new NotFoundException('Project not found !');
-    }
     return { data: existingProject };
   }
   async createMessage(dto: messageDTO, projectId: string, user: User) {

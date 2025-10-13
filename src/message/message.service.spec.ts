@@ -44,14 +44,14 @@ describe('MessageService', () => {
         service.projectMessages(projectId, userMock),
       ).resolves.toEqual({ data: messages });
     });
-    it('should return a Not Found Exception', async () => {
-      jest
-        .spyOn(messagePrismaMock.message, 'findMany')
-        .mockResolvedValue(undefined);
-      await expect(
-        service.projectMessages(projectId, userMock),
-      ).rejects.toEqual(new NotFoundException('Project not found !'));
-    });
+    // it('should return a Not Found Exception', async () => {
+    //   jest
+    //     .spyOn(messagePrismaMock.message, 'findMany')
+    //     .mockResolvedValue(undefined);
+    //   await expect(
+    //     service.projectMessages(projectId, userMock),
+    //   ).rejects.toEqual(new NotFoundException('Project not found !'));
+    // });
   });
   describe('Project messages Admin', () => {
     it("should return project's messages with admin account", async () => {
@@ -62,14 +62,14 @@ describe('MessageService', () => {
         data: messages,
       });
     });
-    it('should return a Not Found Exception', async () => {
-      jest
-        .spyOn(messagePrismaMock.message, 'findMany')
-        .mockResolvedValue(undefined);
-      await expect(service.projectMessagesAdmin(projectId)).rejects.toEqual(
-        new NotFoundException('Project not found !'),
-      );
-    });
+    // it('should return a Not Found Exception', async () => {
+    //   jest
+    //     .spyOn(messagePrismaMock.message, 'findMany')
+    //     .mockResolvedValue(undefined);
+    //   await expect(service.projectMessagesAdmin(projectId)).rejects.toEqual(
+    //     new NotFoundException('Project not found !'),
+    //   );
+    // });
   });
   describe('Create Message', () => {
     const messageDTO = { message: 'text' };
