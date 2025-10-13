@@ -9,4 +9,7 @@ export const sectionPrismaMock = {
     delete: jest.fn(),
     findUnique: jest.fn(),
   },
+  project: {
+    findUnique: jest.fn(),
+  },
 };
