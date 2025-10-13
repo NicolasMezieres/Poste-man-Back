@@ -35,9 +35,9 @@ export class ProjectGateway implements OnGatewayDisconnect {
       (user) => user.clientId === client.id,
     );
     if (existingUser) {
-      this.userConnected = this.userConnected.filter((user) => {
-        return user.clientId != client.id;
-      });
+      this.userConnected = this.userConnected.filter(
+        (user) => user.clientId != client.id,
+      );
       if (
         !this.userConnected.some((user) => user.userId === existingUser.userId)
       ) {
