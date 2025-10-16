@@ -1,4 +1,5 @@
 import { Response } from 'express';
+import { role } from 'src/utils/enum';
 
 export const messageMock = { message: 'message' };
 export const signupMessageMock = {
@@ -39,6 +40,18 @@ export const userMock = {
   updatedAt: new Date(),
 };
 
+export const userWithRoleMock = {
+  id: '1',
+  isActive: true,
+  firstName: 'firstName',
+  lastName: 'lastName',
+  username: 'username',
+  email: 'example@gmail.com',
+  role: {
+    name: role.USER,
+  },
+};
+
 export const adminMock = {
   id: '2',
   roleId: '2',
@@ -54,7 +67,17 @@ export const adminMock = {
   createdAt: new Date(),
   updatedAt: new Date(),
 };
-
+export const adminWithRoleMock = {
+  id: '2',
+  isActive: true,
+  firstName: 'firstName',
+  lastName: 'lastName',
+  username: 'username',
+  email: 'example@gmail.com',
+  role: {
+    name: role.ADMIN,
+  },
+};
 // export const superAdminMock = {
 //   id: '3',
 //   roleId: '3',
