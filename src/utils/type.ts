@@ -2,6 +2,11 @@ import { role } from './enum';
 
 export type UserWithRole = {
   id: string;
+  isActive: boolean;
+  firstName: string;
+  lastName: string;
+  username: string;
+  email: string;
   role: {
     name: role;
   };
