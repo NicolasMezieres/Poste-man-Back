@@ -14,7 +14,7 @@ import {
 import { sectionPrismaMock } from './mock/section.prisma.mock';
 import { mockUser } from './mock/user.mock';
 import { SectionService } from './section.service';
-import { adminMock, userMock } from 'src/auth/mock/auth.mock';
+import { adminWithRoleMock, userWithRoleMock } from 'src/auth/mock/auth.mock';
 
 describe('SectionService', () => {
   let service: SectionService;
@@ -34,28 +34,41 @@ describe('SectionService', () => {
     jest.clearAllMocks();
   });
 
-  describe('sections', () => {
+  describe('Get sections of project', () => {
     it('Should return a section list with an account user', async () => {
       jest
         .spyOn(prisma.project, 'findUnique')
-        .mockResolvedValue(sectionDataMock);
+        .mockResolvedValue({ section: sectionDataMock, id: 'projectId' });
+      jest
+        .spyOn(prisma.user_Has_Project, 'findFirst')
+        .mockResolvedValue({ id: 'id' });
       await expect(
-        service.sections('projectId', userMock, false),
+        service.sections('projectId', userWithRoleMock),
       ).resolves.toEqual({ data: sectionDataMock });
     });
     it('Should return a section list with an account admin', async () => {
       jest
         .spyOn(prisma.project, 'findUnique')
-        .mockResolvedValue(sectionDataMock);
+        .mockResolvedValue({ section: sectionDataMock, id: 'projectId' });
+      jest.spyOn(prisma.user_Has_Project, 'findFirst').mockResolvedValue(null);
       await expect(
-        service.sections('projectId', adminMock, true),
+        service.sections('projectId', adminWithRoleMock),
       ).resolves.toEqual({ data: sectionDataMock });
     });
     it('Should return a Not Found Exception', async () => {
       jest.spyOn(prisma.project, 'findUnique').mockResolvedValue(null);
       await expect(
-        service.sections('projectId', adminMock, true),
+        service.sections('projectId', userWithRoleMock),
       ).rejects.toEqual(new NotFoundException('Project not found !'));
+    });
+    it('Should return a Forbidden Exception', async () => {
+      jest
+        .spyOn(prisma.project, 'findUnique')
+        .mockResolvedValue({ section: sectionDataMock, id: 'projectId' });
+      jest.spyOn(prisma.user_Has_Project, 'findFirst').mockResolvedValue(null);
+      await expect(
+        service.sections('projectId', userWithRoleMock),
+      ).rejects.toEqual(new ForbiddenException('You are unauthorized !'));
     });
   });
   describe('createSection', () => {

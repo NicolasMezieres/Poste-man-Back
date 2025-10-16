@@ -8,7 +8,7 @@ import { SectionServiceMock } from './mock/section.service.mock';
 import { mockUser } from './mock/user.mock';
 import { SectionController } from './section.controller';
 import { SectionService } from './section.service';
-import { userMock } from 'src/auth/mock/auth.mock';
+import { userWithRoleMock } from 'src/auth/mock/auth.mock';
 
 describe('SectionController', () => {
   let controller: SectionController;
@@ -30,26 +30,12 @@ describe('SectionController', () => {
 
   describe('get all section by user', () => {
     it('Should return list of section', async () => {
-      await expect(controller.sections('projectId', userMock)).resolves.toEqual(
-        sectionDataMock,
-      );
-      expect(service.sections).toHaveBeenCalledWith(
-        'projectId',
-        userMock,
-        false,
-      );
-    });
-  });
-
-  describe('get all section by admin', () => {
-    it('Should return list of section', async () => {
       await expect(
-        controller.sectionsByAdmin('projectId', userMock),
+        controller.sections('projectId', userWithRoleMock),
       ).resolves.toEqual(sectionDataMock);
       expect(service.sections).toHaveBeenCalledWith(
         'projectId',
-        userMock,
-        true,
+        userWithRoleMock,
       );
     });
   });
