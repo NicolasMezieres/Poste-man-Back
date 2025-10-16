@@ -9,10 +9,11 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { GetUser } from 'src/auth/decorator';
-import { AdminGuard, JwtGuard } from 'src/auth/Guards';
+import { JwtGuard } from 'src/auth/Guards';
 import { User } from 'src/prisma/generated';
 import { createDTO, updateDTO } from './dto';
 import { SectionService } from './section.service';
+import { UserWithRole } from 'src/utils/type';
 
 @UseGuards(JwtGuard)
 @Controller('section')
@@ -20,17 +21,11 @@ export class SectionController {
   constructor(private readonly sectionService: SectionService) {}
 
   @Get('/project/:projectId')
-  sections(@Param('projectId') projectId: string, @GetUser() user: User) {
-    return this.sectionService.sections(projectId, user, false);
-  }
-
-  @UseGuards(AdminGuard)
-  @Get('/project/:projectId/admin')
-  sectionsByAdmin(
+  sections(
     @Param('projectId') projectId: string,
-    @GetUser() user: User,
+    @GetUser() user: UserWithRole,
   ) {
-    return this.sectionService.sections(projectId, user, true);
+    return this.sectionService.sections(projectId, user);
   }
 
   @Post('project/:projectId/create')

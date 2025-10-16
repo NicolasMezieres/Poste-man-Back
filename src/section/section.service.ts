@@ -6,28 +6,34 @@ import {
 } from '@nestjs/common';
 import { User } from 'src/prisma/generated';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { roleProject } from 'src/utils/enum';
+import { role, roleProject } from 'src/utils/enum';
 import { createDTO, updateDTO } from './dto';
+import { UserWithRole } from 'src/utils/type';
 
 @Injectable()
 export class SectionService {
   constructor(private prisma: PrismaService) {}
-  async sections(projectId: string, user: User, isAdmin: boolean) {
-    const existingSection = await this.prisma.project.findUnique({
-      where: {
-        id: projectId,
-        AND: [
-          !isAdmin
-            ? { users: { some: { userId: user.id, isBanned: false } } }
-            : {},
-        ],
-      },
-      select: { section: { omit: { projectId: true } } },
+  async sections(projectId: string, user: UserWithRole) {
+    const existingProject = await this.prisma.project.findUnique({
+      where: { id: projectId },
+      select: { id: true, section: true },
     });
-    if (!existingSection) {
+    if (!existingProject) {
       throw new NotFoundException('Project not found !');
     }
-    return { data: existingSection };
+    const didUserInProject = await this.prisma.user_Has_Project.findFirst({
+      where: {
+        userId: user.id,
+        projectId: existingProject.id,
+        isBanned: false,
+      },
+      select: { id: true },
+    });
+    const isAdmin = user.role.name === role.ADMIN;
+    if (!didUserInProject && !isAdmin) {
+      throw new ForbiddenException('You are unauthorized !');
+    }
+    return { data: existingProject.section };
   }
 
   async createSection(dto: createDTO, projectId: string, user: User) {
