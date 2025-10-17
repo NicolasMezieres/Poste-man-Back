@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ForbiddenException,
   Injectable,
   NotFoundException,
@@ -18,7 +19,11 @@ export class PostService {
     const existingSection = await this.prisma.section.findUnique({
       where: { id: sectionId },
       select: {
-        post: { include: { user: { select: { username: true, id: true } } } },
+        post: {
+          where: { isVisible: true },
+          include: { user: { select: { username: true, id: true } } },
+          omit: { isVisible: true, sectionId: true, userId: true },
+        },
         projectId: true,
       },
     });
@@ -39,23 +44,39 @@ export class PostService {
     const existingSection = await this.prisma.section.findFirst({
       where: {
         id: sectionId,
-        project: { users: { some: { userId: user.id, isBanned: false } } },
       },
+      select: { id: true, projectId: true },
     });
     if (!existingSection) {
-      throw new ForbiddenException('Section not found');
+      throw new NotFoundException('Section not found');
+    }
+    const didUserInProject = await this.prisma.user_Has_Project.findFirst({
+      where: {
+        userId: user.id,
+        isBanned: false,
+        projectId: existingSection.projectId,
+      },
+      select: { id: true },
+    });
+    if (!didUserInProject) {
+      throw new ForbiddenException('You are unauthorized !');
     }
     await this.prisma.post.create({
-      data: { ...dto, userId: user.id, sectionId },
+      data: { ...dto, userId: user.id, sectionId: existingSection.id },
     });
+    return { message: 'Post created !' };
   }
 
   async update(postId: string, dto: postDTO, user: User) {
     const existingPost = await this.prisma.post.findUnique({
-      where: { id: postId, userId: user.id },
+      where: { id: postId },
+      select: { userId: true, id: true },
     });
     if (!existingPost) {
       throw new ForbiddenException('Post not found !');
+    }
+    if (existingPost.userId !== user.id) {
+      throw new ForbiddenException('You are unauthorized !');
     }
     await this.prisma.post.update({
       where: { id: existingPost.id },
@@ -69,6 +90,7 @@ export class PostService {
     const existingPost = await this.prisma.post.findUnique({
       where: { id: postId },
       select: {
+        sectionId: true,
         section: { select: { projectId: true } },
         id: true,
         userId: true,
@@ -76,6 +98,9 @@ export class PostService {
     });
     if (!existingPost) {
       throw new NotFoundException('Post not found !');
+    }
+    if (existingPost.sectionId === sectionId) {
+      throw new BadRequestException('Post already in section');
     }
     const existingSection = await this.prisma.section.findUnique({
       where: { id: sectionId },
@@ -103,14 +128,14 @@ export class PostService {
 
     await this.prisma.post.update({
       where: { id: existingPost.id },
-      data: { sectionId: existingSection.id },
+      data: { sectionId: existingSection.id, updatedAt: new Date() },
     });
     return { message: 'Section of post changed !' };
   }
 
   async remove(postId: string, user: UserWithRole) {
     const existingPost = await this.prisma.post.findUnique({
-      where: { id: postId },
+      where: { id: postId, isVisible: true },
       select: {
         id: true,
         section: { select: { projectId: true } },
@@ -123,7 +148,7 @@ export class PostService {
     const isModerator = await this.prisma.user_Has_Project.findFirst({
       where: {
         projectId: existingPost.section.projectId,
-        userId: existingPost.userId,
+        userId: user.id,
         role: { name: roleProject.MODERATOR },
       },
       select: { id: true },
@@ -136,5 +161,8 @@ export class PostService {
       where: { id: existingPost.id },
       data: { isVisible: false, updatedAt: new Date() },
     });
+    return {
+      message: 'Post deleted !',
+    };
   }
 }

@@ -3,13 +3,13 @@ import {
   IsNumber,
   IsOptional,
   IsString,
-  Max,
+  MaxLength,
 } from 'class-validator';
 
 export class postDTO {
   @IsString()
   @IsNotEmpty()
-  @Max(255)
+  @MaxLength(255)
   text: string;
   @IsOptional()
   @IsNumber()
