@@ -13,7 +13,7 @@ import { PostService } from './post.service';
 import { GetUser } from 'src/auth/decorator';
 import { User } from 'src/prisma/generated';
 import { JwtGuard } from 'src/auth/Guards';
-import { postDTO } from './dto';
+import { postDTO, voteDTO } from './dto';
 import { UserWithRole } from 'src/utils/type';
 
 @UseGuards(JwtGuard)
@@ -53,7 +53,13 @@ export class PostController {
   }
 
   @Put('/:postId/vote')
-  vote(@Param('postId') postId: string, @GetUser() user: User) {}
+  vote(
+    @Param('postId') postId: string,
+    @Body() dto: voteDTO,
+    @GetUser() user: User,
+  ) {
+    return this.postService.vote(postId, dto, user);
+  }
 
   @Delete('/:postId')
   remove(@Param('postId') postId: string, @GetUser() user: UserWithRole) {

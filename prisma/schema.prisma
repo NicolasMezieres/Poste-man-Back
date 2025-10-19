@@ -28,6 +28,7 @@ model User {
   message Message[]
   post Post[]
   notif Notification[]
+  vote Vote[]
 }
 
 model Notification {
@@ -87,11 +88,13 @@ model Post {
   text String @db.VarChar(255) 
   poseX Int? @db.Integer()
   poseY Int? @db.Integer()
+  score Int @db.Integer() @default(0)
   isVisible Boolean @default(true)
   createdAt DateTime @db.Timestamp() @default(now())
   updatedAt DateTime @db.Timestamp() @default(now())
   user User @relation(fields: [userId] , references: [id])
   section Section @relation(fields: [sectionId], references: [id])
+  vote Vote[]
   }
 
 model Message{
@@ -119,4 +122,14 @@ model Role_Project{
   id String @id @default(uuid())
   name String @db.VarChar(50)  @unique
   users User_Has_Project[]
+}
+
+model Vote{
+  id Int @id @default(autoincrement())
+  userId String 
+  postId String
+  isUp Boolean?
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  @@unique([userId,postId])
 }

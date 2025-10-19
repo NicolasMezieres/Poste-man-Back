@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { User } from 'src/prisma/generated';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { postDTO } from './dto';
+import { postDTO, voteDTO } from './dto';
 import { roleProject } from 'src/section/mock/section.mock';
 import { UserWithRole } from 'src/utils/type';
 import { role } from 'src/utils/enum';
@@ -21,9 +21,18 @@ export class PostService {
       select: {
         post: {
           where: { isVisible: true },
-          include: { user: { select: { username: true, id: true } } },
+          include: {
+            user: {
+              select: {
+                username: true,
+                id: true,
+              },
+            },
+            vote: { select: { isUp: true }, where: { userId: user.id } },
+          },
           omit: { isVisible: true, sectionId: true, userId: true },
         },
+        id: true,
         projectId: true,
       },
     });
@@ -131,6 +140,112 @@ export class PostService {
       data: { sectionId: existingSection.id, updatedAt: new Date() },
     });
     return { message: 'Section of post changed !' };
+  }
+
+  async vote(postId: string, dto: voteDTO, user: User) {
+    const existingPost = await this.prisma.post.findUnique({
+      where: { id: postId, isVisible: true },
+      select: { section: { select: { projectId: true } }, id: true },
+    });
+    if (!existingPost) {
+      throw new NotFoundException('Post not found !');
+    }
+    const didUserInProject = await this.prisma.user_Has_Project.findFirst({
+      where: {
+        userId: user.id,
+        projectId: existingPost.section.projectId,
+        isBanned: false,
+      },
+      select: { id: true },
+    });
+    if (!didUserInProject) {
+      throw new ForbiddenException('You are unauthorized !');
+    }
+    const existingVote = await this.prisma.vote.findFirst({
+      where: { postId, userId: user.id },
+      select: { id: true, isUp: true },
+    });
+    if (!existingVote) {
+      await this.prisma.$transaction([
+        this.prisma.vote.create({
+          data: { ...dto, postId, userId: user.id },
+        }),
+        this.prisma.post.update({
+          where: { id: existingPost.id },
+          data: { score: dto.isUp ? { increment: 1 } : { decrement: 1 } },
+        }),
+      ]);
+    } else {
+      switch (dto.isUp) {
+        case true:
+          switch (existingVote.isUp) {
+            case true:
+              await this.prisma.vote.update({
+                where: { id: existingVote.id },
+                data: {
+                  isUp: null,
+                  post: { update: { score: { decrement: 1 } } },
+                },
+              });
+              break;
+            case false:
+              await this.prisma.vote.update({
+                where: { id: existingVote.id },
+                data: {
+                  isUp: true,
+                  post: { update: { score: { increment: 2 } } },
+                },
+              });
+              break;
+            case null:
+              await this.prisma.vote.update({
+                where: { id: existingVote.id },
+                data: {
+                  isUp: true,
+                  post: { update: { score: { increment: 1 } } },
+                },
+              });
+              break;
+            default:
+              break;
+          }
+          break;
+        case false:
+          switch (existingVote.isUp) {
+            case true:
+              await this.prisma.vote.update({
+                where: { id: existingVote.id },
+                data: {
+                  isUp: false,
+                  post: { update: { score: { decrement: 2 } } },
+                },
+              });
+              break;
+            case false:
+              await this.prisma.vote.update({
+                where: { id: existingVote.id },
+                data: {
+                  isUp: null,
+                  post: { update: { score: { increment: 1 } } },
+                },
+              });
+              break;
+            case null:
+              await this.prisma.vote.update({
+                where: { id: existingVote.id },
+                data: {
+                  isUp: false,
+                  post: { update: { score: { decrement: 1 } } },
+                },
+              });
+              break;
+            default:
+              break;
+          }
+          break;
+      }
+    }
+    return { message: 'Voted !' };
   }
 
   async remove(postId: string, user: UserWithRole) {
