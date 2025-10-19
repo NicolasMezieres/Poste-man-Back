@@ -13,8 +13,8 @@ export class postDTO {
   text: string;
   @IsOptional()
   @IsNumber()
-  poseX: number;
+  poseX?: number;
   @IsOptional()
   @IsNumber()
-  poseY: number;
+  poseY?: number;
 }
