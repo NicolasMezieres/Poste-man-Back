@@ -87,15 +87,13 @@ describe('SectionController', () => {
       });
 
       const result = await controller.removeSection(
-        'project-1',
         'section-1',
-        mockUser,
+        userWithRoleMock,
       );
       expect(result).toEqual({ message: 'Section has been deleted' });
       expect(service.removeSection).toHaveBeenCalledWith(
-        'project-1',
         'section-1',
-        mockUser,
+        userWithRoleMock,
       );
     });
   });

@@ -103,11 +103,7 @@ export class SectionService {
     return { message: 'Section Update' };
   }
 
-  async removeSection(
-    projectId: string,
-    sectionId: string,
-    user: UserWithRole,
-  ) {
+  async removeSection(sectionId: string, user: UserWithRole) {
     const existingSection = await this.prisma.section.findUnique({
       where: { id: sectionId },
       select: { id: true, projectId: true },
@@ -123,6 +119,7 @@ export class SectionService {
           projectId: existingSection.projectId,
           role: { name: roleProject.MODERATOR },
         },
+        select: { id: true },
       });
       if (!isModerator) {
         throw new ForbiddenException('You are unauthorized !');
