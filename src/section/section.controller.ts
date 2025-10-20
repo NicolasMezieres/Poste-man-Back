@@ -51,7 +51,7 @@ export class SectionController {
   removeSection(
     @Param('projectId') projectId: string,
     @Param('sectionId') sectionId: string,
-    @GetUser() user: User,
+    @GetUser() user: UserWithRole,
   ) {
     return this.sectionService.removeSection(projectId, sectionId, user);
   }
