@@ -37,11 +37,12 @@ export class PostService {
       },
     });
     if (!existingSection) {
-      throw new NotFoundException('Section not found');
+      throw new NotFoundException('Section not found !');
     }
     const isAdmin = user.role.name === role.ADMIN;
     const isUserInProject = await this.prisma.user_Has_Project.findFirst({
       where: { userId: user.id, projectId: existingSection.projectId },
+      select: { id: true },
     });
     if (!isAdmin && !isUserInProject) {
       throw new ForbiddenException('You are unauthorized !');
@@ -123,18 +124,19 @@ export class PostService {
         'Project is not the same project of section',
       );
     }
-    const isModerator = await this.prisma.user_Has_Project.findFirst({
-      where: {
-        userId: user.id,
-        role: { name: roleProject.MODERATOR },
-        projectId: existingSection.projectId,
-      },
-      select: { id: true },
-    });
-    if (!isModerator && !isAdmin && existingPost.userId !== user.id) {
-      throw new ForbiddenException('You are not authorized');
+    if (!isAdmin && existingPost.userId !== user.id) {
+      const isModerator = await this.prisma.user_Has_Project.findFirst({
+        where: {
+          userId: user.id,
+          role: { name: roleProject.MODERATOR },
+          projectId: existingSection.projectId,
+        },
+        select: { id: true },
+      });
+      if (!isModerator) {
+        throw new ForbiddenException('You are not authorized');
+      }
     }
-
     await this.prisma.post.update({
       where: { id: existingPost.id },
       data: { sectionId: existingSection.id, updatedAt: new Date() },
@@ -206,8 +208,6 @@ export class PostService {
                 },
               });
               break;
-            default:
-              break;
           }
           break;
         case false:
@@ -239,8 +239,6 @@ export class PostService {
                 },
               });
               break;
-            default:
-              break;
           }
           break;
       }
@@ -260,18 +258,21 @@ export class PostService {
     if (!existingPost) {
       throw new NotFoundException('Post not found !');
     }
-    const isModerator = await this.prisma.user_Has_Project.findFirst({
-      where: {
-        projectId: existingPost.section.projectId,
-        userId: user.id,
-        role: { name: roleProject.MODERATOR },
-      },
-      select: { id: true },
-    });
     const isAdmin = user.role.name === role.ADMIN;
-    if (!isAdmin && !isModerator && existingPost.userId !== user.id) {
-      throw new ForbiddenException('You are unauthorized !');
+    if (!isAdmin && existingPost.userId !== user.id) {
+      const isModerator = await this.prisma.user_Has_Project.findFirst({
+        where: {
+          projectId: existingPost.section.projectId,
+          userId: user.id,
+          role: { name: roleProject.MODERATOR },
+        },
+        select: { id: true },
+      });
+      if (!isModerator) {
+        throw new ForbiddenException('You are unauthorized !');
+      }
     }
+
     await this.prisma.post.update({
       where: { id: existingPost.id },
       data: { isVisible: false, updatedAt: new Date() },
