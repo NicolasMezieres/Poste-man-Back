@@ -12,6 +12,7 @@ import { AdminGuard, JwtGuard } from 'src/auth/Guards';
 import { GetUser } from 'src/auth/decorator';
 import { User } from 'src/prisma/generated';
 import { messageDTO } from './dto';
+import { UserWithRole } from 'src/utils/type';
 
 @UseGuards(JwtGuard)
 @Controller('message')
@@ -42,7 +43,10 @@ export class MessageController {
   }
 
   @Delete('/:messageId')
-  deleteMessage(@Param('messageId') messageId: string, @GetUser() user: User) {
+  deleteMessage(
+    @Param('messageId') messageId: string,
+    @GetUser() user: UserWithRole,
+  ) {
     return this.messageService.deleteMessage(messageId, user);
   }
 

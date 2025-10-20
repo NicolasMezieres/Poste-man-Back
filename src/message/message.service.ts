@@ -8,10 +8,11 @@ import {
 import { User } from 'src/prisma/generated';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { messageDTO } from './dto';
-import { roleProject } from 'src/utils/enum';
+import { role, roleProject } from 'src/utils/enum';
 import { MessageGateway } from './message.gateway';
 import { Socket } from 'socket.io';
 import { WsException } from '@nestjs/websockets';
+import { UserWithRole } from 'src/utils/type';
 
 @Injectable()
 export class MessageService {
@@ -83,31 +84,28 @@ export class MessageService {
     this.socket.emitNewMessage(newMessage, projectId);
     return { message: 'Message created !' };
   }
-  async deleteMessage(messageId: string, user: User) {
-    const existingMessage = await this.prisma.message.findFirst({
-      where: {
-        id: messageId,
-        OR: [
-          { authorId: user.id },
-          {
-            project: {
-              users: {
-                some: {
-                  userId: user.id,
-                  role: { name: roleProject.MODERATOR },
-                },
-              },
-            },
-          },
-        ],
-      },
-      select: { id: true, projectId: true },
+  async deleteMessage(messageId: string, user: UserWithRole) {
+    const existingMessage = await this.prisma.message.findUnique({
+      where: { id: messageId },
+      select: { id: true, projectId: true, authorId: true },
     });
-
     if (!existingMessage) {
       throw new NotFoundException('Message not found !');
     }
-
+    const isAdmin = user.role.name === role.ADMIN;
+    if (!isAdmin && existingMessage.authorId !== user.id) {
+      const isModerator = await this.prisma.user_Has_Project.findFirst({
+        where: {
+          userId: user.id,
+          projectId: existingMessage.projectId,
+          role: { name: roleProject.MODERATOR },
+        },
+        select: { id: true },
+      });
+      if (!isModerator) {
+        throw new ForbiddenException('You are unauthorized !');
+      }
+    }
     await this.prisma.message.delete({
       where: { id: existingMessage.id },
     });
