@@ -298,9 +298,7 @@ export class ProjectService {
     });
     if (!existingProject) {
       throw new NotFoundException('Project not found');
-    } else if (
-      (existingProject.role.name as roleProject) === roleProject.MODERATOR
-    ) {
+    } else if (existingProject.role.name === roleProject.MODERATOR) {
       await this.prisma.$transaction(async (tPrisma) => {
         await tPrisma.post.deleteMany({
           where: { section: { projectId: existingProject.projectId } },
