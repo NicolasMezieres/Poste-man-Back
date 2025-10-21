@@ -13,5 +13,4 @@ export const messagePrismaMock = {
   user_Has_Project: {
     findFirst: jest.fn(),
   },
-  section:{}
 };

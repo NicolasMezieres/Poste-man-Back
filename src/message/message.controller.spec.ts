@@ -57,7 +57,7 @@ describe('MessageController', () => {
   describe('Delete All Message', () => {
     it('should return Messages deleted !', async () => {
       await expect(
-        controller.deleteAllMessage(projectId, userMock),
+        controller.deleteAllMessage(projectId, userWithRoleMock),
       ).resolves.toEqual({
         message: 'Messages deleted !',
       });

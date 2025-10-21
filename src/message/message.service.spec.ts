@@ -222,12 +222,33 @@ describe('MessageService', () => {
     });
   });
   describe('Delete All Message', () => {
-    it('should return Messages deleted !', async () => {
+    it('should return Messages deleted ! Moderator account', async () => {
+      jest
+        .spyOn(messagePrismaMock.project, 'findUnique')
+        .mockResolvedValue({ id: projectId });
       jest
         .spyOn(messagePrismaMock.user_Has_Project, 'findFirst')
-        .mockResolvedValue({ id: '1' });
+        .mockResolvedValue({ id: 'userProjectId' });
       await expect(
-        service.deleteAllMessage(projectId, userMock),
+        service.deleteAllMessage(projectId, userWithRoleMock),
+      ).resolves.toEqual({
+        message: 'Messages deleted !',
+      });
+      expect(messagePrismaMock.message.deleteMany).toHaveBeenCalledWith({
+        where: {
+          projectId,
+        },
+      });
+      expect(messageGatewayMock.emitResetMessage).toHaveBeenCalledWith(
+        projectId,
+      );
+    });
+    it('should return Messages deleted ! Admin account', async () => {
+      jest
+        .spyOn(messagePrismaMock.project, 'findUnique')
+        .mockResolvedValue({ id: projectId });
+      await expect(
+        service.deleteAllMessage(projectId, adminWithRoleMock),
       ).resolves.toEqual({
         message: 'Messages deleted !',
       });
@@ -242,13 +263,26 @@ describe('MessageService', () => {
     });
     it('should return Not Found Exception', async () => {
       jest
-        .spyOn(messagePrismaMock.user_Has_Project, 'findFirst')
-        .mockResolvedValue(undefined);
+        .spyOn(messagePrismaMock.project, 'findUnique')
+        .mockResolvedValue(null);
       await expect(
-        service.deleteAllMessage(projectId, userMock),
-      ).rejects.toEqual(
-        new ForbiddenException("You doesn't have access to this action !"),
-      );
+        service.deleteAllMessage(projectId, userWithRoleMock),
+      ).rejects.toEqual(new NotFoundException('Project not found !'));
+      expect(messagePrismaMock.message.deleteMany).not.toHaveBeenCalled();
+      expect(messageGatewayMock.emitResetMessage).not.toHaveBeenCalled();
+    });
+    it('should return Forbidden Exception, You are unauthorized !', async () => {
+      jest
+        .spyOn(messagePrismaMock.project, 'findUnique')
+        .mockResolvedValue({ id: projectId });
+      jest
+        .spyOn(messagePrismaMock.user_Has_Project, 'findFirst')
+        .mockResolvedValue(null);
+      await expect(
+        service.deleteAllMessage(projectId, userWithRoleMock),
+      ).rejects.toEqual(new ForbiddenException('You are unauthorized !'));
+      expect(messagePrismaMock.message.deleteMany).not.toHaveBeenCalled();
+      expect(messageGatewayMock.emitResetMessage).not.toHaveBeenCalled();
     });
   });
   describe('Join Room Message', () => {
