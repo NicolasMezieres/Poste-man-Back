@@ -10,6 +10,7 @@ export const postPrismaMock = {
     create: jest.fn(),
     findUnique: jest.fn(),
     update: jest.fn(),
+    updateMany: jest.fn(),
   },
   vote: {
     findFirst: jest.fn(),

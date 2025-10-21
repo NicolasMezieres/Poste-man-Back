@@ -80,4 +80,11 @@ describe('PostController', () => {
       });
     });
   });
+  describe('Remove all post from section', () => {
+    it('Should return a message', async () => {
+      await expect(
+        controller.removeAll(sectionId, userWithRoleMock),
+      ).resolves.toEqual({ message: 'All post have been deleted !' });
+    });
+  });
 });
