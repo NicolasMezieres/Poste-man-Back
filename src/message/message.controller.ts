@@ -50,7 +50,7 @@ export class MessageController {
     return this.messageService.deleteMessage(messageId, user);
   }
 
-  @Delete('/all/project/:projectId')
+  @Delete('/project/:projectId')
   deleteAllMessage(
     @Param('projectId') projectId: string,
     @GetUser() user: UserWithRole,
