@@ -97,4 +97,5 @@ describe('SectionController', () => {
       );
     });
   });
+  describe('Delete all post from section', () => {});
 });

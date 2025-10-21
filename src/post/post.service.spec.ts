@@ -529,4 +529,49 @@ describe('PostService', () => {
       expect(postPrismaMock.post.update).not.toHaveBeenCalled();
     });
   });
+  describe('Remove all post from section', () => {
+    it('Should delete all post, Moderator account', async () => {
+      jest.spyOn(postPrismaMock.section, 'findUnique').mockResolvedValue({
+        id: sectionId,
+        projectId,
+      });
+      jest
+        .spyOn(postPrismaMock.user_Has_Project, 'findFirst')
+        .mockResolvedValue({ id: 'userProjectId' });
+      await expect(
+        service.removeAll(sectionId, userWithRoleMock),
+      ).resolves.toEqual({ message: 'All post have been deleted !' });
+      expect(postPrismaMock.post.updateMany).toHaveBeenCalled();
+    });
+    it('Should delete all post, Admin account', async () => {
+      jest.spyOn(postPrismaMock.section, 'findUnique').mockResolvedValue({
+        id: sectionId,
+        projectId,
+      });
+      await expect(
+        service.removeAll(sectionId, adminWithRoleMock),
+      ).resolves.toEqual({ message: 'All post have been deleted !' });
+      expect(postPrismaMock.post.updateMany).toHaveBeenCalled();
+    });
+    it('Should return Not Found Exception, Section not found ! ', async () => {
+      jest.spyOn(postPrismaMock.section, 'findUnique').mockResolvedValue(null);
+      await expect(
+        service.removeAll(sectionId, userWithRoleMock),
+      ).rejects.toEqual(new NotFoundException('Section not found !'));
+      expect(postPrismaMock.post.updateMany).not.toHaveBeenCalled();
+    });
+    it('Should return Forbidden Exception, You are unauthorized ! ', async () => {
+      jest.spyOn(postPrismaMock.section, 'findUnique').mockResolvedValue({
+        id: sectionId,
+        projectId,
+      });
+      jest
+        .spyOn(postPrismaMock.user_Has_Project, 'findFirst')
+        .mockResolvedValue(null);
+      await expect(
+        service.removeAll(sectionId, userWithRoleMock),
+      ).rejects.toEqual(new ForbiddenException('You are unauthorized !'));
+      expect(postPrismaMock.post.updateMany).not.toHaveBeenCalled();
+    });
+  });
 });

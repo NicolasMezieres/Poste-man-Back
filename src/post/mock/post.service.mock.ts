@@ -9,4 +9,7 @@ export const postServiceMock = {
   remove: jest.fn().mockResolvedValue({
     message: 'Post deleted !',
   }),
+  removeAll: jest
+    .fn()
+    .mockResolvedValue({ message: 'All post have been deleted !' }),
 };
