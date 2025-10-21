@@ -4,6 +4,7 @@ const tsJestTransformCfg = createDefaultPreset().transform;
 
 /** @type {import("jest").Config} **/
 export const coverageDirectory = '../coverage/';
+export const coveragePathIgnorePatterns = ['src/prisma/generated'];
 export const testEnvironment = 'node';
 export const transform = {
   ...tsJestTransformCfg,
