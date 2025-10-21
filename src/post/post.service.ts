@@ -281,4 +281,33 @@ export class PostService {
       message: 'Post deleted !',
     };
   }
+  async removeAll(sectionId: string, user: UserWithRole) {
+    const isAdmin = user.role.name === role.ADMIN;
+    const existingSection = await this.prisma.section.findUnique({
+      where: { id: sectionId },
+      select: { id: true, projectId: true },
+    });
+    if (!existingSection) {
+      throw new NotFoundException('Section not found !');
+    }
+    if (!isAdmin) {
+      const isModerator = await this.prisma.user_Has_Project.findFirst({
+        where: {
+          userId: user.id,
+          projectId: existingSection.projectId,
+          isBanned: false,
+          role: { name: roleProject.MODERATOR },
+        },
+        select: { id: true },
+      });
+      if (!isModerator) {
+        throw new ForbiddenException('You are unauthorized !');
+      }
+    }
+    await this.prisma.post.updateMany({
+      where: { sectionId: existingSection.id },
+      data: { isVisible: false, updatedAt: new Date() },
+    });
+    return { message: 'All post have been deleted !' };
+  }
 }

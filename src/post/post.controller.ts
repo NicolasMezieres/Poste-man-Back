@@ -65,4 +65,11 @@ export class PostController {
   remove(@Param('postId') postId: string, @GetUser() user: UserWithRole) {
     return this.postService.remove(postId, user);
   }
+  @Delete('/section/:sectionId')
+  removeAll(
+    @Param('sectionId') sectionId: string,
+    @GetUser() user: UserWithRole,
+  ) {
+    return this.postService.removeAll(sectionId, user);
+  }
 }
