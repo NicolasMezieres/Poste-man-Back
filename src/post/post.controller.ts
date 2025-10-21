@@ -52,6 +52,15 @@ export class PostController {
     return this.postService.move(postId, sectionId, user);
   }
 
+  @Patch('/section/:sectionId/move/:moveSectionId')
+  moveAll(
+    @Param('sectionId') sectionId: string,
+    @Param('moveSectionId') moveSectionId: string,
+    @GetUser() user: UserWithRole,
+  ) {
+    return this.postService.moveAll(sectionId, moveSectionId, user);
+  }
+
   @Put('/:postId/vote')
   vote(
     @Param('postId') postId: string,

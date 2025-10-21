@@ -61,6 +61,14 @@ describe('PostController', () => {
     });
   });
 
+  describe('Move all post', () => {
+    it('Should return a message', async () => {
+      await expect(
+        controller.moveAll(sectionId, 'otherSectionId', userWithRoleMock),
+      ).resolves.toEqual({ message: 'Posts changed section !' });
+    });
+  });
+
   describe('Vote post', () => {
     it('Should return a message', async () => {
       await expect(controller.vote(postId, voteDTO, userMock)).resolves.toEqual(
