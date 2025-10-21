@@ -125,22 +125,33 @@ export class MessageService {
     return { message: 'Message deleted !' };
   }
 
-  async deleteAllMessage(projectId: string, user: User) {
-    const existingProject = await this.prisma.user_Has_Project.findFirst({
-      where: {
-        projectId,
-        userId: user.id,
-        role: { name: roleProject.MODERATOR },
-      },
+  async deleteAllMessage(projectId: string, user: UserWithRole) {
+    const isAdmin = user.role.name === role.ADMIN;
+    const existingProject = await this.prisma.project.findUnique({
+      where: { id: projectId },
       select: { id: true },
     });
     if (!existingProject) {
-      throw new ForbiddenException("You doesn't have access to this action !");
+      throw new NotFoundException('Project not found !');
+    }
+    if (!isAdmin) {
+      const isModerator = await this.prisma.user_Has_Project.findFirst({
+        where: {
+          userId: user.id,
+          projectId: existingProject.id,
+          isBanned: false,
+          role: { name: roleProject.MODERATOR },
+        },
+        select: { id: true },
+      });
+      if (!isModerator) {
+        throw new ForbiddenException('You are unauthorized !');
+      }
     }
     await this.prisma.message.deleteMany({
-      where: { projectId },
+      where: { projectId: existingProject.id },
     });
-    this.socket.emitResetMessage(projectId);
+    this.socket.emitResetMessage(existingProject.id);
     return { message: 'Messages deleted !' };
   }
   async joinRoomMessage(client: Socket, projectId: string, user: User) {
