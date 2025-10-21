@@ -265,6 +265,89 @@ describe('PostService', () => {
     });
   });
 
+  describe('Move all post to another section', () => {
+    const otherSectionId = 'otherSectionId';
+    it('Should change section of posts, Moderator account', async () => {
+      jest
+        .spyOn(postPrismaMock.section, 'findUnique')
+        .mockResolvedValueOnce({ id: sectionId, projectId })
+        .mockResolvedValueOnce({ id: otherSectionId, projectId });
+      jest
+        .spyOn(postPrismaMock.user_Has_Project, 'findFirst')
+        .mockResolvedValue({ id: 'userProjectId' });
+      jest.spyOn(postPrismaMock.post, 'updateMany').mockResolvedValue(null);
+      await expect(
+        service.moveAll(sectionId, otherSectionId, userWithRoleMock),
+      ).resolves.toEqual({ message: 'Posts changed section !' });
+      expect(postPrismaMock.post.updateMany).toHaveBeenCalled();
+    });
+    it('Should change section of posts, Admin account', async () => {
+      jest
+        .spyOn(postPrismaMock.section, 'findUnique')
+        .mockResolvedValueOnce({ id: sectionId, projectId })
+        .mockResolvedValueOnce({ id: otherSectionId, projectId });
+      jest.spyOn(postPrismaMock.post, 'updateMany').mockResolvedValue(null);
+      await expect(
+        service.moveAll(sectionId, otherSectionId, adminWithRoleMock),
+      ).resolves.toEqual({ message: 'Posts changed section !' });
+      expect(postPrismaMock.post.updateMany).toHaveBeenCalled();
+    });
+    it('Should return Bad Request Exception, Need to other section !', async () => {
+      await expect(
+        service.moveAll(sectionId, sectionId, userWithRoleMock),
+      ).rejects.toEqual(new BadRequestException('Need to other section !'));
+      expect(postPrismaMock.post.updateMany).not.toHaveBeenCalled();
+    });
+    it('Should return Not Found Exception, Section not found ! ', async () => {
+      jest
+        .spyOn(postPrismaMock.section, 'findUnique')
+        .mockResolvedValueOnce(null);
+      await expect(
+        service.moveAll(sectionId, otherSectionId, userWithRoleMock),
+      ).rejects.toEqual(new NotFoundException('Section not found !'));
+      expect(postPrismaMock.post.updateMany).not.toHaveBeenCalled();
+    });
+    it('Should return Not Found Exception, Section to move not found ! ', async () => {
+      jest
+        .spyOn(postPrismaMock.section, 'findUnique')
+        .mockResolvedValueOnce({ id: sectionId, projectId })
+        .mockResolvedValueOnce(null);
+      await expect(
+        service.moveAll(sectionId, otherSectionId, userWithRoleMock),
+      ).rejects.toEqual(new NotFoundException('Section to move not found !'));
+      expect(postPrismaMock.post.updateMany).not.toHaveBeenCalled();
+    });
+    it('Should return Forbidden Exception, Section do not have the same project', async () => {
+      jest
+        .spyOn(postPrismaMock.section, 'findUnique')
+        .mockResolvedValueOnce({ id: sectionId, projectId })
+        .mockResolvedValueOnce({
+          id: otherSectionId,
+          projectId: 'otherProjectId',
+        });
+      await expect(
+        service.moveAll(sectionId, otherSectionId, userWithRoleMock),
+      ).rejects.toEqual(
+        new ForbiddenException('Sections do not have the same project'),
+      );
+      expect(postPrismaMock.post.updateMany).not.toHaveBeenCalled();
+    });
+    it('Should return Forbidden Exception, You are unauthorized !', async () => {
+      jest
+        .spyOn(postPrismaMock.section, 'findUnique')
+        .mockResolvedValueOnce({ id: sectionId, projectId })
+        .mockResolvedValueOnce({ id: otherSectionId, projectId });
+      jest
+        .spyOn(postPrismaMock.user_Has_Project, 'findFirst')
+        .mockResolvedValue(null);
+      jest.spyOn(postPrismaMock.post, 'updateMany').mockResolvedValue(null);
+      await expect(
+        service.moveAll(sectionId, otherSectionId, userWithRoleMock),
+      ).rejects.toEqual(new ForbiddenException('You are unauthorized !'));
+      expect(postPrismaMock.post.updateMany).not.toHaveBeenCalled();
+    });
+  });
+
   describe('Vote post', () => {
     const voteUpDTO = { isUp: true };
     const voteDownDTO = { isUp: false };

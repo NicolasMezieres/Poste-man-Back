@@ -143,6 +143,48 @@ export class PostService {
     });
     return { message: 'Section of post changed !' };
   }
+  async moveAll(sectionId: string, moveSectionId: string, user: UserWithRole) {
+    if (sectionId === moveSectionId) {
+      throw new BadRequestException('Need to other section !');
+    }
+    const existingSection = await this.prisma.section.findUnique({
+      where: { id: sectionId },
+      select: { id: true, projectId: true },
+    });
+    if (!existingSection) {
+      throw new NotFoundException('Section not found !');
+    }
+    const existingMoveSection = await this.prisma.section.findUnique({
+      where: { id: moveSectionId },
+      select: { id: true, projectId: true },
+    });
+    if (!existingMoveSection) {
+      throw new NotFoundException('Section to move not found !');
+    }
+    if (existingSection.projectId !== existingMoveSection.projectId) {
+      throw new ForbiddenException('Sections do not have the same project');
+    }
+    const isAdmin = user.role.name === role.ADMIN;
+    if (!isAdmin) {
+      const isModerator = await this.prisma.user_Has_Project.findFirst({
+        where: {
+          userId: user.id,
+          projectId: existingSection.projectId,
+          role: { name: roleProject.MODERATOR },
+          isBanned: false,
+        },
+        select: { id: true },
+      });
+      if (!isModerator) {
+        throw new ForbiddenException('You are unauthorized !');
+      }
+    }
+    await this.prisma.post.updateMany({
+      where: { sectionId },
+      data: { sectionId: moveSectionId },
+    });
+    return { message: 'Posts changed section !' };
+  }
 
   async vote(postId: string, dto: voteDTO, user: User) {
     const existingPost = await this.prisma.post.findUnique({
