@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { MessageController } from './message.controller';
 import { MessageService } from './message.service';
 import { messageServiceMock } from './mock/message.service.mock';
-import { userMock } from 'src/auth/mock/auth.mock';
+import { userMock, userWithRoleMock } from 'src/auth/mock/auth.mock';
 import { messageMock } from './mock/message.mock';
 
 describe('MessageController', () => {
@@ -48,7 +48,7 @@ describe('MessageController', () => {
     const messageId = '1';
     it('should return Message deleted !', async () => {
       await expect(
-        controller.deleteMessage(messageId, userMock),
+        controller.deleteMessage(messageId, userWithRoleMock),
       ).resolves.toEqual({
         message: 'Message deleted !',
       });
@@ -57,7 +57,7 @@ describe('MessageController', () => {
   describe('Delete All Message', () => {
     it('should return Messages deleted !', async () => {
       await expect(
-        controller.deleteAllMessage(projectId, userMock),
+        controller.deleteAllMessage(projectId, userWithRoleMock),
       ).resolves.toEqual({
         message: 'Messages deleted !',
       });

@@ -47,12 +47,11 @@ export class SectionController {
     return this.sectionService.updateSection(dto, projectId, sectionId, user);
   }
 
-  @Delete(':sectionId/project/:projectId')
+  @Delete(':sectionId/project')
   removeSection(
-    @Param('projectId') projectId: string,
     @Param('sectionId') sectionId: string,
-    @GetUser() user: User,
+    @GetUser() user: UserWithRole,
   ) {
-    return this.sectionService.removeSection(projectId, sectionId, user);
+    return this.sectionService.removeSection(sectionId, user);
   }
 }

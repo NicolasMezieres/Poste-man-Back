@@ -103,21 +103,27 @@ export class SectionService {
     return { message: 'Section Update' };
   }
 
-  async removeSection(projectId: string, sectionId: string, user: User) {
+  async removeSection(sectionId: string, user: UserWithRole) {
     const existingSection = await this.prisma.section.findUnique({
-      where: {
-        id: sectionId,
-        project: {
-          id: projectId,
-          users: {
-            some: { userId: user.id, role: { name: roleProject.MODERATOR } },
-          },
-        },
-      },
+      where: { id: sectionId },
       select: { id: true, projectId: true },
     });
     if (!existingSection) {
-      throw new ForbiddenException('Section not found');
+      throw new NotFoundException('Section not found !');
+    }
+    const isAdmin = user.role.name === role.ADMIN;
+    if (!isAdmin) {
+      const isModerator = await this.prisma.user_Has_Project.findFirst({
+        where: {
+          userId: user.id,
+          projectId: existingSection.projectId,
+          role: { name: roleProject.MODERATOR },
+        },
+        select: { id: true },
+      });
+      if (!isModerator) {
+        throw new ForbiddenException('You are unauthorized !');
+      }
     }
     await this.prisma.section.delete({
       where: { id: sectionId },
