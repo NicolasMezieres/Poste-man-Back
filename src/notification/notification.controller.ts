@@ -11,13 +11,12 @@ export class NotificationController {
   notifications(@GetUser() user: User) {
     return this.notificationService.notifications(user);
   }
-
-  @Delete('/:id')
-  remove(@Param('id') id: string, @GetUser() user: User) {
-    return this.notificationService.remove(id, user);
-  }
   @Delete('/all')
   removeAll(@GetUser() user: User) {
     return this.notificationService.removeAll(user);
+  }
+  @Delete('/:id')
+  remove(@Param('id') id: string, @GetUser() user: User) {
+    return this.notificationService.remove(id, user);
   }
 }
