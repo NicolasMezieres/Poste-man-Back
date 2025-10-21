@@ -2,12 +2,17 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { MessageService } from './message.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { messagePrismaMock } from './mock/message.prisma.mock';
-import { userMock } from 'src/auth/mock/auth.mock';
+import {
+  adminWithRoleMock,
+  userMock,
+  userWithRoleMock,
+} from 'src/auth/mock/auth.mock';
 import { ForbiddenException, NotFoundException } from '@nestjs/common';
 import { MessageGateway } from './message.gateway';
 import { messageGatewayMock } from './mock/message.gateway.mock';
 import { socketMock } from './mock/socket.mock';
 import { WsException } from '@nestjs/websockets';
+import { roleProject } from 'src/utils/enum';
 
 describe('MessageService', () => {
   let service: MessageService;
@@ -23,7 +28,9 @@ describe('MessageService', () => {
 
     service = module.get<MessageService>(MessageService);
   });
-
+  afterEach(() => {
+    jest.resetAllMocks();
+  });
   it('should be defined', () => {
     expect(service).toBeDefined();
   });
@@ -101,16 +108,72 @@ describe('MessageService', () => {
   });
   describe('Delete Message', () => {
     const messageId = '1';
-    it('should return Message deleted !', async () => {
-      const existingMessage = { id: '1', projectId: '1' };
+    const existingMessage = {
+      id: messageId,
+      projectId: projectId,
+      authorId: 'otherUserId',
+    };
+    it('should return Message deleted with User account !', async () => {
+      const newExistingMessage = { ...existingMessage };
+      newExistingMessage.authorId = userWithRoleMock.id;
       jest
-        .spyOn(messagePrismaMock.message, 'findFirst')
-        .mockResolvedValue(existingMessage);
-      await expect(service.deleteMessage(messageId, userMock)).resolves.toEqual(
-        {
-          message: 'Message deleted !',
+        .spyOn(messagePrismaMock.message, 'findUnique')
+        .mockResolvedValue(newExistingMessage);
+      jest
+        .spyOn(messagePrismaMock.user_Has_Project, 'findFirst')
+        .mockResolvedValue({
+          role: { name: roleProject.MEMBER },
+          userId: userWithRoleMock.id,
+        });
+      await expect(
+        service.deleteMessage(messageId, userWithRoleMock),
+      ).resolves.toEqual({
+        message: 'Message deleted !',
+      });
+      expect(messagePrismaMock.message.delete).toHaveBeenCalledWith({
+        where: {
+          id: messageId,
         },
+      });
+      expect(messageGatewayMock.emitDeleteMessage).toHaveBeenCalledWith(
+        existingMessage.id,
+        existingMessage.projectId,
       );
+    });
+    it('should return Message deleted with Admin account !', async () => {
+      jest
+        .spyOn(messagePrismaMock.message, 'findUnique')
+        .mockResolvedValue(existingMessage);
+      await expect(
+        service.deleteMessage(messageId, adminWithRoleMock),
+      ).resolves.toEqual({
+        message: 'Message deleted !',
+      });
+      expect(messagePrismaMock.message.delete).toHaveBeenCalledWith({
+        where: {
+          id: messageId,
+        },
+      });
+      expect(messageGatewayMock.emitDeleteMessage).toHaveBeenCalledWith(
+        existingMessage.id,
+        existingMessage.projectId,
+      );
+    });
+    it('should return Message deleted with Moderator account !', async () => {
+      jest
+        .spyOn(messagePrismaMock.message, 'findUnique')
+        .mockResolvedValue(existingMessage);
+      jest
+        .spyOn(messagePrismaMock.user_Has_Project, 'findFirst')
+        .mockResolvedValue({
+          role: { name: roleProject.MODERATOR },
+          userId: userWithRoleMock.id,
+        });
+      await expect(
+        service.deleteMessage(messageId, userWithRoleMock),
+      ).resolves.toEqual({
+        message: 'Message deleted !',
+      });
       expect(messagePrismaMock.message.delete).toHaveBeenCalledWith({
         where: {
           id: messageId,
@@ -123,11 +186,39 @@ describe('MessageService', () => {
     });
     it('should return Not Found Exception', async () => {
       jest
-        .spyOn(messagePrismaMock.message, 'findFirst')
+        .spyOn(messagePrismaMock.message, 'findUnique')
         .mockResolvedValue(undefined);
-      await expect(service.deleteMessage(messageId, userMock)).rejects.toEqual(
-        new NotFoundException('Message not found !'),
-      );
+      await expect(
+        service.deleteMessage(messageId, userWithRoleMock),
+      ).rejects.toEqual(new NotFoundException('Message not found !'));
+      expect(messageGatewayMock.emitDeleteMessage).not.toHaveBeenCalled();
+    });
+    it('should return You are unauthorized ! User is not in the project', async () => {
+      jest
+        .spyOn(messagePrismaMock.message, 'findUnique')
+        .mockResolvedValue(existingMessage);
+      jest
+        .spyOn(messagePrismaMock.user_Has_Project, 'findFirst')
+        .mockResolvedValue(null);
+      await expect(
+        service.deleteMessage(messageId, userWithRoleMock),
+      ).rejects.toEqual(new ForbiddenException('You are unauthorized !'));
+      expect(messageGatewayMock.emitDeleteMessage).not.toHaveBeenCalled();
+    });
+    it('should return You are unauthorized ! Member and is not her message', async () => {
+      jest
+        .spyOn(messagePrismaMock.message, 'findUnique')
+        .mockResolvedValue(existingMessage);
+      jest
+        .spyOn(messagePrismaMock.user_Has_Project, 'findFirst')
+        .mockResolvedValue({
+          role: { name: roleProject.MEMBER },
+          userId: userWithRoleMock.id,
+        });
+      await expect(
+        service.deleteMessage(messageId, userWithRoleMock),
+      ).rejects.toEqual(new ForbiddenException('You are unauthorized !'));
+      expect(messageGatewayMock.emitDeleteMessage).not.toHaveBeenCalled();
     });
   });
   describe('Delete All Message', () => {

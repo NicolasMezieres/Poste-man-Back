@@ -93,16 +93,23 @@ export class MessageService {
       throw new NotFoundException('Message not found !');
     }
     const isAdmin = user.role.name === role.ADMIN;
-    if (!isAdmin && existingMessage.authorId !== user.id) {
-      const isModerator = await this.prisma.user_Has_Project.findFirst({
+    if (!isAdmin) {
+      const didUserInProject = await this.prisma.user_Has_Project.findFirst({
         where: {
           userId: user.id,
           projectId: existingMessage.projectId,
-          role: { name: roleProject.MODERATOR },
+          isBanned: false,
         },
-        select: { id: true },
+        select: {
+          role: { select: { name: true } },
+          userId: true,
+        },
       });
-      if (!isModerator) {
+      if (!didUserInProject) {
+        throw new ForbiddenException('You are unauthorized !');
+      }
+      const isModerator = didUserInProject.role.name === roleProject.MODERATOR;
+      if (!isModerator && existingMessage.authorId !== user.id) {
         throw new ForbiddenException('You are unauthorized !');
       }
     }

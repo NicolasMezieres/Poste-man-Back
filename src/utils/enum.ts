@@ -3,7 +3,7 @@ export const enum role {
   USER = 'User',
   SUPERADMINMAN = 'SuperAdminMan',
 }
-export const enum roleProject {
-  MEMBER = 'Member',
-  MODERATOR = 'Moderator',
-}
+export const roleProject = {
+  MEMBER: 'Member',
+  MODERATOR: 'Moderator',
+} as const;
