@@ -83,7 +83,7 @@ export class PostService {
       select: { userId: true, id: true },
     });
     if (!existingPost) {
-      throw new ForbiddenException('Post not found !');
+      throw new NotFoundException('Post not found !');
     }
     if (existingPost.userId !== user.id) {
       throw new ForbiddenException('You are unauthorized !');

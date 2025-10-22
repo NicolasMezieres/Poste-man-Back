@@ -125,7 +125,7 @@ describe('PostService', () => {
       jest.spyOn(postPrismaMock.post, 'findUnique').mockResolvedValue(null);
       await expect(
         service.update(postId, postDTOMock, userMock),
-      ).rejects.toEqual(new ForbiddenException('Post not found !'));
+      ).rejects.toEqual(new NotFoundException('Post not found !'));
       expect(postPrismaMock.post.update).not.toHaveBeenCalled();
     });
     it('Should return a Forbidden Exception You are unauthorized !', async () => {
