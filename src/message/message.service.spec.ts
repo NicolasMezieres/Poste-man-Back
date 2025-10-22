@@ -13,6 +13,8 @@ import { messageGatewayMock } from './mock/message.gateway.mock';
 import { socketMock } from './mock/socket.mock';
 import { WsException } from '@nestjs/websockets';
 import { roleProject } from 'src/utils/enum';
+import { NotificationService } from 'src/notification/notification.service';
+import { notificationServiceMock } from './mock/message.notification.mock';
 
 describe('MessageService', () => {
   let service: MessageService;
@@ -23,6 +25,7 @@ describe('MessageService', () => {
         MessageService,
         { provide: PrismaService, useValue: messagePrismaMock },
         { provide: MessageGateway, useValue: messageGatewayMock },
+        { provide: NotificationService, useValue: notificationServiceMock },
       ],
     }).compile();
 
@@ -68,6 +71,10 @@ describe('MessageService', () => {
       jest
         .spyOn(messagePrismaMock.project, 'findUnique')
         .mockResolvedValue({ id: '1' });
+      jest
+        .spyOn(messagePrismaMock.message, 'create')
+        .mockResolvedValue(undefined);
+      jest.spyOn(notificationServiceMock, 'createMany').mockResolvedValue(null);
       const newMessage = await expect(
         service.createMessage(messageDTO, projectId, userMock),
       ).resolves.toEqual({

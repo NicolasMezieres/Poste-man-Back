@@ -4,5 +4,6 @@ export const notificationPrismaMock = {
     findFirst: jest.fn(),
     delete: jest.fn(),
     deleteMany: jest.fn(),
+    createMany: jest.fn(),
   },
 };
