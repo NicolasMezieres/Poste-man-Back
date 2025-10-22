@@ -18,6 +18,22 @@ export class NotificationService {
     };
   }
 
+  async createMany(
+    users: { projectId: string; userId: string }[],
+    theme: string,
+    text: string,
+  ) {
+    await this.prisma.notification.createMany({
+      data: users.map((user) => ({
+        ...user,
+        theme,
+        text,
+      })),
+      skipDuplicates: true,
+    });
+    return;
+  }
+
   async remove(id: string, user: User) {
     const isValidId = !Number.isNaN(Number(id));
     if (!isValidId) {

@@ -13,6 +13,7 @@ import { MessageGateway } from './message.gateway';
 import { Socket } from 'socket.io';
 import { WsException } from '@nestjs/websockets';
 import { UserWithRole } from 'src/utils/type';
+import { NotificationService } from 'src/notification/notification.service';
 
 @Injectable()
 export class MessageService {
@@ -20,6 +21,7 @@ export class MessageService {
     private prisma: PrismaService,
     @Inject(forwardRef(() => MessageGateway))
     private socket: MessageGateway,
+    private notification: NotificationService,
   ) {}
   private selectProjectMessages = {
     id: true,
@@ -61,7 +63,14 @@ export class MessageService {
         id: projectId,
         users: { some: { userId: user.id, isBanned: false } },
       },
-      select: { id: true },
+      select: {
+        id: true,
+        name: true,
+        users: {
+          where: { isBanned: false },
+          select: { projectId: true, userId: true },
+        },
+      },
     });
     if (!existingProject) {
       throw new NotFoundException('Project not found !');
@@ -81,7 +90,12 @@ export class MessageService {
         },
       },
     });
-    this.socket.emitNewMessage(newMessage, projectId);
+    this.socket.emitNewMessage(newMessage, existingProject.id);
+    await this.notification.createMany(
+      existingProject.users,
+      'New message',
+      `A new message send in project ${existingProject.name}`,
+    );
     return { message: 'Message created !' };
   }
   async deleteMessage(messageId: string, user: UserWithRole) {

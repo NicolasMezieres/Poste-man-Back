@@ -39,6 +39,7 @@ model Notification {
   theme String @db.VarChar(30)
   createdAt DateTime @db.Timestamp() @default(now())
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@unique([userId,projectId,theme])
 }
 
 model Icon {

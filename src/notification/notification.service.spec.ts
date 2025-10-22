@@ -35,6 +35,20 @@ describe('NotificationService', () => {
       });
     });
   });
+  describe('Create notifications to each user of project', () => {
+    it('Should create notification', async () => {
+      jest
+        .spyOn(notificationPrismaMock.notification, 'createMany')
+        .mockResolvedValue(null);
+      await expect(
+        service.createMany(
+          [{ projectId: 'projectId', userId: 'userId' }],
+          'theme',
+          'text',
+        ),
+      ).resolves.toEqual(undefined);
+    });
+  });
   describe('Remove notification', () => {
     it('Should delete notification', async () => {
       jest
