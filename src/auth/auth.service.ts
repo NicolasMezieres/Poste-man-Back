@@ -1,4 +1,5 @@
 import {
+  ForbiddenException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -124,7 +125,7 @@ export class AuthService {
       const token = await this.signToken(existingEmail, '10m');
       await this.email.forgetPassword(existingEmail, token.connexion_token);
     } else if (existingEmail && !existingEmail.isActive) {
-      return { message: 'Your account is not activate' };
+      throw new ForbiddenException('Your account is not activate');
     }
     return {
       message: 'A mail was send.',

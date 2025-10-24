@@ -62,3 +62,5 @@ export type memberGateway = {
   isBanned: boolean;
   isConnected: boolean;
 };
+
+export type resMessageType = { body: { message: string } };
