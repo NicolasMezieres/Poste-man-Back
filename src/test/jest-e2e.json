@@ -1,4 +1,5 @@
 {
+  "coveragePathIgnorePatterns": ["src/prisma/generated"],
   "moduleFileExtensions": ["js", "json", "ts"],
   "testEnvironment": "node",
   "testRegex": ".e2e-spec.ts$",
