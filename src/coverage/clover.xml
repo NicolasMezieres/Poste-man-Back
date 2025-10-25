@@ -1,0 +1,480 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<coverage generated="1761376491920" clover="3.2.0">
+  <project timestamp="1761376491920" name="All files">
+    <metrics statements="357" coveredstatements="293" conditionals="4140" coveredconditionals="684" methods="1416" coveredmethods="305" elements="5913" coveredelements="1282" complexity="0" loc="357" ncloc="357" packages="11" files="28" classes="28"/>
+    <package name="auth">
+      <metrics statements="88" coveredstatements="88" conditionals="62" coveredconditionals="50" methods="14" coveredmethods="14"/>
+      <file name="auth.controller.ts" path="C:\Users\nicol\Documents\projet\Poste-man-Back\src\auth\auth.controller.ts">
+        <metrics statements="21" coveredstatements="21" conditionals="20" coveredconditionals="15" methods="7" coveredmethods="7"/>
+        <line num="1" count="1" type="stmt"/>
+        <line num="10" count="1" type="stmt"/>
+        <line num="17" count="1" type="stmt"/>
+        <line num="18" count="1" type="stmt"/>
+        <line num="19" count="1" type="stmt"/>
+        <line num="25" count="1" type="stmt"/>
+        <line num="28" count="1" type="stmt"/>
+        <line num="29" count="2" type="cond" truecount="3" falsecount="1"/>
+        <line num="35" count="1" type="cond" truecount="3" falsecount="1"/>
+        <line num="36" count="4" type="stmt"/>
+        <line num="42" count="1" type="stmt"/>
+        <line num="43" count="2" type="stmt"/>
+        <line num="52" count="1" type="cond" truecount="3" falsecount="1"/>
+        <line num="53" count="5" type="stmt"/>
+        <line num="59" count="1" type="cond" truecount="3" falsecount="1"/>
+        <line num="60" count="2" type="stmt"/>
+        <line num="68" count="1" type="cond" truecount="3" falsecount="1"/>
+        <line num="69" count="1" type="stmt"/>
+        <line num="74" count="1" type="stmt"/>
+        <line num="75" count="1" type="stmt"/>
+        <line num="80" count="1" type="stmt"/>
+      </file>
+      <file name="auth.module.ts" path="C:\Users\nicol\Documents\projet\Poste-man-Back\src\auth\auth.module.ts">
+        <metrics statements="12" coveredstatements="12" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+        <line num="1" count="1" type="stmt"/>
+        <line num="2" count="1" type="stmt"/>
+        <line num="3" count="1" type="stmt"/>
+        <line num="4" count="1" type="stmt"/>
+        <line num="5" count="1" type="stmt"/>
+        <line num="6" count="1" type="stmt"/>
+        <line num="7" count="1" type="stmt"/>
+        <line num="8" count="1" type="stmt"/>
+        <line num="9" count="1" type="stmt"/>
+        <line num="10" count="1" type="stmt"/>
+        <line num="11" count="1" type="stmt"/>
+        <line num="27" count="1" type="stmt"/>
+      </file>
+      <file name="auth.service.ts" path="C:\Users\nicol\Documents\projet\Poste-man-Back\src\auth\auth.service.ts">
+        <metrics statements="55" coveredstatements="55" conditionals="42" coveredconditionals="35" methods="7" coveredmethods="7"/>
+        <line num="1" count="1" type="stmt"/>
+        <line num="8" count="1" type="stmt"/>
+        <line num="9" count="1" type="stmt"/>
+        <line num="10" count="1" type="stmt"/>
+        <line num="12" count="1" type="stmt"/>
+        <line num="14" count="1" type="stmt"/>
+        <line num="15" count="1" type="stmt"/>
+        <line num="24" count="1" type="stmt"/>
+        <line num="26" count="2" type="cond" truecount="6" falsecount="2"/>
+        <line num="27" count="2" type="cond" truecount="3" falsecount="1"/>
+        <line num="28" count="2" type="cond" truecount="3" falsecount="1"/>
+        <line num="29" count="2" type="stmt"/>
+        <line num="33" count="3" type="stmt"/>
+        <line num="34" count="3" type="stmt"/>
+        <line num="42" count="4" type="stmt"/>
+        <line num="45" count="4" type="cond" truecount="2" falsecount="0"/>
+        <line num="46" count="1" type="stmt"/>
+        <line num="48" count="3" type="stmt"/>
+        <line num="51" count="3" type="cond" truecount="2" falsecount="0"/>
+        <line num="52" count="1" type="stmt"/>
+        <line num="54" count="2" type="stmt"/>
+        <line num="57" count="2" type="cond" truecount="2" falsecount="0"/>
+        <line num="58" count="1" type="stmt"/>
+        <line num="60" count="1" type="stmt"/>
+        <line num="61" count="1" type="stmt"/>
+        <line num="62" count="1" type="stmt"/>
+        <line num="63" count="1" type="stmt"/>
+        <line num="71" count="1" type="stmt"/>
+        <line num="72" count="1" type="stmt"/>
+        <line num="75" count="2" type="stmt"/>
+        <line num="78" count="2" type="cond" truecount="2" falsecount="0"/>
+        <line num="79" count="1" type="stmt"/>
+        <line num="81" count="1" type="stmt"/>
+        <line num="88" count="1" type="stmt"/>
+        <line num="91" count="5" type="stmt"/>
+        <line num="97" count="5" type="cond" truecount="2" falsecount="0"/>
+        <line num="98" count="1" type="stmt"/>
+        <line num="99" count="4" type="cond" truecount="2" falsecount="0"/>
+        <line num="100" count="1" type="stmt"/>
+        <line num="103" count="3" type="stmt"/>
+        <line num="108" count="3" type="cond" truecount="2" falsecount="0"/>
+        <line num="109" count="1" type="stmt"/>
+        <line num="111" count="2" type="stmt"/>
+        <line num="112" count="2" type="stmt"/>
+        <line num="118" count="2" type="stmt"/>
+        <line num="121" count="2" type="stmt"/>
+        <line num="124" count="2" type="cond" truecount="4" falsecount="0"/>
+        <line num="125" count="1" type="stmt"/>
+        <line num="126" count="1" type="stmt"/>
+        <line num="127" count="1" type="cond" truecount="3" falsecount="1"/>
+        <line num="128" count="1" type="stmt"/>
+        <line num="130" count="1" type="stmt"/>
+        <line num="135" count="1" type="stmt"/>
+        <line num="136" count="1" type="stmt"/>
+        <line num="140" count="1" type="stmt"/>
+      </file>
+    </package>
+    <package name="auth.Guards">
+      <metrics statements="12" coveredstatements="10" conditionals="0" coveredconditionals="0" methods="3" coveredmethods="1"/>
+      <file name="admin.guard.ts" path="C:\Users\nicol\Documents\projet\Poste-man-Back\src\auth\Guards\admin.guard.ts">
+        <metrics statements="3" coveredstatements="2" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="0"/>
+        <line num="1" count="1" type="stmt"/>
+        <line num="3" count="1" type="stmt"/>
+        <line num="5" count="0" type="stmt"/>
+      </file>
+      <file name="index.ts" path="C:\Users\nicol\Documents\projet\Poste-man-Back\src\auth\Guards\index.ts">
+        <metrics statements="3" coveredstatements="3" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+        <line num="1" count="1" type="stmt"/>
+        <line num="2" count="1" type="stmt"/>
+        <line num="3" count="1" type="stmt"/>
+      </file>
+      <file name="jwt.guard.ts" path="C:\Users\nicol\Documents\projet\Poste-man-Back\src\auth\Guards\jwt.guard.ts">
+        <metrics statements="3" coveredstatements="2" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="0"/>
+        <line num="1" count="1" type="stmt"/>
+        <line num="3" count="1" type="stmt"/>
+        <line num="5" count="0" type="stmt"/>
+      </file>
+      <file name="reset.password.guard.ts" path="C:\Users\nicol\Documents\projet\Poste-man-Back\src\auth\Guards\reset.password.guard.ts">
+        <metrics statements="3" coveredstatements="3" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="1"/>
+        <line num="1" count="1" type="stmt"/>
+        <line num="3" count="1" type="stmt"/>
+        <line num="5" count="2" type="stmt"/>
+      </file>
+    </package>
+    <package name="auth.decorator">
+      <metrics statements="6" coveredstatements="6" conditionals="2" coveredconditionals="1" methods="1" coveredmethods="1"/>
+      <file name="get-user.decorator.ts" path="C:\Users\nicol\Documents\projet\Poste-man-Back\src\auth\decorator\get-user.decorator.ts">
+        <metrics statements="5" coveredstatements="5" conditionals="2" coveredconditionals="1" methods="1" coveredmethods="1"/>
+        <line num="1" count="1" type="stmt"/>
+        <line num="5" count="1" type="stmt"/>
+        <line num="7" count="2" type="stmt"/>
+        <line num="8" count="2" type="stmt"/>
+        <line num="9" count="2" type="cond" truecount="1" falsecount="1"/>
+      </file>
+      <file name="index.ts" path="C:\Users\nicol\Documents\projet\Poste-man-Back\src\auth\decorator\index.ts">
+        <metrics statements="1" coveredstatements="1" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+        <line num="1" count="1" type="stmt"/>
+      </file>
+    </package>
+    <package name="auth.dto">
+      <metrics statements="25" coveredstatements="25" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+      <file name="forget.password.dto.ts" path="C:\Users\nicol\Documents\projet\Poste-man-Back\src\auth\dto\forget.password.dto.ts">
+        <metrics statements="4" coveredstatements="4" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+        <line num="1" count="1" type="stmt"/>
+        <line num="2" count="1" type="stmt"/>
+        <line num="4" count="1" type="stmt"/>
+        <line num="10" count="1" type="stmt"/>
+      </file>
+      <file name="index.ts" path="C:\Users\nicol\Documents\projet\Poste-man-Back\src\auth\dto\index.ts">
+        <metrics statements="4" coveredstatements="4" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+        <line num="1" count="1" type="stmt"/>
+        <line num="2" count="1" type="stmt"/>
+        <line num="3" count="1" type="stmt"/>
+        <line num="4" count="1" type="stmt"/>
+      </file>
+      <file name="reset.password.dto.ts" path="C:\Users\nicol\Documents\projet\Poste-man-Back\src\auth\dto\reset.password.dto.ts">
+        <metrics statements="4" coveredstatements="4" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+        <line num="1" count="1" type="stmt"/>
+        <line num="2" count="1" type="stmt"/>
+        <line num="9" count="1" type="stmt"/>
+        <line num="15" count="1" type="stmt"/>
+      </file>
+      <file name="signin.dto.ts" path="C:\Users\nicol\Documents\projet\Poste-man-Back\src\auth\dto\signin.dto.ts">
+        <metrics statements="5" coveredstatements="5" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+        <line num="1" count="1" type="stmt"/>
+        <line num="2" count="1" type="stmt"/>
+        <line num="9" count="1" type="stmt"/>
+        <line num="16" count="1" type="stmt"/>
+        <line num="22" count="1" type="stmt"/>
+      </file>
+      <file name="signup.dto.ts" path="C:\Users\nicol\Documents\projet\Poste-man-Back\src\auth\dto\signup.dto.ts">
+        <metrics statements="8" coveredstatements="8" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+        <line num="1" count="1" type="stmt"/>
+        <line num="2" count="1" type="stmt"/>
+        <line num="11" count="1" type="stmt"/>
+        <line num="17" count="1" type="stmt"/>
+        <line num="24" count="1" type="stmt"/>
+        <line num="30" count="1" type="stmt"/>
+        <line num="37" count="1" type="stmt"/>
+        <line num="43" count="1" type="stmt"/>
+      </file>
+    </package>
+    <package name="auth.mock">
+      <metrics statements="15" coveredstatements="15" conditionals="4" coveredconditionals="2" methods="0" coveredmethods="0"/>
+      <file name="auth.email.mock.ts" path="C:\Users\nicol\Documents\projet\Poste-man-Back\src\auth\mock\auth.email.mock.ts">
+        <metrics statements="1" coveredstatements="1" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+        <line num="1" count="1" type="stmt"/>
+      </file>
+      <file name="auth.mock.ts" path="C:\Users\nicol\Documents\projet\Poste-man-Back\src\auth\mock\auth.mock.ts">
+        <metrics statements="12" coveredstatements="12" conditionals="4" coveredconditionals="2" methods="0" coveredmethods="0"/>
+        <line num="2" count="1" type="stmt"/>
+        <line num="4" count="1" type="stmt"/>
+        <line num="5" count="1" type="stmt"/>
+        <line num="8" count="1" type="stmt"/>
+        <line num="13" count="1" type="stmt"/>
+        <line num="14" count="1" type="stmt"/>
+        <line num="15" count="1" type="stmt"/>
+        <line num="22" count="1" type="stmt"/>
+        <line num="27" count="1" type="stmt"/>
+        <line num="43" count="1" type="stmt"/>
+        <line num="55" count="1" type="stmt"/>
+        <line num="70" count="1" type="stmt"/>
+      </file>
+      <file name="auth.prisma.mock.ts" path="C:\Users\nicol\Documents\projet\Poste-man-Back\src\auth\mock\auth.prisma.mock.ts">
+        <metrics statements="2" coveredstatements="2" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+        <line num="1" count="1" type="stmt"/>
+        <line num="3" count="1" type="stmt"/>
+      </file>
+    </package>
+    <package name="auth.strategy">
+      <metrics statements="72" coveredstatements="41" conditionals="64" coveredconditionals="29" methods="12" coveredmethods="6"/>
+      <file name="admin.strategy.ts" path="C:\Users\nicol\Documents\projet\Poste-man-Back\src\auth\strategy\admin.strategy.ts">
+        <metrics statements="16" coveredstatements="9" conditionals="16" coveredconditionals="6" methods="3" coveredmethods="1"/>
+        <line num="1" count="1" type="stmt"/>
+        <line num="2" count="1" type="stmt"/>
+        <line num="3" count="1" type="stmt"/>
+        <line num="4" count="1" type="stmt"/>
+        <line num="5" count="1" type="stmt"/>
+        <line num="6" count="1" type="stmt"/>
+        <line num="11" count="1" type="stmt"/>
+        <line num="14" count="2" type="stmt"/>
+        <line num="16" count="2" type="stmt"/>
+        <line num="18" count="0" type="cond" truecount="0" falsecount="4"/>
+        <line num="19" count="0" type="stmt"/>
+        <line num="21" count="0" type="stmt"/>
+        <line num="28" count="0" type="stmt"/>
+        <line num="39" count="0" type="cond" truecount="0" falsecount="4"/>
+        <line num="40" count="0" type="stmt"/>
+        <line num="42" count="0" type="stmt"/>
+      </file>
+      <file name="jwt.strategy.ts" path="C:\Users\nicol\Documents\projet\Poste-man-Back\src\auth\strategy\jwt.strategy.ts">
+        <metrics statements="17" coveredstatements="8" conditionals="16" coveredconditionals="6" methods="3" coveredmethods="1"/>
+        <line num="1" count="1" type="stmt"/>
+        <line num="6" count="1" type="stmt"/>
+        <line num="7" count="1" type="stmt"/>
+        <line num="8" count="1" type="stmt"/>
+        <line num="9" count="1" type="stmt"/>
+        <line num="14" count="1" type="stmt"/>
+        <line num="17" count="2" type="stmt"/>
+        <line num="19" count="2" type="stmt"/>
+        <line num="21" count="0" type="cond" truecount="0" falsecount="4"/>
+        <line num="22" count="0" type="stmt"/>
+        <line num="24" count="0" type="stmt"/>
+        <line num="31" count="0" type="stmt"/>
+        <line num="43" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="44" count="0" type="stmt"/>
+        <line num="45" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="46" count="0" type="stmt"/>
+        <line num="48" count="0" type="stmt"/>
+      </file>
+      <file name="reset.password.strategy.ts" path="C:\Users\nicol\Documents\projet\Poste-man-Back\src\auth\strategy\reset.password.strategy.ts">
+        <metrics statements="17" coveredstatements="14" conditionals="16" coveredconditionals="11" methods="3" coveredmethods="3"/>
+        <line num="1" count="1" type="stmt"/>
+        <line num="6" count="1" type="stmt"/>
+        <line num="7" count="1" type="stmt"/>
+        <line num="8" count="1" type="stmt"/>
+        <line num="9" count="1" type="stmt"/>
+        <line num="13" count="1" type="stmt"/>
+        <line num="19" count="2" type="stmt"/>
+        <line num="21" count="2" type="stmt"/>
+        <line num="23" count="2" type="cond" truecount="3" falsecount="1"/>
+        <line num="24" count="0" type="stmt"/>
+        <line num="26" count="2" type="stmt"/>
+        <line num="32" count="2" type="stmt"/>
+        <line num="39" count="2" type="cond" truecount="1" falsecount="1"/>
+        <line num="40" count="0" type="stmt"/>
+        <line num="41" count="2" type="cond" truecount="1" falsecount="1"/>
+        <line num="42" count="0" type="stmt"/>
+        <line num="44" count="2" type="stmt"/>
+      </file>
+      <file name="ws.jwt.strategy.ts" path="C:\Users\nicol\Documents\projet\Poste-man-Back\src\auth\strategy\ws.jwt.strategy.ts">
+        <metrics statements="22" coveredstatements="10" conditionals="16" coveredconditionals="6" methods="3" coveredmethods="1"/>
+        <line num="1" count="1" type="stmt"/>
+        <line num="2" count="1" type="stmt"/>
+        <line num="3" count="1" type="stmt"/>
+        <line num="5" count="1" type="stmt"/>
+        <line num="6" count="1" type="stmt"/>
+        <line num="8" count="1" type="stmt"/>
+        <line num="9" count="1" type="stmt"/>
+        <line num="12" count="1" type="stmt"/>
+        <line num="15" count="2" type="stmt"/>
+        <line num="17" count="2" type="stmt"/>
+        <line num="19" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="20" count="0" type="stmt"/>
+        <line num="23" count="0" type="stmt"/>
+        <line num="26" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="27" count="0" type="stmt"/>
+        <line num="29" count="0" type="stmt"/>
+        <line num="36" count="0" type="stmt"/>
+        <line num="48" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="49" count="0" type="stmt"/>
+        <line num="50" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="51" count="0" type="stmt"/>
+        <line num="53" count="0" type="stmt"/>
+      </file>
+    </package>
+    <package name="email">
+      <metrics statements="11" coveredstatements="5" conditionals="4" coveredconditionals="3" methods="3" coveredmethods="0"/>
+      <file name="email.service.ts" path="C:\Users\nicol\Documents\projet\Poste-man-Back\src\email\email.service.ts">
+        <metrics statements="11" coveredstatements="5" conditionals="4" coveredconditionals="3" methods="3" coveredmethods="0"/>
+        <line num="1" count="1" type="stmt"/>
+        <line num="2" count="1" type="stmt"/>
+        <line num="3" count="1" type="stmt"/>
+        <line num="5" count="1" type="stmt"/>
+        <line num="11" count="1" type="stmt"/>
+        <line num="13" count="0" type="cond" truecount="3" falsecount="1"/>
+        <line num="14" count="0" type="stmt"/>
+        <line num="26" count="0" type="stmt"/>
+        <line num="27" count="0" type="stmt"/>
+        <line num="36" count="0" type="stmt"/>
+        <line num="37" count="0" type="stmt"/>
+      </file>
+    </package>
+    <package name="prisma">
+      <metrics statements="5" coveredstatements="5" conditionals="4" coveredconditionals="3" methods="1" coveredmethods="1"/>
+      <file name="prisma.service.ts" path="C:\Users\nicol\Documents\projet\Poste-man-Back\src\prisma\prisma.service.ts">
+        <metrics statements="5" coveredstatements="5" conditionals="4" coveredconditionals="3" methods="1" coveredmethods="1"/>
+        <line num="1" count="1" type="stmt"/>
+        <line num="2" count="1" type="stmt"/>
+        <line num="3" count="1" type="stmt"/>
+        <line num="6" count="1" type="stmt"/>
+        <line num="8" count="1" type="stmt"/>
+      </file>
+    </package>
+    <package name="prisma.generated">
+      <metrics statements="64" coveredstatements="59" conditionals="8" coveredconditionals="4" methods="1" coveredmethods="0"/>
+      <file name="client.js" path="C:\Users\nicol\Documents\projet\Poste-man-Back\src\prisma\generated\client.js">
+        <metrics statements="1" coveredstatements="1" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+        <line num="4" count="1" type="stmt"/>
+      </file>
+      <file name="index.js" path="C:\Users\nicol\Documents\projet\Poste-man-Back\src\prisma\generated\index.js">
+        <metrics statements="63" coveredstatements="58" conditionals="8" coveredconditionals="4" methods="1" coveredmethods="0"/>
+        <line num="5" count="1" type="stmt"/>
+        <line num="29" count="1" type="stmt"/>
+        <line num="32" count="1" type="stmt"/>
+        <line num="34" count="1" type="stmt"/>
+        <line num="35" count="1" type="stmt"/>
+        <line num="41" count="1" type="stmt"/>
+        <line num="46" count="1" type="stmt"/>
+        <line num="47" count="1" type="stmt"/>
+        <line num="48" count="1" type="stmt"/>
+        <line num="49" count="1" type="stmt"/>
+        <line num="50" count="1" type="stmt"/>
+        <line num="51" count="1" type="stmt"/>
+        <line num="56" count="1" type="stmt"/>
+        <line num="57" count="1" type="stmt"/>
+        <line num="58" count="1" type="stmt"/>
+        <line num="59" count="1" type="stmt"/>
+        <line num="60" count="1" type="stmt"/>
+        <line num="65" count="1" type="stmt"/>
+        <line num="66" count="1" type="stmt"/>
+        <line num="71" count="1" type="stmt"/>
+        <line num="72" count="1" type="stmt"/>
+        <line num="73" count="1" type="stmt"/>
+        <line num="75" count="1" type="stmt"/>
+        <line num="84" count="1" type="stmt"/>
+        <line num="89" count="1" type="stmt"/>
+        <line num="96" count="1" type="stmt"/>
+        <line num="112" count="1" type="stmt"/>
+        <line num="121" count="1" type="stmt"/>
+        <line num="126" count="1" type="stmt"/>
+        <line num="131" count="1" type="stmt"/>
+        <line num="140" count="1" type="stmt"/>
+        <line num="147" count="1" type="stmt"/>
+        <line num="153" count="1" type="stmt"/>
+        <line num="166" count="1" type="stmt"/>
+        <line num="176" count="1" type="stmt"/>
+        <line num="184" count="1" type="stmt"/>
+        <line num="189" count="1" type="stmt"/>
+        <line num="196" count="1" type="stmt"/>
+        <line num="201" count="1" type="stmt"/>
+        <line num="206" count="1" type="stmt"/>
+        <line num="212" count="1" type="stmt"/>
+        <line num="229" count="1" type="stmt"/>
+        <line num="278" count="1" type="stmt"/>
+        <line num="280" count="1" type="stmt"/>
+        <line num="281" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="282" count="0" type="stmt"/>
+        <line num="287" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="288" count="0" type="stmt"/>
+        <line num="291" count="0" type="stmt"/>
+        <line num="292" count="0" type="stmt"/>
+        <line num="295" count="1" type="stmt"/>
+        <line num="296" count="1" type="stmt"/>
+        <line num="297" count="1" type="stmt"/>
+        <line num="298" count="1" type="stmt"/>
+        <line num="301" count="1" type="stmt"/>
+        <line num="303" count="1" type="stmt"/>
+        <line num="308" count="1" type="stmt"/>
+        <line num="309" count="1" type="stmt"/>
+        <line num="310" count="1" type="stmt"/>
+        <line num="313" count="1" type="stmt"/>
+        <line num="314" count="1" type="stmt"/>
+        <line num="316" count="1" type="stmt"/>
+        <line num="317" count="1" type="stmt"/>
+      </file>
+    </package>
+    <package name="prisma.generated.runtime">
+      <metrics statements="50" coveredstatements="32" conditionals="3990" coveredconditionals="590" methods="1378" coveredmethods="281"/>
+      <file name="library.js" path="C:\Users\nicol\Documents\projet\Poste-man-Back\src\prisma\generated\runtime\library.js">
+        <metrics statements="50" coveredstatements="32" conditionals="3990" coveredconditionals="590" methods="1378" coveredmethods="281"/>
+        <line num="4" count="974" type="cond" truecount="70" falsecount="106"/>
+        <line num="5" count="36" type="cond" truecount="3" falsecount="1"/>
+        <line num="6" count="76" type="cond" truecount="58" falsecount="132"/>
+        <line num="7" count="8" type="cond" truecount="8" falsecount="182"/>
+        <line num="8" count="3" type="cond" truecount="5" falsecount="34"/>
+        <line num="9" count="1" type="cond" truecount="40" falsecount="148"/>
+        <line num="12" count="1" type="cond" truecount="1" falsecount="10"/>
+        <line num="14" count="0" type="cond" truecount="0" falsecount="6"/>
+        <line num="15" count="36" type="cond" truecount="11" falsecount="21"/>
+        <line num="16" count="1" type="cond" truecount="2" falsecount="12"/>
+        <line num="18" count="0" type="stmt"/>
+        <line num="22" count="0" type="cond" truecount="0" falsecount="4"/>
+        <line num="24" count="292" type="cond" truecount="99" falsecount="1235"/>
+        <line num="25" count="0" type="stmt"/>
+        <line num="26" count="0" type="stmt"/>
+        <line num="27" count="0" type="stmt"/>
+        <line num="28" count="1" type="cond" truecount="0" falsecount="40"/>
+        <line num="29" count="1" type="cond" truecount="0" falsecount="39"/>
+        <line num="30" count="1" type="cond" truecount="0" falsecount="75"/>
+        <line num="31" count="43" type="cond" truecount="1" falsecount="137"/>
+        <line num="32" count="210" type="cond" truecount="88" falsecount="214"/>
+        <line num="33" count="1" type="stmt"/>
+        <line num="34" count="463" type="cond" truecount="18" falsecount="249"/>
+        <line num="36" count="1" type="cond" truecount="2" falsecount="12"/>
+        <line num="38" count="0" type="stmt"/>
+        <line num="39" count="0" type="stmt"/>
+        <line num="40" count="0" type="stmt"/>
+        <line num="45" count="0" type="stmt"/>
+        <line num="46" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="48" count="0" type="stmt"/>
+        <line num="55" count="0" type="stmt"/>
+        <line num="60" count="0" type="stmt"/>
+        <line num="67" count="1" type="cond" truecount="10" falsecount="21"/>
+        <line num="68" count="0" type="stmt"/>
+        <line num="69" count="1" type="cond" truecount="0" falsecount="7"/>
+        <line num="72" count="0" type="stmt"/>
+        <line num="104" count="0" type="stmt"/>
+        <line num="113" count="238" type="cond" truecount="20" falsecount="128"/>
+        <line num="114" count="25" type="cond" truecount="20" falsecount="139"/>
+        <line num="115" count="24" type="cond" truecount="19" falsecount="37"/>
+        <line num="116" count="1" type="cond" truecount="0" falsecount="29"/>
+        <line num="117" count="1" type="cond" truecount="15" falsecount="62"/>
+        <line num="124" count="151" type="cond" truecount="37" falsecount="110"/>
+        <line num="125" count="1" type="cond" truecount="8" falsecount="6"/>
+        <line num="126" count="1" type="cond" truecount="4" falsecount="2"/>
+        <line num="127" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="128" count="0" type="cond" truecount="0" falsecount="16"/>
+        <line num="129" count="1" type="cond" truecount="3" falsecount="75"/>
+        <line num="133" count="24" type="cond" truecount="45" falsecount="94"/>
+        <line num="134" count="1" type="cond" truecount="2" falsecount="10"/>
+      </file>
+    </package>
+    <package name="utils">
+      <metrics statements="9" coveredstatements="7" conditionals="2" coveredconditionals="2" methods="3" coveredmethods="1"/>
+      <file name="enum.ts" path="C:\Users\nicol\Documents\projet\Poste-man-Back\src\utils\enum.ts">
+        <metrics statements="5" coveredstatements="5" conditionals="2" coveredconditionals="2" methods="1" coveredmethods="1"/>
+        <line num="1" count="1" type="cond" truecount="2" falsecount="0"/>
+        <line num="2" count="1" type="stmt"/>
+        <line num="3" count="1" type="stmt"/>
+        <line num="4" count="1" type="stmt"/>
+        <line num="6" count="1" type="stmt"/>
+      </file>
+      <file name="templateemail.ts" path="C:\Users\nicol\Documents\projet\Poste-man-Back\src\utils\templateemail.ts">
+        <metrics statements="4" coveredstatements="2" conditionals="0" coveredconditionals="0" methods="2" coveredmethods="0"/>
+        <line num="1" count="1" type="stmt"/>
+        <line num="2" count="0" type="stmt"/>
+        <line num="28" count="1" type="stmt"/>
+        <line num="29" count="0" type="stmt"/>
+      </file>
+    </package>
+  </project>
+</coverage>
