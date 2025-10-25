@@ -1,0 +1,13 @@
+{
+  "coveragePathIgnorePatterns": ["src/prisma/generated"],
+  "moduleFileExtensions": ["js", "json", "ts"],
+  "testEnvironment": "node",
+  "testRegex": ".e2e-spec.ts$",
+  "transform": {
+    "^.+\\.(t|j)s$": "ts-jest"
+  },
+  "rootDir": "../../src",
+  "moduleNameMapper": {
+    "^src/(.*)$": "<rootDir>/$1"
+  }
+}

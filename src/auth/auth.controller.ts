@@ -7,7 +7,11 @@ import {
   Res,
   UseGuards,
 } from '@nestjs/common';
-import { ApiCookieAuth, ApiResponse } from '@nestjs/swagger';
+import {
+  ApiCookieAuth,
+  ApiInternalServerErrorResponse,
+  ApiResponse,
+} from '@nestjs/swagger';
 import type { Response } from 'express';
 import type { User } from 'src/prisma/generated';
 import { AuthService } from './auth.service';
@@ -18,32 +22,40 @@ import {
   SignInDTO,
   SignUpDTO,
 } from './dto';
-import { JwtGuard, ResetPasswordGuard } from './Guards';
+import { ResetPasswordGuard } from './Guards';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @ApiResponse({ status: 201, description: 'Your account as been create !' })
+  @ApiResponse({ status: 401, description: 'Username or Email already taken' })
+  @ApiInternalServerErrorResponse()
   @Post('signup')
   signup(@Body() dto: SignUpDTO) {
     return this.authService.signup(dto);
   }
 
   @ApiResponse({ status: 201, description: 'Your account is active !' })
+  @ApiResponse({ status: 404, description: 'Account not found' })
   @Patch('activationAccount/:token')
   activationAccount(@Param('token') token: string) {
     return this.authService.activationAccount(token);
   }
 
   @ApiResponse({ status: 201, description: 'Connexion succesfully' })
+  @ApiResponse({
+    status: 401,
+    description: 'Invalid credential or Account not active !',
+  })
   @Post('signin')
   signin(@Body() dto: SignInDTO, @Res({ passthrough: true }) res: Response) {
     return this.authService.signin(dto, res);
   }
 
   @ApiResponse({ status: 201, description: 'A mail was send.' })
-  @Post('forgetpassword')
+  @ApiResponse({ status: 403, description: 'Account not active' })
+  @Post('forgetPassword')
   forgetPassword(@Body() dto: ForgetPasswordDTO) {
     return this.authService.forgetPassword(dto);
   }
@@ -58,7 +70,6 @@ export class AuthController {
   }
 
   @ApiResponse({ status: 201, description: 'Deconnection Success' })
-  @UseGuards(JwtGuard)
   @Post('logout')
   logout(@Res({ passthrough: true }) res: Response) {
     res.clearCookie('access_token', {
