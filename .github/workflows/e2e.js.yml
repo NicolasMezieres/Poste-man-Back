@@ -29,6 +29,7 @@ jobs:
       DATABASE_URL: postgresql://test:password@localhost:5432/testdb
       DATABASE_URL_TEST: postgresql://test:password@localhost:5432/testdb
       PASSWORD_ADMIN: strongSecretP@ssword73
+      JWT_SECRET: MySecretKey
 
     steps:
       - uses: actions/checkout@v4
