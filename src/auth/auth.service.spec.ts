@@ -1,5 +1,4 @@
 import {
-  ForbiddenException,
   InternalServerErrorException,
   NotFoundException,
   UnauthorizedException,
@@ -178,13 +177,13 @@ describe('AuthService', () => {
       });
     });
 
-    it('should return a Forbidden Exception, Your account is not activate', async () => {
+    it('should return a { message: "Your account is not activate"}', async () => {
       const user = { ...userMock };
       user.isActive = false;
       jest.spyOn(AuthPrismaMock.user, 'findUnique').mockResolvedValue(user);
-      await expect(authService.forgetPassword(dto)).rejects.toEqual(
-        new ForbiddenException('Your account is not activate'),
-      );
+      await expect(authService.forgetPassword(dto)).resolves.toEqual({
+        message: 'Your account is not activate',
+      });
     });
   });
   describe('resetPassword', () => {
