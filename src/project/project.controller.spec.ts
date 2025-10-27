@@ -8,7 +8,7 @@ import {
   searchAdminMock,
   searchMock,
 } from './mock/project.mock';
-import { userMock } from 'src/auth/mock/auth.mock';
+import { userMock, userWithRoleMock } from 'src/auth/mock/auth.mock';
 
 describe('ProjectController', () => {
   let controller: ProjectController;
@@ -93,17 +93,9 @@ describe('ProjectController', () => {
   describe('remove', () => {
     it('should return message', async () => {
       const projectId = 'id';
-      await expect(controller.remove(projectId, userMock)).resolves.toEqual(
-        messageProjectMock,
-      );
-    });
-  });
-  describe('removeByAdmin', () => {
-    it('should return message', async () => {
-      const projectId = 'id';
-      await expect(controller.removeByAdmin(projectId)).resolves.toEqual(
-        messageProjectMock,
-      );
+      await expect(
+        controller.remove(projectId, userWithRoleMock),
+      ).resolves.toEqual(messageProjectMock);
     });
   });
 });

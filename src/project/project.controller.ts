@@ -14,7 +14,11 @@ import { projectDTO } from './dto';
 import { AdminGuard, JwtGuard } from 'src/auth/Guards';
 import { GetUser } from 'src/auth/decorator';
 import { User } from 'src/prisma/generated';
-import { querySearchAdminProject, querySearchProject } from 'src/utils/type';
+import {
+  querySearchAdminProject,
+  querySearchProject,
+  UserWithRole,
+} from 'src/utils/type';
 import {
   ApiCreatedResponse,
   ApiForbiddenResponse,
@@ -103,18 +107,10 @@ export class ProjectController {
     return this.projectService.kickUser(projectId, userId, user);
   }
 
-  @ApiNoContentResponse({ description: 'Project deleted !' })
-  @ApiNotFoundResponse({ description: 'Project not found !' })
-  @UseGuards(AdminGuard)
-  @Delete('/admin/:id')
-  removeByAdmin(@Param('id') id: string) {
-    return this.projectService.removeByAdmin(id);
-  }
-
   @ApiNoContentResponse({ description: 'Project deleted or leaved !' })
-  @ApiNotFoundResponse({ description: 'Project not found' })
+  @ApiNotFoundResponse({ description: 'Project not found !' })
   @Delete('/:id')
-  remove(@Param('id') id: string, @GetUser() user: User) {
+  remove(@Param('id') id: string, @GetUser() user: UserWithRole) {
     return this.projectService.remove(id, user);
   }
 }

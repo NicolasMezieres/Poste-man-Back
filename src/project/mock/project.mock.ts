@@ -37,19 +37,17 @@ export const createLinkProjectMock = {
 };
 
 export const dataMemberMock = {
-  data: {
-    users: [
-      {
-        user: {
-          username: 'bidule',
-          icon: {
-            image: null,
-          },
+  data: [
+    {
+      user: {
+        username: 'bidule',
+        icon: {
+          image: null,
         },
-        userId: 'userId',
-        isBanned: false,
-        isConnected: true,
       },
-    ],
-  },
+      userId: 'userId',
+      isBanned: false,
+      isConnected: true,
+    },
+  ],
 };

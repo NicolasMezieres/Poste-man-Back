@@ -2,15 +2,20 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ProjectService } from './project.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { projectPrismaMock } from './mock/project.prisma.mock';
-import { userMock } from 'src/auth/mock/auth.mock';
+import {
+  adminWithRoleMock,
+  userMock,
+  userWithRoleMock,
+} from 'src/auth/mock/auth.mock';
 import {
   ForbiddenException,
   InternalServerErrorException,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { ProjectGateway } from './project.gateway';
 import { projectGatewayMock } from './mock/project.gateway.mock';
-
+import { roleProject } from 'src/utils/enum';
 describe('ProjectService', () => {
   let service: ProjectService;
 
@@ -291,101 +296,116 @@ describe('ProjectService', () => {
         name: 'Moderator',
       },
     };
-    it('should be return a message, project deleted !', async () => {
+    it('should be return a message, project deleted ! Moderator', async () => {
+      jest
+        .spyOn(projectPrismaMock.project, 'findUnique')
+        .mockResolvedValue(project);
       jest
         .spyOn(projectPrismaMock.user_Has_Project, 'findFirst')
+        .mockResolvedValue({
+          id: 'userProjectId',
+          role: { name: roleProject.MODERATOR },
+        });
+      jest.spyOn(projectPrismaMock, '$transaction');
+      await expect(
+        service.remove(project.projectId, userWithRoleMock),
+      ).resolves.toEqual({ message: 'Project deleted !' });
+    });
+    it('should be return a message, project deleted ! Admin', async () => {
+      jest
+        .spyOn(projectPrismaMock.project, 'findUnique')
         .mockResolvedValue(project);
       jest
         .spyOn(projectPrismaMock, '$transaction')
-        .mockImplementation((callback) => {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call
-          return callback(projectPrismaMock);
-        });
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call
+        .mockImplementation((cb) => cb(projectPrismaMock));
       await expect(
-        service.remove(project.projectId, userMock),
+        service.remove(project.projectId, adminWithRoleMock),
       ).resolves.toEqual({ message: 'Project deleted !' });
     });
-    it('should be return a message, project leaved !', async () => {
-      const projectStatusMember = { ...project, role: { name: 'Member' } };
+    it('should be return a message, member project leaved !', async () => {
+      jest
+        .spyOn(projectPrismaMock.project, 'findUnique')
+        .mockResolvedValue({ id: projectId });
       jest
         .spyOn(projectPrismaMock.user_Has_Project, 'findFirst')
-        .mockResolvedValue(projectStatusMember);
+        .mockResolvedValue({
+          id: 'userProjectId',
+          role: { name: roleProject.MEMBER },
+        });
       jest
         .spyOn(projectPrismaMock.user_Has_Project, 'delete')
         .mockResolvedValue(null);
       await expect(
-        service.remove(project.projectId, userMock),
+        service.remove(project.projectId, userWithRoleMock),
       ).resolves.toEqual({ message: 'Project leaved !' });
     });
     it('should be return a Not Found Exception', async () => {
       jest
+        .spyOn(projectPrismaMock.project, 'findUnique')
+        .mockResolvedValue(null);
+      await expect(
+        service.remove(project.projectId, userWithRoleMock),
+      ).rejects.toEqual(new NotFoundException('Project not found !'));
+    });
+    it('should be return a Unauthorized Excetption Exception, user is not an Admin and not a member', async () => {
+      jest
+        .spyOn(projectPrismaMock.project, 'findUnique')
+        .mockResolvedValue({ id: projectId });
+      jest
         .spyOn(projectPrismaMock.user_Has_Project, 'findFirst')
         .mockResolvedValue(null);
-
-      await expect(service.remove(project.projectId, userMock)).rejects.toEqual(
-        new NotFoundException('Project not found'),
-      );
-    });
-  });
-  describe('Remove by Admin', () => {
-    it('should be return a message', async () => {
-      jest
-        .spyOn(projectPrismaMock.project, 'findUnique')
-        .mockResolvedValue({ id: '1' });
-      jest
-        .spyOn(projectPrismaMock, '$transaction')
-        .mockImplementation((callback) => {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call
-          return callback(projectPrismaMock);
-        });
-      await expect(service.removeByAdmin(projectId)).resolves.toEqual({
-        message: 'Project deleted !',
-      });
-    });
-    it('should be return Not Found Exception', async () => {
-      jest
-        .spyOn(projectPrismaMock.project, 'findUnique')
-        .mockResolvedValue(null);
-
-      await expect(service.removeByAdmin(projectId)).rejects.toEqual(
-        new NotFoundException('Project not found !'),
-      );
+      await expect(
+        service.remove(project.projectId, userWithRoleMock),
+      ).rejects.toEqual(new UnauthorizedException('You are unauhtorized !'));
     });
   });
   describe('list Member', () => {
-    const userId = 'userId';
-    it('should return list member', async () => {
-      jest.spyOn(projectPrismaMock.project, 'findFirst').mockResolvedValue({
-        users: [
+    const userId = userWithRoleMock.id;
+    it('should return list member, member', async () => {
+      jest
+        .spyOn(projectPrismaMock.project, 'findUnique')
+        .mockResolvedValue(projectId);
+      jest
+        .spyOn(projectPrismaMock.user_Has_Project, 'findMany')
+        .mockResolvedValue([
           {
-            id: 'id',
-            userId: userId,
+            userId,
+            user: { username: 'user', icon: { image: null } },
+            isBanned: false,
+          },
+        ]);
+      await expect(
+        service.listMember(projectId, userWithRoleMock),
+      ).resolves.toEqual({
+        data: [
+          {
+            userId,
             isBanned: false,
             user: { username: 'user', icon: { image: null } },
           },
         ],
-      });
-      await expect(service.listMember(projectId, userMock)).resolves.toEqual({
-        data: {
-          users: [
-            {
-              id: 'id',
-              userId: userId,
-              isBanned: false,
-              user: { username: 'user', icon: { image: null } },
-            },
-          ],
-        },
         projectId,
       });
     });
-    it('should return list member', async () => {
+    it('should fail Not Found Exception, Project not found !', async () => {
       jest
-        .spyOn(projectPrismaMock.project, 'findFirst')
+        .spyOn(projectPrismaMock.project, 'findUnique')
         .mockResolvedValue(null);
-      await expect(service.listMember(projectId, userMock)).rejects.toEqual(
-        new NotFoundException('Project not found'),
-      );
+      await expect(
+        service.listMember(projectId, userWithRoleMock),
+      ).rejects.toEqual(new NotFoundException('Project not found !'));
+    });
+    it('should fail Forbidden Exception, You are unauthorized ! Not a member and Not an admin', async () => {
+      jest
+        .spyOn(projectPrismaMock.project, 'findUnique')
+        .mockResolvedValue({ id: projectId });
+      jest
+        .spyOn(projectPrismaMock.user_Has_Project, 'findMany')
+        .mockResolvedValue([]);
+      await expect(
+        service.listMember(projectId, userWithRoleMock),
+      ).rejects.toEqual(new UnauthorizedException('You are unauthorized !'));
     });
   });
   describe('kick User', () => {

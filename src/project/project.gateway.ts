@@ -13,7 +13,12 @@ import { getClient } from 'src/auth/decorator/get-client.decorator';
 import { User } from 'src/prisma/generated';
 import { Server, Socket } from 'socket.io';
 import { ProjectService } from './project.service';
-import { memberGateway, userGateway } from 'src/utils/type';
+import { memberGateway, userGateway, UserWithRole } from 'src/utils/type';
+import {
+  ApiForbiddenResponse,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+} from '@nestjs/swagger';
 
 @UseGuards(WsJwtGuard)
 @WebSocketGateway(Number(process.env.PORT_GATEWAY) || 3001, {
@@ -46,9 +51,12 @@ export class ProjectGateway implements OnGatewayDisconnect {
     }
   }
 
+  @ApiOkResponse({ description: 'List member of project' })
+  @ApiNotFoundResponse({ description: 'Project not found !' })
+  @ApiForbiddenResponse({ description: 'You are unauthorized !' })
   @SubscribeMessage('listMember')
   async listMemberConnected(
-    @getClient() user: User,
+    @getClient() user: UserWithRole,
     @ConnectedSocket() client: Socket,
     @MessageBody() data: string,
   ) {
@@ -61,7 +69,7 @@ export class ProjectGateway implements OnGatewayDisconnect {
     findUser.projectMemberIds = [];
     const dataMember = await this.projectService.listMember(data, user);
     const memberConnected: memberGateway[] = [];
-    dataMember.data.users.forEach((dataUser) => {
+    dataMember.data.forEach((dataUser) => {
       if (this.userConnected.some((user) => user.userId === dataUser.userId)) {
         memberConnected.push({ ...dataUser, isConnected: true });
       } else {
