@@ -28,8 +28,9 @@ jobs:
     env:
       DATABASE_URL: postgresql://test:password@localhost:5432/testdb
       DATABASE_URL_TEST: postgresql://test:password@localhost:5432/testdb
-      PASSWORD_ADMIN: strongSecretP@ssword73
+      PASSWORD_ADMIN: StrongP@ssword73
       JWT_SECRET: MySecretKey
+      IS_PRODUCTION: false
 
     steps:
       - uses: actions/checkout@v4

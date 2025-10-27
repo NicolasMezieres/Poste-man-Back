@@ -1,6 +1,5 @@
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
-import * as cookieParser from 'cookie-parser';
 import { Server } from 'http';
 import { AuthModule } from 'src/auth/auth.module';
 import { AuthEmailMock } from 'src/auth/mock/auth.email.mock';
@@ -9,6 +8,7 @@ import { EmailService } from 'src/email/email.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { resMessageType } from 'src/utils/type';
 import * as request from 'supertest';
+import { app, prisma } from './setup.e2e';
 const signupDTO = {
   firstName: 'firstName',
   lastName: 'lastName',
@@ -18,27 +18,10 @@ const signupDTO = {
 };
 
 describe('AuthController (e2e)', () => {
-  let app: INestApplication<Server>;
-  let prisma: PrismaService;
-  beforeAll(async () => {
-    process.env.DATABASE_URL = process.env.DATABASE_URL_TEST;
-    const moduleRef = await Test.createTestingModule({
-      imports: [AuthModule],
-    })
-      .overrideProvider(EmailService)
-      .useValue(AuthEmailMock)
-      .compile();
-    app = moduleRef.createNestApplication();
-    app.useGlobalPipes(new ValidationPipe());
-    app.use(cookieParser());
-    prisma = app.get(PrismaService);
-    await app.init();
-  });
   afterAll(async () => {
     await prisma.user.delete({
       where: { username: 'username' },
     });
-
     await app.close();
   });
   describe('/ (POST) Signup', () => {
@@ -144,13 +127,13 @@ describe('AuthController (e2e)', () => {
   });
   describe('/ (POST) signin', () => {
     const signinDTO = { identifier: 'username', password: 'strongP@ssword73' };
-    it('Shoud return a message and a name role', async () => {
+    it('Should return a message and a name role', async () => {
       return request(app.getHttpServer())
         .post('/auth/signin')
         .send(signinDTO)
         .expect(201);
     });
-    it('Shoud fail Unauthorized Exception, invalid identifier', async () => {
+    it('Should fail Unauthorized Exception, invalid identifier', async () => {
       const newDTO = { ...signinDTO, identifier: 'otherUsername' };
       return request(app.getHttpServer())
         .post('/auth/signin')
@@ -160,7 +143,7 @@ describe('AuthController (e2e)', () => {
           expect(res.body.message).toEqual('Invalid credential');
         });
     });
-    it('Shoud fail Unauthorized Exception, invalid Password', async () => {
+    it('Should fail Unauthorized Exception, invalid Password', async () => {
       const newDTO = { ...signinDTO, password: 'otherStrongP@ssword73' };
       return request(app.getHttpServer())
         .post('/auth/signin')
@@ -170,7 +153,7 @@ describe('AuthController (e2e)', () => {
           expect(res.body.message).toEqual('Invalid credential');
         });
     });
-    it('Shoud fail Unauthorized Exception, account is not active', async () => {
+    it('Should fail Unauthorized Exception, account is not active', async () => {
       await prisma.user.update({
         where: { username: 'username' },
         data: { isActive: false },
@@ -272,6 +255,14 @@ describe('AuthController (e2e)', () => {
           expect(res.body.message[0]).toContain('password');
         });
     });
+    it('Should fail unauthorized, need a cookie', async () => {
+      return request(app.getHttpServer())
+        .post(path)
+        .expect(401)
+        .then((res: resMessageType) => {
+          expect(res.body.message).toContain('Unauthorized');
+        });
+    });
   });
   describe('/ (POST) logout', () => {
     const path = '/auth/logout';
@@ -287,7 +278,7 @@ describe('AuthController (e2e)', () => {
 });
 
 describe('AuthController Mock', () => {
-  let app: INestApplication<Server>;
+  let appMock: INestApplication<Server>;
   beforeAll(async () => {
     process.env.DATABASE_URL = process.env.DATABASE_URL_TEST;
     const moduleRef = await Test.createTestingModule({
@@ -298,17 +289,17 @@ describe('AuthController Mock', () => {
       .overrideProvider(EmailService)
       .useValue(AuthEmailMock)
       .compile();
-    app = moduleRef.createNestApplication();
-    app.useGlobalPipes(new ValidationPipe());
+    appMock = moduleRef.createNestApplication();
+    appMock.useGlobalPipes(new ValidationPipe());
 
-    await app.init();
+    await appMock.init();
   });
   afterAll(async () => {
-    await app.close();
+    await appMock.close();
   });
   describe('/ (POST) Signup mock', () => {
     it('Should return an Unauthorized Exception, Username already taken', async () => {
-      return request(app.getHttpServer())
+      return request(appMock.getHttpServer())
         .post('/auth/signup')
         .send(signupDTO)
         .expect(500);
