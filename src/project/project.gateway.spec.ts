@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { Socket, Server } from 'socket.io';
-import { userMock } from 'src/auth/mock/auth.mock';
+import { userMock, userWithRoleMock } from 'src/auth/mock/auth.mock';
 import { ProjectGateway } from './project.gateway';
 import { ProjectService } from './project.service';
 import { socketMock } from 'src/message/mock/socket.mock';
@@ -113,8 +113,8 @@ describe('ProjectGateway', () => {
         .spyOn(projectServiceMock, 'listMember')
         .mockResolvedValue(dataMemberMock);
       await expect(
-        gateway.listMemberConnected(userMock, socketMock, projectId),
-      ).resolves.toEqual(dataMemberMock.data.users);
+        gateway.listMemberConnected(userWithRoleMock, socketMock, projectId),
+      ).resolves.toEqual(dataMemberMock.data);
     });
 
     it('Should return list member', async () => {
@@ -127,18 +127,18 @@ describe('ProjectGateway', () => {
         },
       ];
       const members = dataMemberMock;
-      members.data.users[0].isConnected = false;
+      members.data[0].isConnected = false;
       jest.spyOn(projectServiceMock, 'listMember').mockResolvedValue(members);
 
       await expect(
-        gateway.listMemberConnected(userMock, socketMock, projectId),
-      ).resolves.toEqual(members.data.users);
+        gateway.listMemberConnected(userWithRoleMock, socketMock, projectId),
+      ).resolves.toEqual(members.data);
     });
     it('Should return Websocket Exception', async () => {
       gateway['userConnected'] = [];
 
       await expect(
-        gateway.listMemberConnected(userMock, socketMock, projectId),
+        gateway.listMemberConnected(userWithRoleMock, socketMock, projectId),
       ).rejects.toEqual(new WsException('User not connected'));
     });
   });
