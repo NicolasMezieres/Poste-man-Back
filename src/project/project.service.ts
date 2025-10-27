@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common';
 import { User } from 'src/prisma/generated';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { isEndList } from 'src/utils/const';
+import { isEndList } from 'src/utils/function';
 import { roleProject } from 'src/utils/enum';
 import { querySearchAdminProject, querySearchProject } from 'src/utils/type';
 import { projectDTO } from './dto';
