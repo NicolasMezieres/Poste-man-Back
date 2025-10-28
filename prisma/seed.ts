@@ -46,6 +46,15 @@ const main = async () => {
           isActive: true,
           roleId: userRole.id,
         },
+        {
+          email: 'email3@email.com',
+          firstName: 'test',
+          lastName: 'test',
+          username: 'user3',
+          password: hash,
+          isActive: true,
+          roleId: userRole.id,
+        },
       ],
     });
   }
