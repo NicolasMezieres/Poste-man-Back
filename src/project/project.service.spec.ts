@@ -357,7 +357,7 @@ describe('ProjectService', () => {
         .mockResolvedValue(null);
       await expect(
         service.remove(project.projectId, userWithRoleMock),
-      ).rejects.toEqual(new UnauthorizedException('You are unauhtorized !'));
+      ).rejects.toEqual(new UnauthorizedException('You are unauthorized !'));
     });
   });
   describe('list Member', () => {

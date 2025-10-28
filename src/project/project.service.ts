@@ -321,7 +321,7 @@ export class ProjectService {
     });
     const isAdmin = user.role.name === role.ADMIN;
     if (!isAdmin && !didUserInProject) {
-      throw new UnauthorizedException('You are unauhtorized !');
+      throw new UnauthorizedException('You are unauthorized !');
     }
     const isModerator = didUserInProject?.role.name === roleProject.MODERATOR;
     if (isModerator || isAdmin) {
@@ -382,7 +382,7 @@ export class ProjectService {
         },
       },
     });
-    if (!existingProject || existingProject.users[0].userId != userId) {
+    if (!existingProject) {
       throw new ForbiddenException('User not found');
     }
     await this.prisma.user_Has_Project.delete({

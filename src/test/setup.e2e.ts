@@ -1,4 +1,8 @@
-import { INestApplication, ValidationPipe } from '@nestjs/common';
+import {
+  INestApplication,
+  NotFoundException,
+  ValidationPipe,
+} from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import * as cookieParser from 'cookie-parser';
 import { Server } from 'http';
@@ -16,6 +20,8 @@ import * as request from 'supertest';
 export let app: INestApplication<Server>;
 export let prisma: PrismaService;
 export let cookie: string;
+export let cookieAdmin: string;
+export let cookieOtherUser: string;
 beforeAll(async () => {
   process.env.DATABASE_URL = process.env.DATABASE_URL_TEST;
   const moduleRef = await Test.createTestingModule({
@@ -39,11 +45,43 @@ beforeAll(async () => {
     .post('/auth/signin')
     .send({ identifier: 'email2@email.com', password: 'StrongP@ssword73' })
     .expect(201);
-  if (resCookie) {
+  const resCookieAdmin = await request(app.getHttpServer())
+    .post('/auth/signin')
+    .send({ identifier: 'posteMan', password: 'StrongP@ssword73' })
+    .expect(201);
+  const resCookieOtherUser = await request(app.getHttpServer())
+    .post('/auth/signin')
+    .send({ identifier: 'user3', password: 'StrongP@ssword73' })
+    .expect(201);
+  if (resCookie && resCookieAdmin && resCookieOtherUser) {
     cookie = resCookie.headers['set-cookie'];
+    cookieAdmin = resCookieAdmin.headers['set-cookie'];
+    cookieOtherUser = resCookieOtherUser.headers['set-cookie'];
   }
 });
 
 afterAll(async () => {
   await app.close();
 });
+
+export async function getLink() {
+  const existingLink = await prisma.link_Project.findFirst({
+    where: { numberUsage: { gt: 0 } },
+    select: { id: true },
+  });
+  if (!existingLink) {
+    throw new NotFoundException('Link not found');
+  }
+  return existingLink.id;
+}
+
+export async function getProject() {
+  const existingProject = await prisma.project.findFirst({
+    select: { id: true },
+  });
+  if (!existingProject) {
+    throw new NotFoundException('Project not found');
+  }
+
+  return existingProject.id;
+}
