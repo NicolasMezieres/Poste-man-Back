@@ -65,7 +65,7 @@ export class SectionController {
   @ApiNoContentResponse({ description: 'Section has been deleted' })
   @ApiNotFoundResponse({ description: 'Section not found !' })
   @ApiForbiddenResponse({ description: 'You are unauthorized !' })
-  @Delete(':sectionId/project')
+  @Delete(':sectionId')
   removeSection(
     @Param('sectionId') sectionId: string,
     @GetUser() user: UserWithRole,

@@ -285,13 +285,16 @@ describe('Project (e2e) ', () => {
         );
     });
     it('Should kick user', async () => {
-      const projectId = await getProject();
+      const projectId = await prisma.project.findFirst({
+        where: { name: 'newName' },
+        select: { id: true },
+      });
       const user = await prisma.user.findUnique({
         where: { username: 'posteMan' },
         select: { id: true },
       });
       return request(app.getHttpServer())
-        .delete(`/project/${projectId}/user/${user?.id}`)
+        .delete(`/project/${projectId?.id}/user/${user?.id}`)
         .expect(200)
         .set('Cookie', cookie)
         .expect((err: resMessageType) =>
@@ -363,12 +366,11 @@ describe('Project (e2e) ', () => {
         );
     });
     it('Should deleted project, Moderator', async () => {
-      const res = await request(app.getHttpServer())
+      await request(app.getHttpServer())
         .post('/project/create')
         .set('Cookie', cookie)
         .send({ name: 'truc' })
         .expect(201);
-      console.log(res.body);
       const newProject = await prisma.project.findFirst({
         where: { name: 'truc' },
         select: { id: true },
