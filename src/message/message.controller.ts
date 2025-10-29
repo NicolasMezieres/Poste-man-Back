@@ -8,7 +8,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { MessageService } from './message.service';
-import { AdminGuard, JwtGuard } from 'src/auth/Guards';
+import { JwtGuard } from 'src/auth/Guards';
 import { GetUser } from 'src/auth/decorator';
 import { User } from 'src/prisma/generated';
 import { messageDTO } from './dto';
@@ -27,19 +27,14 @@ export class MessageController {
   constructor(private readonly messageService: MessageService) {}
 
   @ApiOkResponse({ description: 'Messages of project' })
+  @ApiNotFoundResponse({ description: 'Project not found !' })
+  @ApiForbiddenResponse({ description: 'You are unauthorized !' })
   @Get('/project/:projectId')
   projectMessages(
     @Param('projectId') projectId: string,
-    @GetUser() user: User,
+    @GetUser() user: UserWithRole,
   ) {
     return this.messageService.projectMessages(projectId, user);
-  }
-
-  @ApiOkResponse({ description: 'Messages of project by admin' })
-  @UseGuards(AdminGuard)
-  @Get('/project/:projectId/admin')
-  projectMessagesAdmin(@Param('projectId') projectId: string) {
-    return this.messageService.projectMessagesAdmin(projectId);
   }
 
   @ApiCreatedResponse({

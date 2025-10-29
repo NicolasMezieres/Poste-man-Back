@@ -23,39 +23,39 @@ export class MessageService {
     private socket: MessageGateway,
     private notification: NotificationService,
   ) {}
-  private selectProjectMessages = {
-    id: true,
-    message: true,
-    user: { select: { username: true } },
-    createdAt: true,
-    updatedAt: true,
-  };
-  async projectMessages(projectId: string, user: User) {
-    const existingProject = await this.prisma.message.findMany({
-      where: {
-        isVisible: true,
-        project: {
-          id: projectId,
-          users: { some: { userId: user.id, isBanned: false } },
-        },
-      },
-      orderBy: { createdAt: 'desc' },
-      select: this.selectProjectMessages,
+  async projectMessages(projectId: string, user: UserWithRole) {
+    const existingProject = await this.prisma.project.findUnique({
+      where: { id: projectId },
+      select: { id: true },
     });
-    return { data: existingProject };
-  }
-  async projectMessagesAdmin(projectId: string) {
-    const existingProject = await this.prisma.message.findMany({
-      where: {
-        isVisible: true,
-        project: {
-          id: projectId,
+    if (!existingProject) {
+      throw new NotFoundException('Project not found !');
+    }
+    const isAdmin = user.role.name === role.ADMIN;
+    if (!isAdmin) {
+      const didUserInProject = await this.prisma.user_Has_Project.findFirst({
+        where: {
+          userId: user.id,
+          isBanned: false,
+          projectId: existingProject.id,
         },
+        select: { id: true },
+      });
+      if (!didUserInProject) {
+        throw new ForbiddenException('You are unauthorized !');
+      }
+    }
+    const messages = await this.prisma.message.findMany({
+      where: { projectId: existingProject.id, isVisible: true },
+      select: {
+        id: true,
+        message: true,
+        user: { select: { username: true } },
+        createdAt: true,
+        updatedAt: true,
       },
-      orderBy: { createdAt: 'desc' },
-      select: this.selectProjectMessages,
     });
-    return { data: existingProject };
+    return { data: messages };
   }
   async createMessage(dto: messageDTO, projectId: string, user: User) {
     const existingProject = await this.prisma.project.findUnique({
