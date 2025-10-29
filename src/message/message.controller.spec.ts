@@ -24,15 +24,8 @@ describe('MessageController', () => {
   describe('Project Messages', () => {
     it('should return list messages', async () => {
       await expect(
-        controller.projectMessages(projectId, userMock),
+        controller.projectMessages(projectId, userWithRoleMock),
       ).resolves.toEqual({ data: [messageMock] });
-    });
-  });
-  describe('Project Messages Admin', () => {
-    it('should return list messages', async () => {
-      await expect(controller.projectMessagesAdmin(projectId)).resolves.toEqual(
-        { data: [messageMock] },
-      );
     });
   });
   describe('Create Message', () => {
