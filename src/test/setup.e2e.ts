@@ -63,10 +63,9 @@ beforeAll(async () => {
 afterAll(async () => {
   await app.close();
 });
-
-export async function getLink() {
+export async function getLink(name: string) {
   const existingLink = await prisma.link_Project.findFirst({
-    where: { numberUsage: { gt: 0 } },
+    where: { numberUsage: { gt: 0 }, projet: { name } },
     select: { id: true },
   });
   if (!existingLink) {
@@ -75,8 +74,9 @@ export async function getLink() {
   return existingLink.id;
 }
 
-export async function getProject() {
+export async function getProject(name: string) {
   const existingProject = await prisma.project.findFirst({
+    where: { name },
     select: { id: true },
   });
   if (!existingProject) {

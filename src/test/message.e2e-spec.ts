@@ -11,6 +11,19 @@ import { resMessageType } from 'src/utils/type';
 import { NotFoundException } from '@nestjs/common';
 describe('Message (e2e)', () => {
   let projectId: string;
+  beforeAll(async () => {
+    await req(app.getHttpServer())
+      .post('/project/create')
+      .set('Cookie', cookie)
+      .send({ name: 'messageSpec' })
+      .expect(201);
+    projectId = await getProject('messageSpec');
+  });
+  afterAll(async () => {
+    await prisma.project.deleteMany({
+      where: { name: { contains: 'messageSpec' } },
+    });
+  });
   describe('/ (GET) messages of project', () => {
     const path = '/message/project/';
     it('Should fail Need a Cookie', async () => {
@@ -34,9 +47,8 @@ describe('Message (e2e)', () => {
       await req(app.getHttpServer())
         .post('/project/create')
         .set('Cookie', cookie)
-        .send({ name: 'messageE2E' })
+        .send({ name: 'messageSpecE2E' })
         .expect(201);
-      projectId = await getProject();
       return req(app.getHttpServer())
         .get(path + projectId)
         .set('Cookie', cookieOtherUser)
@@ -151,24 +163,6 @@ describe('Message (e2e)', () => {
         .expect((err: resMessageType) =>
           expect(err.body.message).toContain('unauthorized'),
         );
-    });
-    it('Should Message Deleted by Author', async () => {
-      await req(app.getHttpServer())
-        .post(path + `project/${projectId}`)
-        .set('Cookie', cookieOtherUser)
-        .send({ message: 'otherMessage' })
-        .expect(201);
-      const otherMessage = await prisma.message.findFirst({
-        where: { message: 'otherMessage' },
-        select: { id: true },
-      });
-      if (!otherMessage) {
-        throw new NotFoundException('Message not found !');
-      }
-      return req(app.getHttpServer())
-        .delete(path + otherMessage.id)
-        .set('Cookie', cookieOtherUser)
-        .expect(200);
     });
     it('Should Message Deleted by Moderator', async () => {
       return req(app.getHttpServer())

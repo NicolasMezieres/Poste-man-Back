@@ -10,12 +10,22 @@ import {
 import { resMessageType } from 'src/utils/type';
 import { NotFoundException } from '@nestjs/common';
 describe('Section (e2e)', () => {
+  let projectId: string;
+  beforeAll(async () => {
+    await request(app.getHttpServer())
+      .post('/project/create')
+      .set('Cookie', cookie)
+      .send({ name: 'sectionSpec' })
+      .expect(201);
+    projectId = await getProject('sectionSpec');
+  });
   afterAll(async () => {
-    await prisma.section.deleteMany();
+    await prisma.project.deleteMany({
+      where: { name: { contains: 'sectionSpec' } },
+    });
   });
   describe('/ (GET) Sections', () => {
     const path = '/section/project/';
-    let projectId: string;
     it('Should fail Need a Cookie', async () => {
       return request(app.getHttpServer())
         .get(path + 'projectId')
@@ -37,11 +47,10 @@ describe('Section (e2e)', () => {
       await request(app.getHttpServer())
         .post('/project/create')
         .set('Cookie', cookie)
-        .send({ name: 'sections' })
+        .send({ name: 'sectionSpecs' })
         .expect(201);
-      projectId = await getProject();
       return request(app.getHttpServer())
-        .get(path + `${projectId}`)
+        .get(path + projectId)
         .set('Cookie', cookieOtherUser)
         .expect(403)
         .expect((res: resMessageType) =>
@@ -91,7 +100,6 @@ describe('Section (e2e)', () => {
         );
     });
     it('Should Section Created', async () => {
-      const projectId = await getProject();
       return request(app.getHttpServer())
         .post(path + projectId + '/create')
         .set('Cookie', cookie)
@@ -99,7 +107,6 @@ describe('Section (e2e)', () => {
         .expect(201);
     });
     it('Should fail Bad Request Exception, name section already used', async () => {
-      const projectId = await getProject();
       return request(app.getHttpServer())
         .post(path + projectId + '/create')
         .set('Cookie', cookie)
@@ -112,7 +119,6 @@ describe('Section (e2e)', () => {
   });
   describe('/ (PATCH) Update Section', () => {
     const sectionDTO = { name: 'section' };
-    let projectId: string;
     let sectionId: string;
     it('Should fail Need a Cookie', async () => {
       return request(app.getHttpServer())
@@ -142,7 +148,6 @@ describe('Section (e2e)', () => {
         );
     });
     it('Should fail Forbidden Exception, name already used', async () => {
-      projectId = await getProject();
       const section = await prisma.section.findFirst({
         where: { projectId },
         select: { id: true },
@@ -165,7 +170,7 @@ describe('Section (e2e)', () => {
         .patch(`/section/${sectionId}/project/${projectId}`)
         .expect(200)
         .set('Cookie', cookie)
-        .send({ name: 'section' })
+        .send({ name: 'sectionSpec' })
         .expect((res: resMessageType) =>
           expect(res.body.message).toEqual('Section Update'),
         );
@@ -184,7 +189,7 @@ describe('Section (e2e)', () => {
     });
     it('Should fail Forbidden Exception, Not a Moderator or an Admin', async () => {
       const section = await prisma.section.findFirst({
-        where: { name: 'section' },
+        where: { name: 'sectionSpec' },
         select: { id: true },
       });
       if (!section) {
@@ -201,6 +206,9 @@ describe('Section (e2e)', () => {
         );
     });
     it('Should Section deleted, Admin', async () => {
+      await prisma.post.deleteMany({
+        where: { sectionId },
+      });
       return request(app.getHttpServer())
         .delete(path)
         .set('Cookie', cookieAdmin)
@@ -219,7 +227,6 @@ describe('Section (e2e)', () => {
         );
     });
     it('Should Section deleted, Moderator', async () => {
-      const projectId = await getProject();
       await request(app.getHttpServer())
         .post('/section/project/' + projectId + '/create')
         .set('Cookie', cookie)
