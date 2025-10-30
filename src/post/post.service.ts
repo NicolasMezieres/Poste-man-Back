@@ -51,7 +51,7 @@ export class PostService {
   }
 
   async create(sectionId: string, dto: postDTO, user: User) {
-    const existingSection = await this.prisma.section.findFirst({
+    const existingSection = await this.prisma.section.findUnique({
       where: {
         id: sectionId,
       },
@@ -96,7 +96,7 @@ export class PostService {
   }
 
   async move(postId: string, sectionId: string, user: UserWithRole) {
-    const isAdmin = user.role.name === role.ADMIN ? true : false;
+    const isAdmin = user.role.name === role.ADMIN;
     const existingPost = await this.prisma.post.findUnique({
       where: { id: postId },
       select: {

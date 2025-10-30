@@ -9,6 +9,7 @@ import { MessageModule } from './message/message.module';
 import { ProjectModule } from './project/project.module';
 import { SectionModule } from './section/section.module';
 import { PostModule } from './post/post.module';
+import { ThrottlerModule } from '@nestjs/throttler';
 @Module({
   imports: [
     PrismaModule,
@@ -21,6 +22,7 @@ import { PostModule } from './post/post.module';
     ProjectModule,
     SectionModule,
     PostModule,
+    ThrottlerModule.forRoot({ throttlers: [{ ttl: 30000, limit: 10 }] }),
   ],
 })
 export class AppModule {}

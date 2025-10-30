@@ -11,9 +11,23 @@ import {
 import { resMessageType } from 'src/utils/type';
 import { NotFoundException } from '@nestjs/common';
 describe('Project (e2e) ', () => {
+  let projectId: string;
+  beforeAll(async () => {
+    await request(app.getHttpServer())
+      .post('/project/create')
+      .set('Cookie', cookie)
+      .send({ name: 'projectSpec' })
+      .expect(201);
+    projectId = await getProject('projectSpec');
+  });
+  afterAll(async () => {
+    await prisma.project.deleteMany({
+      where: { name: 'projectSpec' },
+    });
+  });
   describe('/ (POST) create', () => {
     const path = '/project/create';
-    const projectDTO = { name: 'projectName' };
+    const projectDTO = { name: 'projectSpec' };
     it('Should fail need a cookie', async () => {
       return request(app.getHttpServer())
         .post(path)
@@ -93,12 +107,8 @@ describe('Project (e2e) ', () => {
         );
     });
     it('Should Create Invitaion Link', async () => {
-      const projectId = await prisma.project.findFirst({
-        where: { name: 'projectName' },
-        select: { id: true },
-      });
       return request(app.getHttpServer())
-        .post(path + `${projectId?.id}/link`)
+        .post(path + `${projectId}/link`)
         .set('Cookie', cookie)
         .expect(201);
     });
@@ -132,7 +142,7 @@ describe('Project (e2e) ', () => {
         );
     });
     it('Should user join', async () => {
-      const linkId = await getLink();
+      const linkId = await getLink('projectSpec');
       return request(app.getHttpServer())
         .post(path + `${linkId}/join`)
         .set('Cookie', cookieAdmin)
@@ -142,7 +152,34 @@ describe('Project (e2e) ', () => {
         );
     });
     it('Should fail Forbidden Exception, user already in the project', async () => {
-      const linkId = await getLink();
+      const linkId = await getLink('projectSpec');
+      const projectId = await prisma.project.findFirst({
+        where: { name: 'projectSpec' },
+        select: { id: true },
+      });
+      if (!projectId) {
+        throw new NotFoundException('Project not found');
+      }
+      const existingUserAdmin = await prisma.user.findUnique({
+        where: { username: 'posteMan' },
+        select: { id: true },
+      });
+      if (!existingUserAdmin) {
+        throw new NotFoundException('User not found');
+      }
+      const didUserInProject = await prisma.user_Has_Project.findFirst({
+        where: { projectId: projectId.id, userId: existingUserAdmin.id },
+        select: { id: true },
+      });
+      if (!didUserInProject) {
+        await request(app.getHttpServer())
+          .post(path + `${linkId}/join`)
+          .set('Cookie', cookieAdmin)
+          .expect(201)
+          .expect((res: resMessageType) =>
+            expect(res.body.message).toContain('Welcome'),
+          );
+      }
       return request(app.getHttpServer())
         .post(path + `${linkId}/join`)
         .set('Cookie', cookieAdmin)
@@ -152,7 +189,7 @@ describe('Project (e2e) ', () => {
         );
     });
     it('Should fail Forbidden Exception, Link expired !', async () => {
-      const linkId = await getLink();
+      const linkId = await getLink('projectSpec');
       await prisma.link_Project.update({
         where: { id: linkId },
         data: { outdatedAt: new Date(-1) },
@@ -166,7 +203,7 @@ describe('Project (e2e) ', () => {
         );
     });
     it('Should fail Forbidden Exception, Link invalid ! Number usage equal 0', async () => {
-      const linkId = await getLink();
+      const linkId = await getLink('projectSpec');
       await prisma.link_Project.update({
         where: { id: linkId },
         data: { numberUsage: 0 },
@@ -201,7 +238,6 @@ describe('Project (e2e) ', () => {
         });
     });
     it('Should fail Not Found Exception, Member to ban not found', async () => {
-      const projectId = await getProject();
       return request(app.getHttpServer())
         .patch(`/project/${projectId}/user/userId`)
         .expect(404)
@@ -211,13 +247,15 @@ describe('Project (e2e) ', () => {
         });
     });
     it('Should fail Not Found Exception, Member to ban not found', async () => {
-      const projectId = await getProject();
       const user = await prisma.user.findUnique({
         where: { username: 'posteMan' },
         select: { id: true },
       });
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
       return request(app.getHttpServer())
-        .patch(`/project/${projectId}/user/${user?.id}`)
+        .patch(`/project/${projectId}/user/${user.id}`)
         .expect(200)
         .set('Cookie', cookie)
         .expect((err: resMessageType) => {
@@ -246,7 +284,6 @@ describe('Project (e2e) ', () => {
         );
     });
     it('Should fail You are not moderator', async () => {
-      const projectId = await getProject();
       return request(app.getHttpServer())
         .patch(`/project/${projectId}`)
         .set('Cookie', cookieAdmin)
@@ -257,7 +294,6 @@ describe('Project (e2e) ', () => {
         );
     });
     it('Should rename project', async () => {
-      const projectId = await getProject();
       return request(app.getHttpServer())
         .patch(`/project/${projectId}`)
         .set('Cookie', cookie)
@@ -304,10 +340,6 @@ describe('Project (e2e) ', () => {
   });
   describe('/ (DELETE) remove project', () => {
     const path = '/project/';
-    let projectId: string;
-    beforeAll(async () => {
-      projectId = await getProject();
-    });
     it('Should fail Need a Cookie', async () => {
       return request(app.getHttpServer())
         .delete(path + 'projectId')
@@ -335,11 +367,10 @@ describe('Project (e2e) ', () => {
         );
     });
     it('Should leave the project', async () => {
-      const project = await getProject();
       const res: { body: { data: { id: string } } } = await request(
         app.getHttpServer(),
       )
-        .post(path + `${project}/link`)
+        .post(path + `${projectId}/link`)
         .set('Cookie', cookie)
         .expect(201);
 

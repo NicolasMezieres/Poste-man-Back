@@ -82,7 +82,7 @@ describe('PostService', () => {
   describe('Create post', () => {
     it('Should return a message', async () => {
       jest
-        .spyOn(postPrismaMock.section, 'findFirst')
+        .spyOn(postPrismaMock.section, 'findUnique')
         .mockResolvedValue({ id: sectionId, projectId });
       jest
         .spyOn(postPrismaMock.user_Has_Project, 'findFirst')
@@ -93,14 +93,14 @@ describe('PostService', () => {
       ).resolves.toEqual({ message: 'Post created !' });
     });
     it('Should return a Not Found Exception Section not found', async () => {
-      jest.spyOn(postPrismaMock.section, 'findFirst').mockResolvedValue(null);
+      jest.spyOn(postPrismaMock.section, 'findUnique').mockResolvedValue(null);
       await expect(
         service.create(sectionId, postDTOMock, userMock),
       ).rejects.toEqual(new NotFoundException('Section not found'));
     });
     it('Should return a Forbidden Exception You are unauthorized !', async () => {
       jest
-        .spyOn(postPrismaMock.section, 'findFirst')
+        .spyOn(postPrismaMock.section, 'findUnique')
         .mockResolvedValue({ id: sectionId, projectId });
       jest
         .spyOn(postPrismaMock.user_Has_Project, 'findFirst')
