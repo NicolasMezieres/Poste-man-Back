@@ -1,7 +1,7 @@
 import {
   Body,
   Controller,
-  Delete,
+  Get,
   Param,
   Patch,
   Post,
@@ -17,6 +17,12 @@ import { SectionService } from './section.service';
 @Controller('section')
 export class SectionController {
   constructor(private readonly sectionService: SectionService) {}
+
+  @Get('/project/:projectId/all')
+  allSectionProject() {
+    return this.sectionService.allSectionProject();
+  }
+
   @Post('project/:projectId/create')
   createSection(
     @Body() dto: createDTO,
@@ -36,7 +42,7 @@ export class SectionController {
     return this.sectionService.updateSection(dto, projectId, sectionId, user);
   }
 
-  @Delete(':sectionId/project/:projectId')
+  @Patch(':sectionId/update/project/:projectId')
   removeSection(
     @Param('projectId') projectId: string,
     @Param('sectionId') sectionId: string,

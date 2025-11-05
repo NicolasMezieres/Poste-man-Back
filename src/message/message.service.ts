@@ -5,13 +5,13 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { WsException } from '@nestjs/websockets';
+import { Socket } from 'socket.io';
 import { User } from 'src/prisma/generated';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { messageDTO } from './dto';
 import { roleProject } from 'src/utils/enum';
+import { messageDTO } from './dto';
 import { MessageGateway } from './message.gateway';
-import { Socket } from 'socket.io';
-import { WsException } from '@nestjs/websockets';
 
 @Injectable()
 export class MessageService {
@@ -138,8 +138,11 @@ export class MessageService {
     if (!existingProject) {
       throw new ForbiddenException("You doesn't have access to this action !");
     }
-    await this.prisma.message.deleteMany({
+    await this.prisma.message.updateMany({
       where: { projectId },
+      data: {
+        isArchive: true,
+      },
     });
     this.socket.emitResetMessage(projectId);
     return { message: 'Messages deleted !' };

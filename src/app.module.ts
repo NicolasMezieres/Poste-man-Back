@@ -11,6 +11,7 @@ import { ProjectModule } from './project/project.module';
 import { SectionModule } from './section/section.module';
 import { CleangdprModule } from './cleangdpr/cleangdpr.module';
 import { CronModule } from './cron/cron.module';
+import { UserModule } from './user/user.module';
 @Module({
   imports: [
     PrismaModule,
@@ -25,6 +26,7 @@ import { CronModule } from './cron/cron.module';
     ScheduleModule.forRoot(),
     CleangdprModule,
     CronModule,
+    UserModule,
   ],
 })
 export class AppModule {}

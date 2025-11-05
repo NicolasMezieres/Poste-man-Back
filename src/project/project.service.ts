@@ -267,8 +267,11 @@ export class ProjectService {
         await tPrisma.message.deleteMany({
           where: { projectId: existingProject.projectId },
         });
-        await tPrisma.project.delete({
+        await tPrisma.project.update({
           where: { id: existingProject.projectId },
+          data: {
+            isArchive: true,
+          },
         });
       });
       return { message: 'Project deleted !' };

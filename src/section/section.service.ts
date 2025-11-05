@@ -12,6 +12,14 @@ import { createDTO, updateDTO } from './dto';
 export class SectionService {
   constructor(private prisma: PrismaService) {}
 
+  async allSectionProject() {
+    return this.prisma.section.findMany({
+      orderBy: {
+        name: 'asc',
+      },
+    });
+  }
+
   async createSection(dto: createDTO, projectId: string, user: User) {
     const existingUserProject = await this.prisma.user_Has_Project.findFirst({
       where: {
@@ -95,8 +103,11 @@ export class SectionService {
     if (!existingSection) {
       throw new ForbiddenException('Section not found');
     }
-    await this.prisma.section.delete({
+    await this.prisma.section.update({
       where: { id: sectionId },
+      data: {
+        isArchive: true,
+      },
       select: null,
     });
     return { message: 'Section has been deleted' };

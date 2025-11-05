@@ -9,12 +9,12 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { ProjectService } from './project.service';
-import { projectDTO } from './dto';
 import { AdminGuard, JwtGuard } from 'src/auth/Guards';
 import { GetUser } from 'src/auth/decorator';
 import { User } from 'src/prisma/generated';
 import { querySearchAdminProject, querySearchProject } from 'src/utils/type';
+import { projectDTO } from './dto';
+import { ProjectService } from './project.service';
 
 @UseGuards(JwtGuard)
 @Controller('project')
@@ -65,7 +65,7 @@ export class ProjectController {
     return this.projectService.rename(dto, id, user);
   }
 
-  @Delete('/:id')
+  @Patch('/:id/delete')
   remove(@Param('id') id: string, @GetUser() user: User) {
     return this.projectService.remove(id, user);
   }
