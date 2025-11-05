@@ -2,15 +2,39 @@ import {
   BadRequestException,
   ForbiddenException,
   Injectable,
+  NotFoundException,
 } from '@nestjs/common';
 import { User } from 'src/prisma/generated';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { roleProject } from 'src/utils/enum';
+import { role, roleProject } from 'src/utils/enum';
 import { createDTO, updateDTO } from './dto';
+import { UserWithRole } from 'src/utils/type';
 
 @Injectable()
 export class SectionService {
   constructor(private prisma: PrismaService) {}
+  async sections(projectId: string, user: UserWithRole) {
+    const existingProject = await this.prisma.project.findUnique({
+      where: { id: projectId },
+      select: { id: true, section: true },
+    });
+    if (!existingProject) {
+      throw new NotFoundException('Project not found !');
+    }
+    const didUserInProject = await this.prisma.user_Has_Project.findFirst({
+      where: {
+        userId: user.id,
+        projectId: existingProject.id,
+        isBanned: false,
+      },
+      select: { id: true },
+    });
+    const isAdmin = user.role.name === role.ADMIN;
+    if (!didUserInProject && !isAdmin) {
+      throw new ForbiddenException('You are unauthorized !');
+    }
+    return { data: existingProject.section };
+  }
 
   async allSectionProject() {
     return this.prisma.section.findMany({
@@ -87,21 +111,27 @@ export class SectionService {
     return { message: 'Section Update' };
   }
 
-  async removeSection(projectId: string, sectionId: string, user: User) {
+  async removeSection(sectionId: string, user: UserWithRole) {
     const existingSection = await this.prisma.section.findUnique({
-      where: {
-        id: sectionId,
-        project: {
-          id: projectId,
-          users: {
-            some: { userId: user.id, role: { name: roleProject.MODERATOR } },
-          },
-        },
-      },
+      where: { id: sectionId },
       select: { id: true, projectId: true },
     });
     if (!existingSection) {
-      throw new ForbiddenException('Section not found');
+      throw new NotFoundException('Section not found !');
+    }
+    const isAdmin = user.role.name === role.ADMIN;
+    if (!isAdmin) {
+      const isModerator = await this.prisma.user_Has_Project.findFirst({
+        where: {
+          userId: user.id,
+          projectId: existingSection.projectId,
+          role: { name: roleProject.MODERATOR },
+        },
+        select: { id: true },
+      });
+      if (!isModerator) {
+        throw new ForbiddenException('You are unauthorized !');
+      }
     }
     await this.prisma.section.update({
       where: { id: sectionId },

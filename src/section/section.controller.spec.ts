@@ -1,9 +1,14 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { mockCreateDTO, mockUpdateDTO } from './mock/section.mock';
+import {
+  mockCreateDTO,
+  mockUpdateDTO,
+  sectionDataMock,
+} from './mock/section.mock';
 import { SectionServiceMock } from './mock/section.service.mock';
 import { mockUser } from './mock/user.mock';
 import { SectionController } from './section.controller';
 import { SectionService } from './section.service';
+import { userWithRoleMock } from 'src/auth/mock/auth.mock';
 
 describe('SectionController', () => {
   let controller: SectionController;
@@ -21,6 +26,18 @@ describe('SectionController', () => {
 
   afterEach(() => {
     jest.clearAllMocks();
+  });
+
+  describe('get all section by user', () => {
+    it('Should return list of section', async () => {
+      await expect(
+        controller.sections('projectId', userWithRoleMock),
+      ).resolves.toEqual(sectionDataMock);
+      expect(service.sections).toHaveBeenCalledWith(
+        'projectId',
+        userWithRoleMock,
+      );
+    });
   });
 
   describe('createSection', () => {
@@ -70,16 +87,15 @@ describe('SectionController', () => {
       });
 
       const result = await controller.removeSection(
-        'project-1',
         'section-1',
-        mockUser,
+        userWithRoleMock,
       );
       expect(result).toEqual({ message: 'Section has been deleted' });
       expect(service.removeSection).toHaveBeenCalledWith(
-        'project-1',
         'section-1',
-        mockUser,
+        userWithRoleMock,
       );
     });
   });
+  describe('Delete all post from section', () => {});
 });

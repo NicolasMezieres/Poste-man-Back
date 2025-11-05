@@ -19,6 +19,7 @@ export class WsJwtStrategy extends PassportStrategy(Strategy, 'wsJwt') {
         if (!client.handshake.headers.cookie) {
           return null;
         }
+
         const jwtCookie = cookie.parse(client.handshake.headers.cookie)[
           'access_token'
         ];

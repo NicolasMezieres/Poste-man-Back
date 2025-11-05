@@ -9,9 +9,13 @@ import { WsException } from '@nestjs/websockets';
 import { Socket } from 'socket.io';
 import { User } from 'src/prisma/generated';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { roleProject } from 'src/utils/enum';
 import { messageDTO } from './dto';
+import { role, roleProject } from 'src/utils/enum';
 import { MessageGateway } from './message.gateway';
+import { Socket } from 'socket.io';
+import { WsException } from '@nestjs/websockets';
+import { UserWithRole } from 'src/utils/type';
+import { NotificationService } from 'src/notification/notification.service';
 
 @Injectable()
 export class MessageService {
@@ -19,46 +23,41 @@ export class MessageService {
     private prisma: PrismaService,
     @Inject(forwardRef(() => MessageGateway))
     private socket: MessageGateway,
+    private notification: NotificationService,
   ) {}
-  private selectProjectMessages = {
-    id: true,
-    message: true,
-    user: { select: { username: true } },
-    createdAt: true,
-    updatedAt: true,
-  };
-  async projectMessages(projectId: string, user: User) {
-    const existingProject = await this.prisma.message.findMany({
-      where: {
-        isVisible: true,
-        project: {
-          id: projectId,
-          users: { some: { userId: user.id, isBanned: false } },
-        },
-      },
-      orderBy: { createdAt: 'desc' },
-      select: this.selectProjectMessages,
+  async projectMessages(projectId: string, user: UserWithRole) {
+    const existingProject = await this.prisma.project.findUnique({
+      where: { id: projectId },
+      select: { id: true },
     });
-    if (!existingProject || existingProject.length === 0) {
+    if (!existingProject) {
       throw new NotFoundException('Project not found !');
     }
-    return { data: existingProject };
-  }
-  async projectMessagesAdmin(projectId: string) {
-    const existingProject = await this.prisma.message.findMany({
-      where: {
-        isVisible: true,
-        project: {
-          id: projectId,
+    const isAdmin = user.role.name === role.ADMIN;
+    if (!isAdmin) {
+      const didUserInProject = await this.prisma.user_Has_Project.findFirst({
+        where: {
+          userId: user.id,
+          isBanned: false,
+          projectId: existingProject.id,
         },
-      },
-      orderBy: { createdAt: 'desc' },
-      select: this.selectProjectMessages,
-    });
-    if (!existingProject || existingProject.length === 0) {
-      throw new NotFoundException('Project not found !');
+        select: { id: true },
+      });
+      if (!didUserInProject) {
+        throw new ForbiddenException('You are unauthorized !');
+      }
     }
-    return { data: existingProject };
+    const messages = await this.prisma.message.findMany({
+      where: { projectId: existingProject.id, isVisible: true },
+      select: {
+        id: true,
+        message: true,
+        user: { select: { username: true } },
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+    return { data: messages };
   }
   async createMessage(dto: messageDTO, projectId: string, user: User) {
     const existingProject = await this.prisma.project.findUnique({
@@ -66,7 +65,14 @@ export class MessageService {
         id: projectId,
         users: { some: { userId: user.id, isBanned: false } },
       },
-      select: { id: true },
+      select: {
+        id: true,
+        name: true,
+        users: {
+          where: { isBanned: false },
+          select: { projectId: true, userId: true },
+        },
+      },
     });
     if (!existingProject) {
       throw new NotFoundException('Project not found !');
@@ -86,34 +92,43 @@ export class MessageService {
         },
       },
     });
-    this.socket.emitNewMessage(newMessage, projectId);
+    this.socket.emitNewMessage(newMessage, existingProject.id);
+    await this.notification.createMany(
+      existingProject.users,
+      'New message',
+      `A new message send in project ${existingProject.name}`,
+    );
     return { message: 'Message created !' };
   }
-  async deleteMessage(messageId: string, user: User) {
-    const existingMessage = await this.prisma.message.findFirst({
-      where: {
-        id: messageId,
-        OR: [
-          { authorId: user.id },
-          {
-            project: {
-              users: {
-                some: {
-                  userId: user.id,
-                  role: { name: roleProject.MODERATOR },
-                },
-              },
-            },
-          },
-        ],
-      },
-      select: { id: true, projectId: true },
+  async deleteMessage(messageId: string, user: UserWithRole) {
+    const existingMessage = await this.prisma.message.findUnique({
+      where: { id: messageId },
+      select: { id: true, projectId: true, authorId: true },
     });
-
     if (!existingMessage) {
       throw new NotFoundException('Message not found !');
     }
-
+    const isAdmin = user.role.name === role.ADMIN;
+    if (!isAdmin) {
+      const didUserInProject = await this.prisma.user_Has_Project.findFirst({
+        where: {
+          userId: user.id,
+          projectId: existingMessage.projectId,
+          isBanned: false,
+        },
+        select: {
+          role: { select: { name: true } },
+          userId: true,
+        },
+      });
+      if (!didUserInProject) {
+        throw new ForbiddenException('You are unauthorized !');
+      }
+      const isModerator = didUserInProject.role.name === roleProject.MODERATOR;
+      if (!isModerator && existingMessage.authorId !== user.id) {
+        throw new ForbiddenException('You are unauthorized !');
+      }
+    }
     await this.prisma.message.delete({
       where: { id: existingMessage.id },
     });
@@ -126,17 +141,28 @@ export class MessageService {
     return { message: 'Message deleted !' };
   }
 
-  async deleteAllMessage(projectId: string, user: User) {
-    const existingProject = await this.prisma.user_Has_Project.findFirst({
-      where: {
-        projectId,
-        userId: user.id,
-        role: { name: roleProject.MODERATOR },
-      },
+  async deleteAllMessage(projectId: string, user: UserWithRole) {
+    const isAdmin = user.role.name === role.ADMIN;
+    const existingProject = await this.prisma.project.findUnique({
+      where: { id: projectId },
       select: { id: true },
     });
     if (!existingProject) {
-      throw new ForbiddenException("You doesn't have access to this action !");
+      throw new NotFoundException('Project not found !');
+    }
+    if (!isAdmin) {
+      const isModerator = await this.prisma.user_Has_Project.findFirst({
+        where: {
+          userId: user.id,
+          projectId: existingProject.id,
+          isBanned: false,
+          role: { name: roleProject.MODERATOR },
+        },
+        select: { id: true },
+      });
+      if (!isModerator) {
+        throw new ForbiddenException('You are unauthorized !');
+      }
     }
     await this.prisma.message.updateMany({
       where: { projectId },
@@ -144,7 +170,7 @@ export class MessageService {
         isArchive: true,
       },
     });
-    this.socket.emitResetMessage(projectId);
+    this.socket.emitResetMessage(existingProject.id);
     return { message: 'Messages deleted !' };
   }
   async joinRoomMessage(client: Socket, projectId: string, user: User) {

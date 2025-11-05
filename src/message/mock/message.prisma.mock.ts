@@ -2,6 +2,7 @@ export const messagePrismaMock = {
   message: {
     findMany: jest.fn(),
     create: jest.fn(),
+    findUnique: jest.fn(),
     findFirst: jest.fn(),
     delete: jest.fn(),
     deleteMany: jest.fn(),

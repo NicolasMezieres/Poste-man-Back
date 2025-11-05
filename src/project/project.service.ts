@@ -1,19 +1,31 @@
 import {
   ForbiddenException,
+  forwardRef,
+  Inject,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { User } from 'src/prisma/generated';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { isEndList } from 'src/utils/const';
-import { roleProject } from 'src/utils/enum';
-import { querySearchAdminProject, querySearchProject } from 'src/utils/type';
+import { isEndList } from 'src/utils/function';
+import { role, roleProject } from 'src/utils/enum';
+import {
+  querySearchAdminProject,
+  querySearchProject,
+  UserWithRole,
+} from 'src/utils/type';
 import { projectDTO } from './dto';
+import { ProjectGateway } from './project.gateway';
 
 @Injectable()
 export class ProjectService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    @Inject(forwardRef(() => ProjectGateway))
+    private socket: ProjectGateway,
+  ) {}
 
   async search(query: querySearchProject, user: User) {
     const take = 10;
@@ -103,6 +115,37 @@ export class ProjectService {
       isEndList: isEndList(skip, take, countProject),
     };
   }
+
+  async listMember(projectId: string, user: UserWithRole) {
+    const existingProject = await this.prisma.project.findUnique({
+      where: { id: projectId },
+      select: { id: true },
+    });
+    if (!existingProject) {
+      throw new NotFoundException('Project not found !');
+    }
+    const listMember = await this.prisma.user_Has_Project.findMany({
+      where: {
+        projectId: existingProject.id,
+      },
+      select: {
+        userId: true,
+        user: {
+          select: { username: true, icon: { select: { image: true } } },
+        },
+        isBanned: true,
+      },
+    });
+    const didUserInProject = listMember.some(
+      (member) => member.userId === user.id && member.isBanned === false,
+    );
+    const isAdmin = user.role.name === role.ADMIN;
+    if (!didUserInProject && !isAdmin) {
+      throw new ForbiddenException('You are unauthorized !');
+    }
+    return { data: listMember, projectId };
+  }
+
   async create(dto: projectDTO, user: User) {
     const moderatorRole = await this.prisma.role_Project.findUnique({
       where: { name: roleProject.MODERATOR },
@@ -125,6 +168,7 @@ export class ProjectService {
     });
     return { message: 'Project successfully create !' };
   }
+
   async createInvitationLink(projectId: string, user: User) {
     const existingProject = await this.prisma.user_Has_Project.findFirst({
       where: {
@@ -180,14 +224,20 @@ export class ProjectService {
     if (!memberRole) {
       throw new InternalServerErrorException('Role not found !');
     }
-    await this.prisma.$transaction([
+    const [userMember] = await this.prisma.$transaction([
       this.prisma.user_Has_Project.create({
         data: {
           userId: user.id,
           projectId: existingLink.projet.id,
           roleProjectId: memberRole.id,
         },
-        select: null,
+        select: {
+          userId: true,
+          isBanned: true,
+          user: {
+            select: { username: true, icon: { select: { image: true } } },
+          },
+        },
       }),
       this.prisma.link_Project.update({
         where: { id: linkId },
@@ -195,6 +245,12 @@ export class ProjectService {
         select: null,
       }),
     ]);
+    if (!userMember) {
+      throw new InternalServerErrorException(
+        'Failed to create user project member',
+      );
+    }
+    this.socket.emitUserUpdateProject(userMember, existingLink.projet.id, true);
     return { message: `Welcome to ${existingLink.projet.name} !` };
   }
   async ban(projectId: string, userId: string, user: User) {
@@ -247,25 +303,37 @@ export class ProjectService {
     return { message: 'Project modified !' };
   }
 
-  async remove(projectId: string, user: User) {
-    const existingProject = await this.prisma.user_Has_Project.findFirst({
-      where: { projectId, userId: user.id, isBanned: false },
-      select: { id: true, projectId: true, role: { select: { name: true } } },
+  async remove(projectId: string, user: UserWithRole) {
+    const existingProject = await this.prisma.project.findUnique({
+      where: { id: projectId },
+      select: { id: true },
     });
     if (!existingProject) {
-      throw new NotFoundException('Project not found');
-    } else if (
-      (existingProject.role.name as roleProject) === roleProject.MODERATOR
-    ) {
+      throw new NotFoundException('Project not found !');
+    }
+    const didUserInProject = await this.prisma.user_Has_Project.findFirst({
+      where: {
+        userId: user.id,
+        projectId,
+        isBanned: false,
+      },
+      select: { id: true, role: { select: { name: true } } },
+    });
+    const isAdmin = user.role.name === role.ADMIN;
+    if (!isAdmin && !didUserInProject) {
+      throw new UnauthorizedException('You are unauthorized !');
+    }
+    const isModerator = didUserInProject?.role.name === roleProject.MODERATOR;
+    if (isModerator || isAdmin) {
       await this.prisma.$transaction(async (tPrisma) => {
         await tPrisma.post.deleteMany({
-          where: { section: { projectId: existingProject.projectId } },
+          where: { section: { projectId: existingProject.id } },
         });
         await tPrisma.section.deleteMany({
-          where: { projectId: existingProject.projectId },
+          where: { projectId: existingProject.id },
         });
         await tPrisma.message.deleteMany({
-          where: { projectId: existingProject.projectId },
+          where: { projectId: existingProject.id },
         });
         await tPrisma.project.update({
           where: { id: existingProject.projectId },
@@ -277,34 +345,57 @@ export class ProjectService {
       return { message: 'Project deleted !' };
     } else {
       await this.prisma.user_Has_Project.delete({
-        where: { id: existingProject.id },
+        where: { id: didUserInProject?.id },
       });
       return { message: 'Project leaved !' };
     }
   }
-  async removeByAdmin(projectId: string) {
-    const existingProject = await this.prisma.project.findUnique({
-      where: { id: projectId },
-      select: { id: true },
+
+  async kickUser(projectId: string, userId: string, user: User) {
+    const existingProject = await this.prisma.project.findFirst({
+      where: {
+        id: projectId,
+        AND: [
+          {
+            users: {
+              some: {
+                userId,
+                role: { name: roleProject.MEMBER },
+              },
+            },
+          },
+          {
+            users: {
+              some: { userId: user.id, role: { name: roleProject.MODERATOR } },
+            },
+          },
+        ],
+      },
+      select: {
+        users: {
+          where: { userId },
+          select: {
+            id: true,
+            userId: true,
+            isBanned: true,
+            user: {
+              select: { username: true, icon: { select: { image: true } } },
+            },
+          },
+        },
+      },
     });
     if (!existingProject) {
-      throw new NotFoundException('Project not found !');
+      throw new ForbiddenException('User not found');
     }
-    await this.prisma.$transaction(async (tPrisma) => {
-      await tPrisma.post.deleteMany({
-        where: { section: { projectId: existingProject.id } },
-      });
-      await tPrisma.section.deleteMany({
-        where: { projectId: existingProject.id },
-      });
-      await tPrisma.message.deleteMany({
-        where: { projectId: existingProject.id },
-      });
-      await tPrisma.project.delete({
-        where: { id: existingProject.id },
-      });
+    await this.prisma.user_Has_Project.delete({
+      where: { id: existingProject.users[0].id },
     });
-
-    return { message: 'Project deleted !' };
+    this.socket.emitUserUpdateProject(
+      existingProject.users[0],
+      projectId,
+      false,
+    );
+    return { message: 'User kick' };
   }
 }

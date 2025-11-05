@@ -12,6 +12,8 @@ import { SectionModule } from './section/section.module';
 import { CleangdprModule } from './cleangdpr/cleangdpr.module';
 import { CronModule } from './cron/cron.module';
 import { UserModule } from './user/user.module';
+import { PostModule } from './post/post.module';
+import { ThrottlerModule } from '@nestjs/throttler';
 @Module({
   imports: [
     PrismaModule,
@@ -27,6 +29,8 @@ import { UserModule } from './user/user.module';
     CleangdprModule,
     CronModule,
     UserModule,
+    PostModule,
+    ThrottlerModule.forRoot({ throttlers: [{ ttl: 30000, limit: 10 }] }),
   ],
 })
 export class AppModule {}

@@ -2,6 +2,11 @@ import { role } from './enum';
 
 export type UserWithRole = {
   id: string;
+  isActive: boolean;
+  firstName: string;
+  lastName: string;
+  username: string;
+  email: string;
   role: {
     name: role;
   };
@@ -38,3 +43,24 @@ export type message = {
   message: string;
   user: { username: string };
 };
+
+export type userGateway = {
+  clientId: string;
+  userId: string;
+  projectMemberIds: string[];
+  projectId?: string;
+};
+export type userDataGateway = {
+  username: string;
+  icon: {
+    image: string;
+  } | null;
+};
+export type memberGateway = {
+  user: userDataGateway;
+  userId: string;
+  isBanned: boolean;
+  isConnected: boolean;
+};
+
+export type resMessageType = { body: { message: string } };

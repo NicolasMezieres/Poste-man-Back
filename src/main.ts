@@ -15,8 +15,9 @@ async function bootstrap() {
   const config = new DocumentBuilder()
     .setTitle('Poste Man')
     .setDescription('Poste Man API')
-    .setVersion('11.2')
+    .setVersion('1.0')
     .addTag('Poste Man')
+    .addCookieAuth('access_token')
     .addBearerAuth({ type: 'http', in: 'header', scheme: 'bearer' })
     .build();
 
