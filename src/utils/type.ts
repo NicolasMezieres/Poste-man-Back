@@ -64,3 +64,5 @@ export type memberGateway = {
 };
 
 export type resMessageType = { body: { message: string } };
+
+export type queryUserList = { page: number; search: string };

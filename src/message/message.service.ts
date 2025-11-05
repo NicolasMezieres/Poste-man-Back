@@ -5,13 +5,13 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { WsException } from '@nestjs/websockets';
+import { Socket } from 'socket.io';
 import { User } from 'src/prisma/generated';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { messageDTO } from './dto';
 import { role, roleProject } from 'src/utils/enum';
 import { MessageGateway } from './message.gateway';
-import { Socket } from 'socket.io';
-import { WsException } from '@nestjs/websockets';
 import { UserWithRole } from 'src/utils/type';
 import { NotificationService } from 'src/notification/notification.service';
 
@@ -162,8 +162,11 @@ export class MessageService {
         throw new ForbiddenException('You are unauthorized !');
       }
     }
-    await this.prisma.message.deleteMany({
-      where: { projectId: existingProject.id },
+    await this.prisma.message.updateMany({
+      where: { projectId },
+      data: {
+        isArchive: true,
+      },
     });
     this.socket.emitResetMessage(existingProject.id);
     return { message: 'Messages deleted !' };

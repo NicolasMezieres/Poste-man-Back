@@ -38,6 +38,7 @@ export class SectionController {
   ) {
     return this.sectionService.sections(projectId, user);
   }
+
   @ApiCreatedResponse({ description: 'Section created !' })
   @ApiBadRequestResponse({ description: 'This name is already used !' })
   @ApiForbiddenResponse({ description: 'Project not exist' })

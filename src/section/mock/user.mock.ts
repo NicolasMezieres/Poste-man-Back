@@ -10,6 +10,7 @@ export const mockUser = {
   username: 'Tomato',
   password: 'StrongP@ssword123',
   isActive: true,
+  isArchive: false,
   activateToken: null,
   gdpr: true,
   createdAt: new Date('2025-09-06'),

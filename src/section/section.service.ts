@@ -16,7 +16,7 @@ export class SectionService {
   async sections(projectId: string, user: UserWithRole) {
     const existingProject = await this.prisma.project.findUnique({
       where: { id: projectId },
-      select: { id: true, section: true },
+      select: { id: true, section: { where: { isArchive: false } } },
     });
     if (!existingProject) {
       throw new NotFoundException('Project not found !');
@@ -125,8 +125,11 @@ export class SectionService {
         throw new ForbiddenException('You are unauthorized !');
       }
     }
-    await this.prisma.section.delete({
+    await this.prisma.section.update({
       where: { id: sectionId },
+      data: {
+        isArchive: true,
+      },
       select: null,
     });
     return { message: 'Section has been deleted' };

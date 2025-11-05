@@ -183,7 +183,7 @@ describe('SectionService', () => {
         id: 'section-1',
         projectId: 'project-1',
       });
-      prisma.section.delete.mockResolvedValue(null);
+      prisma.section.update.mockResolvedValue(null);
       prisma.user_Has_Project.findFirst.mockResolvedValue({
         id: 'userProjectId',
       });
@@ -203,8 +203,11 @@ describe('SectionService', () => {
         },
         select: { id: true },
       });
-      expect(prisma.section.delete).toHaveBeenCalledWith({
+      expect(prisma.section.update).toHaveBeenCalledWith({
         where: { id: 'section-1' },
+        data: {
+          isArchive: true,
+        },
         select: null,
       });
 
@@ -215,12 +218,15 @@ describe('SectionService', () => {
         id: 'sectionId',
         projectId: 'projectId',
       });
-      jest.spyOn(prisma.section, 'delete').mockResolvedValue(null);
+      jest.spyOn(prisma.section, 'update').mockResolvedValue(null);
       await expect(
         service.removeSection('sectionId', adminWithRoleMock),
       ).resolves.toEqual({ message: 'Section has been deleted' });
-      expect(prisma.section.delete).toHaveBeenCalledWith({
+      expect(prisma.section.update).toHaveBeenCalledWith({
         where: { id: 'sectionId' },
+        data: {
+          isArchive: true,
+        },
         select: null,
       });
     });
@@ -230,7 +236,7 @@ describe('SectionService', () => {
       await expect(
         service.removeSection('section-1', userWithRoleMock),
       ).rejects.toThrow(NotFoundException);
-      expect(prisma.section.delete).not.toHaveBeenCalled();
+      expect(prisma.section.update).not.toHaveBeenCalled();
     });
     it('Should return a Forbidden Exception You are unauthorized !', async () => {
       jest.spyOn(prisma.section, 'findUnique').mockResolvedValue({

@@ -9,11 +9,11 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { ProjectService } from './project.service';
-import { projectDTO } from './dto';
 import { AdminGuard, JwtGuard } from 'src/auth/Guards';
 import { GetUser } from 'src/auth/decorator';
 import { User } from 'src/prisma/generated';
+import { projectDTO } from './dto';
+import { ProjectService } from './project.service';
 import {
   querySearchAdminProject,
   querySearchProject,
@@ -96,6 +96,12 @@ export class ProjectController {
     return this.projectService.rename(dto, id, user);
   }
 
+  @ApiNoContentResponse({ description: 'Project deleted or leaved !' })
+  @ApiNotFoundResponse({ description: 'Project not found !' })
+  @Delete('/:id')
+  remove(@Param('id') id: string, @GetUser() user: UserWithRole) {
+    return this.projectService.remove(id, user);
+  }
   @ApiNoContentResponse({ description: 'User kick' })
   @ApiForbiddenResponse({ description: 'User not found' })
   @Delete('/:projectId/user/:userId')
@@ -105,12 +111,5 @@ export class ProjectController {
     @GetUser() user: User,
   ) {
     return this.projectService.kickUser(projectId, userId, user);
-  }
-
-  @ApiNoContentResponse({ description: 'Project deleted or leaved !' })
-  @ApiNotFoundResponse({ description: 'Project not found !' })
-  @Delete('/:id')
-  remove(@Param('id') id: string, @GetUser() user: UserWithRole) {
-    return this.projectService.remove(id, user);
   }
 }

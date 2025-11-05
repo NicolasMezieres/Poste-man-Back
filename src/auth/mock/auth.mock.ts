@@ -34,6 +34,7 @@ export const userMock = {
   password: 'StrongP@ssword123',
   email: 'user@example.com',
   isActive: true,
+  isArchive: false,
   activateToken: '',
   gdpr: true,
   createdAt: new Date(),
