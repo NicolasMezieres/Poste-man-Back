@@ -114,6 +114,19 @@ describe('CronService', () => {
     });
   });
 
+  describe('handlePostDelete', () => {
+    it('should delete archived post and log result', async () => {
+      mockPrismaService.post.deleteMany.mockResolvedValue({ count: 6 });
+
+      await service.handlePostDelete();
+
+      expect(prisma.post.deleteMany).toHaveBeenCalledWith({
+        where: { isArchive: true },
+      });
+      expect(mockLogger.log).toHaveBeenCalledWith('6 post archived delete');
+    });
+  });
+
   it('should be defined', () => {
     expect(service).toBeDefined();
   });

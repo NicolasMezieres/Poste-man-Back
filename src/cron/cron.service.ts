@@ -70,4 +70,12 @@ export class CronService {
     });
     this.logger.log(`${result.count} project archived deleted`);
   }
+
+  @Cron(CronExpression.EVERY_MINUTE)
+  async handlePostDelete() {
+    const result = await this.prisma.post.deleteMany({
+      where: { isArchive: true },
+    });
+    this.logger.log(`${result.count} post archived delete`);
+  }
 }
