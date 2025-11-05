@@ -6,10 +6,10 @@ import {
 } from '@nestjs/common';
 import { User } from 'src/prisma/generated';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { postDTO, voteDTO } from './dto';
 import { roleProject } from 'src/section/mock/section.mock';
-import { UserWithRole } from 'src/utils/type';
 import { role } from 'src/utils/enum';
+import { UserWithRole } from 'src/utils/type';
+import { postDTO, voteDTO } from './dto';
 
 @Injectable()
 export class PostService {
@@ -317,7 +317,7 @@ export class PostService {
 
     await this.prisma.post.update({
       where: { id: existingPost.id },
-      data: { isVisible: false, updatedAt: new Date() },
+      data: { isVisible: false, updatedAt: new Date(), isArchive: true },
     });
     return {
       message: 'Post deleted !',
@@ -348,7 +348,7 @@ export class PostService {
     }
     await this.prisma.post.updateMany({
       where: { sectionId: existingSection.id },
-      data: { isVisible: false, updatedAt: new Date() },
+      data: { isVisible: false, updatedAt: new Date(), isArchive: true },
     });
     return { message: 'All post have been deleted !' };
   }

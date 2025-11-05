@@ -94,6 +94,7 @@ model Post {
   poseY Int? @db.Integer()
   score Int @db.Integer() @default(0)
   isVisible Boolean @default(true)
+  isArchive Boolean @default(false)
   createdAt DateTime @db.Timestamp() @default(now())
   updatedAt DateTime @db.Timestamp() @default(now())
   user User @relation(fields: [userId] , references: [id])

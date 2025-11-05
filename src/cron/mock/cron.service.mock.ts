@@ -4,4 +4,5 @@ export const mockPrismaService = {
   link_Project: { deleteMany: jest.fn() },
   user: { deleteMany: jest.fn() },
   project: { deleteMany: jest.fn() },
+  post: { deleteMany: jest.fn() },
 };
