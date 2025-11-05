@@ -1,4 +1,3 @@
-import { ExecutionContext } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { JwtGuard } from 'src/auth/Guards';
 import { mockUserService } from './mock/service.mock';
@@ -16,7 +15,7 @@ describe('UserController', () => {
       providers: [{ provide: UserService, useValue: mockUserService }],
     })
       .overrideGuard(JwtGuard)
-      .useValue({ canActivate: (context: ExecutionContext) => true })
+      .useValue({ canActivate: () => true })
       .compile();
 
     controller = module.get<UserController>(UserController);
@@ -90,9 +89,9 @@ describe('UserController', () => {
       const excepted = { message: 'User has been deleted' };
       mockUserService.deleteUser.mockResolvedValue(excepted);
 
-      const result = await controller.deleteUser(mockUser, id)
+      const result = await controller.deleteUser(mockUser, id);
       expect(result).toEqual(excepted);
-      expect(service.deleteUser).toHaveBeenCalledWith(mockUser, id)
+      expect(service.deleteUser).toHaveBeenCalledWith(mockUser, id);
     });
   });
   it('should be defined', () => {

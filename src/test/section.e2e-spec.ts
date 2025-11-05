@@ -20,6 +20,11 @@ describe('Section (e2e)', () => {
     projectId = await getProject('sectionSpec');
   });
   afterAll(async () => {
+    await prisma.section.deleteMany({
+      where: {
+        project: { name: { contains: 'sectionSpec' } },
+      },
+    });
     await prisma.project.deleteMany({
       where: { name: { contains: 'sectionSpec' } },
     });

@@ -267,10 +267,11 @@ describe('MessageService', () => {
       ).resolves.toEqual({
         message: 'Messages deleted !',
       });
-      expect(messagePrismaMock.message.deleteMany).toHaveBeenCalledWith({
+      expect(messagePrismaMock.message.updateMany).toHaveBeenCalledWith({
         where: {
           projectId,
         },
+        data: { isArchive: true },
       });
       expect(messageGatewayMock.emitResetMessage).toHaveBeenCalledWith(
         projectId,
@@ -285,10 +286,11 @@ describe('MessageService', () => {
       ).resolves.toEqual({
         message: 'Messages deleted !',
       });
-      expect(messagePrismaMock.message.deleteMany).toHaveBeenCalledWith({
+      expect(messagePrismaMock.message.updateMany).toHaveBeenCalledWith({
         where: {
           projectId,
         },
+        data: { isArchive: true },
       });
       expect(messageGatewayMock.emitResetMessage).toHaveBeenCalledWith(
         projectId,
@@ -301,7 +303,7 @@ describe('MessageService', () => {
       await expect(
         service.deleteAllMessage(projectId, userWithRoleMock),
       ).rejects.toEqual(new NotFoundException('Project not found !'));
-      expect(messagePrismaMock.message.deleteMany).not.toHaveBeenCalled();
+      expect(messagePrismaMock.message.updateMany).not.toHaveBeenCalled();
       expect(messageGatewayMock.emitResetMessage).not.toHaveBeenCalled();
     });
     it('should return Forbidden Exception, You are unauthorized !', async () => {
@@ -314,7 +316,7 @@ describe('MessageService', () => {
       await expect(
         service.deleteAllMessage(projectId, userWithRoleMock),
       ).rejects.toEqual(new ForbiddenException('You are unauthorized !'));
-      expect(messagePrismaMock.message.deleteMany).not.toHaveBeenCalled();
+      expect(messagePrismaMock.message.updateMany).not.toHaveBeenCalled();
       expect(messageGatewayMock.emitResetMessage).not.toHaveBeenCalled();
     });
   });

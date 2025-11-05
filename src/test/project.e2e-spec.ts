@@ -21,8 +21,11 @@ describe('Project (e2e) ', () => {
     projectId = await getProject('projectSpec');
   });
   afterAll(async () => {
+    await prisma.link_Project.deleteMany({
+      where: { projet: { name: { contains: 'projectSpec' } } },
+    });
     await prisma.project.deleteMany({
-      where: { name: 'projectSpec' },
+      where: { name: { contains: 'projectSpec' } },
     });
   });
   describe('/ (POST) create', () => {
@@ -265,7 +268,7 @@ describe('Project (e2e) ', () => {
   });
   describe('/ (PATCH) rename project', () => {
     const path = '/project/projectId';
-    const projectDTO = { name: 'newName' };
+    const projectDTO = { name: 'projectSpec2' };
     it('Should fail Need a Cookie', async () => {
       return request(app.getHttpServer())
         .patch(path)
@@ -322,7 +325,7 @@ describe('Project (e2e) ', () => {
     });
     it('Should kick user', async () => {
       const projectId = await prisma.project.findFirst({
-        where: { name: 'newName' },
+        where: { name: 'projectSpec2' },
         select: { id: true },
       });
       const user = await prisma.user.findUnique({
@@ -400,10 +403,10 @@ describe('Project (e2e) ', () => {
       await request(app.getHttpServer())
         .post('/project/create')
         .set('Cookie', cookie)
-        .send({ name: 'truc' })
+        .send({ name: 'projectSpec2' })
         .expect(201);
       const newProject = await prisma.project.findFirst({
-        where: { name: 'truc' },
+        where: { name: 'projectSpec2' },
         select: { id: true },
       });
       if (!newProject) {

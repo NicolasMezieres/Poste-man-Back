@@ -20,6 +20,9 @@ describe('Message (e2e)', () => {
     projectId = await getProject('messageSpec');
   });
   afterAll(async () => {
+    await prisma.link_Project.deleteMany({
+      where: { projet: { name: { contains: 'messageSpec' } } },
+    });
     await prisma.project.deleteMany({
       where: { name: { contains: 'messageSpec' } },
     });

@@ -13,6 +13,7 @@ import { AdminGuard, JwtGuard } from 'src/auth/Guards';
 import { User } from 'src/prisma/generated';
 import { updateAccountDTO } from './dto';
 import { UserService } from './user.service';
+import { queryUserList } from 'src/utils/type';
 
 @UseGuards(JwtGuard)
 @Controller('user')
@@ -36,7 +37,7 @@ export class UserController {
 
   @UseGuards(AdminGuard)
   @Get('userList')
-  searchUser(@Query() query: any) {
+  searchUser(@Query() query: queryUserList) {
     return this.userService.listUser(query);
   }
 

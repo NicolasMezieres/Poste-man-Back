@@ -11,7 +11,6 @@ import {
 
 describe('CleangdprService', () => {
   let service: CleangdprService;
-  let prismaService: PrismaService;
 
   beforeEach(async () => {
     jest.clearAllMocks();
@@ -27,7 +26,6 @@ describe('CleangdprService', () => {
     }).compile();
 
     service = module.get<CleangdprService>(CleangdprService);
-    prismaService = module.get<PrismaService>(PrismaService);
   });
 
   it('should update users with GDPR flag older than 1 year', async () => {
@@ -56,8 +54,8 @@ describe('CleangdprService', () => {
       },
     });
 
-    expect(logSpy).toHaveBeenCalledWith('Maj GDPR');
-    expect(logSpy).toHaveBeenCalledWith('5 user found update gdpr on false');
+    expect(logSpy).toHaveBeenCalledWith('Checking gdpr users');
+    expect(logSpy).toHaveBeenCalledWith('5 user found update status');
 
     jest.useRealTimers();
   });

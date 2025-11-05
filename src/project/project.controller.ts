@@ -96,11 +96,12 @@ export class ProjectController {
     return this.projectService.rename(dto, id, user);
   }
 
-
-  @Patch('/:id/delete')
-  remove(@Param('id') id: string, @GetUser() user: User) {
+  @ApiNoContentResponse({ description: 'Project deleted or leaved !' })
+  @ApiNotFoundResponse({ description: 'Project not found !' })
+  @Delete('/:id')
+  remove(@Param('id') id: string, @GetUser() user: UserWithRole) {
     return this.projectService.remove(id, user);
-
+  }
   @ApiNoContentResponse({ description: 'User kick' })
   @ApiForbiddenResponse({ description: 'User not found' })
   @Delete('/:projectId/user/:userId')
@@ -110,12 +111,5 @@ export class ProjectController {
     @GetUser() user: User,
   ) {
     return this.projectService.kickUser(projectId, userId, user);
-  }
-  //todo modif avec au dessus deux fonction remove
-  @ApiNoContentResponse({ description: 'Project deleted or leaved !' })
-  @ApiNotFoundResponse({ description: 'Project not found !' })
-  @Delete('/:id')
-  remove(@Param('id') id: string, @GetUser() user: UserWithRole) {
-    return this.projectService.remove(id, user);
   }
 }

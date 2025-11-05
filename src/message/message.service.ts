@@ -12,8 +12,6 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { messageDTO } from './dto';
 import { role, roleProject } from 'src/utils/enum';
 import { MessageGateway } from './message.gateway';
-import { Socket } from 'socket.io';
-import { WsException } from '@nestjs/websockets';
 import { UserWithRole } from 'src/utils/type';
 import { NotificationService } from 'src/notification/notification.service';
 

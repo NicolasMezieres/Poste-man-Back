@@ -336,7 +336,7 @@ export class ProjectService {
           where: { projectId: existingProject.id },
         });
         await tPrisma.project.update({
-          where: { id: existingProject.projectId },
+          where: { id: existingProject.id },
           data: {
             isArchive: true,
           },

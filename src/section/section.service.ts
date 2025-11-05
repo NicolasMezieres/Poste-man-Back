@@ -16,7 +16,7 @@ export class SectionService {
   async sections(projectId: string, user: UserWithRole) {
     const existingProject = await this.prisma.project.findUnique({
       where: { id: projectId },
-      select: { id: true, section: true },
+      select: { id: true, section: { where: { isArchive: false } } },
     });
     if (!existingProject) {
       throw new NotFoundException('Project not found !');
@@ -34,14 +34,6 @@ export class SectionService {
       throw new ForbiddenException('You are unauthorized !');
     }
     return { data: existingProject.section };
-  }
-
-  async allSectionProject() {
-    return this.prisma.section.findMany({
-      orderBy: {
-        name: 'asc',
-      },
-    });
   }
 
   async createSection(dto: createDTO, projectId: string, user: User) {

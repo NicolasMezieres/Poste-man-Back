@@ -8,6 +8,7 @@ import { User } from 'src/prisma/generated';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { isNextPage, pagination } from 'src/utils/pagination';
 import { updateAccountDTO } from './dto';
+import { queryUserList } from 'src/utils/type';
 
 @Injectable()
 export class UserService {
@@ -66,7 +67,7 @@ export class UserService {
     return { message: 'Your account gonna be deleted !' };
   }
 
-  async listUser(query: any) {
+  async listUser(query: queryUserList) {
     const take = 10;
     const skip = pagination(query.page, take);
     const search = query.search ?? '';
@@ -106,7 +107,7 @@ export class UserService {
       isNextPage: nextPage,
     };
   }
-  
+
   async banUser(user: User, id: string) {
     const existingUser = await this.prisma.user.findUnique({
       where: {
