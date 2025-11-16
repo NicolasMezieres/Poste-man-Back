@@ -59,7 +59,7 @@ export class AuthService {
     }
     const hashPassword = await argon.hash(dto.password);
     const activateToken = await argon.hash(dto.password + dto.email);
-    const newToken = activateToken.replaceAll('/', '');
+    const newToken = activateToken.replaceAll('/', '').replaceAll('=', '');
     const newUser = await this.prisma.user.create({
       data: {
         ...dto,
@@ -85,7 +85,9 @@ export class AuthService {
         isActive: true,
       },
     });
-    return { message: 'Your account is active !' };
+    return {
+      message: 'Your account has been created !',
+    };
   }
   async signin(dto: SignInDTO, res: Response) {
     const existingUser = await this.prisma.user.findFirst({

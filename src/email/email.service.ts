@@ -23,7 +23,7 @@ export class EmailService {
   }
 
   async accountConfirmation(user: User, token: string) {
-    const url = `${process.env.FRONT_URL}?token=${token}`;
+    const url = `${process.env.FRONT_URL}validAccount?token=${token}`;
     await this.transporter.sendMail({
       from: this.config.get('SMTP_EMAIL'),
       to: user.email,
@@ -33,7 +33,7 @@ export class EmailService {
   }
 
   async forgetPassword(user: User, token: string) {
-    const url = `${process.env.FRONT_URL}forgetPassword/?=${token}`;
+    const url = `${process.env.FRONT_URL}forgetPassword/${token}`;
     await this.transporter.sendMail({
       from: this.config.get('SMTP_EMAIL'),
       to: user.email,

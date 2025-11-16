@@ -91,4 +91,12 @@ describe('AuthController', () => {
       expect(result).toEqual({ message: 'Deconnection Success' });
     });
   });
+  describe('resetPassword With Token', () => {
+    it('should return a message', async () => {
+      const dto = { password: 'StrongP@ssword123' };
+      await expect(
+        authController.resetPasswordWithToken(userMock, dto),
+      ).resolves.toEqual(messageMock);
+    });
+  });
 });
