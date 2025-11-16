@@ -223,7 +223,7 @@ describe('AuthController (e2e)', () => {
         });
     });
   });
-  describe('/ (POST) resetPassword', () => {
+  describe('/ (PATCH) resetPassword', () => {
     const path = '/auth/resetPassword';
     const resetPasswordDTO = {
       password: 'strongP@ssword73',
@@ -238,17 +238,17 @@ describe('AuthController (e2e)', () => {
     });
     it('Should send a mail', async () => {
       return request(app.getHttpServer())
-        .post(path)
+        .patch(path)
         .send(resetPasswordDTO)
         .set('Cookie', cookie)
-        .expect(201)
+        .expect(200)
         .then((res: resMessageType) => {
           expect(res.body.message).toEqual('Your password has been change');
         });
     });
     it('Should fail Bad Request Exception, password', async () => {
       return request(app.getHttpServer())
-        .post(path)
+        .patch(path)
         .set('Cookie', cookie)
         .expect(400)
         .then((res: resMessageType) => {
@@ -257,7 +257,7 @@ describe('AuthController (e2e)', () => {
     });
     it('Should fail unauthorized, need a cookie', async () => {
       return request(app.getHttpServer())
-        .post(path)
+        .patch(path)
         .expect(401)
         .then((res: resMessageType) => {
           expect(res.body.message).toContain('Unauthorized');

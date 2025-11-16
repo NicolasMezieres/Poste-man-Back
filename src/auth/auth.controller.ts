@@ -8,6 +8,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import {
+  ApiBearerAuth,
   ApiCookieAuth,
   ApiInternalServerErrorResponse,
   ApiResponse,
@@ -22,7 +23,7 @@ import {
   SignInDTO,
   SignUpDTO,
 } from './dto';
-import { ResetPasswordGuard } from './Guards';
+import { JwtGuard, ResetPasswordGuard } from './Guards';
 
 @Controller('auth')
 export class AuthController {
@@ -61,11 +62,20 @@ export class AuthController {
   }
 
   @ApiCookieAuth()
-  @ApiResponse({ status: 201, description: 'Your password has been change' })
+  @ApiResponse({ status: 200, description: 'Your password has been change' })
+  @ApiResponse({ status: 401, description: 'UnAuthorized' })
+  @UseGuards(JwtGuard)
+  @Patch('resetPassword')
+  resetPassword(@GetUser() user: User, @Body() dto: ResetPasswordDTO) {
+    return this.authService.resetPassword(user, dto);
+  }
+
+  @ApiBearerAuth()
+  @ApiResponse({ status: 200, description: 'Your password has been change' })
   @ApiResponse({ status: 401, description: 'UnAuthorized' })
   @UseGuards(ResetPasswordGuard)
-  @Post('resetPassword')
-  resetPassword(@GetUser() user: User, @Body() dto: ResetPasswordDTO) {
+  @Patch('resetPasswordWithToken')
+  resetPasswordWithToken(@GetUser() user: User, @Body() dto: ResetPasswordDTO) {
     return this.authService.resetPassword(user, dto);
   }
 

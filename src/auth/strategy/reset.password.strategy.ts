@@ -5,9 +5,8 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
-import { Strategy } from 'passport-jwt';
+import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { RequestWithCookies } from 'src/utils/interface';
 
 @Injectable()
 export class resetPasswordStrategy extends PassportStrategy(
@@ -19,12 +18,7 @@ export class resetPasswordStrategy extends PassportStrategy(
     private prisma: PrismaService,
   ) {
     super({
-      jwtFromRequest: (req: RequestWithCookies) => {
-        if (!req.cookies || !req.cookies['access_token']) {
-          return null;
-        }
-        return req.cookies['access_token'];
-      },
+      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       secretOrKey: config.get('JWT_SECRET') as string,
     });
   }

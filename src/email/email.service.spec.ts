@@ -66,7 +66,7 @@ describe('EmailService', () => {
         username: 'john',
       } as User;
       const token = 'abc123';
-      const expectedUrl = `${process.env.FRONT_URL}?token=${token}`;
+      const expectedUrl = `${process.env.FRONT_URL}validAccount?token=${token}`;
 
       (inscriptionEmailTemplate as jest.Mock).mockReturnValue('<p>Welcome</p>');
 
@@ -92,7 +92,7 @@ describe('EmailService', () => {
         username: 'john',
       } as User;
       const token = 'reset123';
-      const expectedUrl = `${process.env.FRONT_URL}forgetPassword/?=${token}`;
+      const expectedUrl = `${process.env.FRONT_URL}forgetPassword/${token}`;
 
       (sendPasswordResetTemplate as jest.Mock).mockReturnValue(
         '<p>Reset Password</p>',

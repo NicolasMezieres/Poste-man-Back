@@ -109,13 +109,13 @@ describe('AuthService', () => {
   });
   describe('activateAccount', () => {
     const token = 'token';
-    it('should return a { message: "Your account is active !"}', async () => {
+    it('should return a { message: "Your account has been created !"}', async () => {
       const user = { ...userMock };
       user.activateToken = token;
       jest.spyOn(AuthPrismaMock.user, 'findFirst').mockResolvedValue(userMock);
       jest.spyOn(AuthPrismaMock.user, 'update').mockResolvedValue(userMock);
       await expect(authService.activationAccount(token)).resolves.toEqual({
-        message: 'Your account is active !',
+        message: 'Your account has been created !',
       });
     });
     it('should return a { message: "Account not found"}', async () => {

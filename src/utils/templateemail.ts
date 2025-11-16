@@ -11,10 +11,10 @@ export const inscriptionEmailTemplate = (url: string, username: string) => {
                   <td style="padding: 30px">
                   <p style="font-size: 32px;">${username}</p>
                     <p style="font-size: 16px; color: #212121; line-height: 1.6;">
-                    Pour activer votre compte cliquez <a href="${url}">ici</a>
+                    Pour activer votre compte, cliquez <a href="${url}">ici</a>
                     </p>
                     <p style="font-size: 14px; color: #212121">
-                    Si vous êtes pas a l'origine de cet email veuillez le l'ignorer.
+                    Si vous n'êtes pas à l'origine de cet email, veuillez l'ignorer.
                     </p>
                     <p style="color: #212121">
                     Cordialement l'équipe de Poste Man
@@ -38,10 +38,10 @@ export const sendPasswordResetTemplate = (username: string, url: string) => {
                   <td style="padding: 30px">
                   <p style="font-size: 32px;">${username}</p>
                     <p style="font-size: 16px; color: #212121; line-height: 1.6;">
-                    Pour pouvoir reinitaliser votre mot de passe cliquer <a href="${url}">ici</a>
+                    Pour pouvoir reinitaliser votre mot de passe, cliquez <a href="${url}">ici</a>
                     </p>
                     <p style="font-size: 14px; color: #212121">
-                    Si vous êtes pas a l'origine de cet email veuillez le l'ignorer.
+                    Si vous n'êtes pas à l'origine de cet email, veuillez l'ignorer.
                     </p>
                     <p style="color: #212121">
                     Cordialement l'équipe de Poste Man
