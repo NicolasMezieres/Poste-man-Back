@@ -92,7 +92,7 @@ describe('EmailService', () => {
         username: 'john',
       } as User;
       const token = 'reset123';
-      const expectedUrl = `${process.env.FRONT_URL}forgetPassword/${token}`;
+      const expectedUrl = `${process.env.FRONT_URL}resetPassword/${token}`;
 
       (sendPasswordResetTemplate as jest.Mock).mockReturnValue(
         '<p>Reset Password</p>',
