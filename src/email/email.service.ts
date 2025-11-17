@@ -33,7 +33,7 @@ export class EmailService {
   }
 
   async forgetPassword(user: User, token: string) {
-    const url = `${process.env.FRONT_URL}forgetPassword/${token}`;
+    const url = `${process.env.FRONT_URL}resetPassword/${token}`;
     await this.transporter.sendMail({
       from: this.config.get('SMTP_EMAIL'),
       to: user.email,
