@@ -4,6 +4,7 @@ import { mockUserService } from './mock/service.mock';
 import { mockUser, mockUserUpdate } from './mock/user.mock';
 import { UserController } from './user.controller';
 import { UserService } from './user.service';
+import { userMock } from 'src/auth/mock/auth.mock';
 
 describe('UserController', () => {
   let controller: UserController;
@@ -24,14 +25,17 @@ describe('UserController', () => {
     jest.clearAllMocks();
   });
 
-  describe('myAsset', () => {
-    it('should return user account data', async () => {
-      const excepted = { username: 'Plopiplop' };
-      mockUserService.myAccount.mockResolvedValue(excepted);
-
-      const result = await controller.myAsset(mockUser);
-      expect(result).toEqual(excepted);
-      expect(service.myAccount).toHaveBeenCalledWith(mockUser);
+  describe('myAccount', () => {
+    it('should return user account data', () => {
+      const data = {
+        email: userMock.email,
+        firstName: userMock.firstName,
+        lastName: userMock.lastName,
+        username: userMock.username,
+      };
+      jest.spyOn(service, 'myAccount').mockReturnValue({ data });
+      expect(controller.myAccount(userMock)).toEqual({ data });
+      expect(service.myAccount).toHaveBeenCalled();
     });
   });
 

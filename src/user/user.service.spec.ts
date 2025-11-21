@@ -1,5 +1,4 @@
 import {
-  ForbiddenException,
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
@@ -8,6 +7,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { mockPrisma } from './mock/prisma.mock';
 import { mockUser, mockUserUpdate } from './mock/user.mock';
 import { UserService } from './user.service';
+import { userMock } from 'src/auth/mock/auth.mock';
 
 jest.mock('src/utils/pagination.ts', () => ({
   pagination: jest.fn().mockReturnValue(0),
@@ -57,21 +57,15 @@ describe('UserService', () => {
     ).rejects.toThrow(InternalServerErrorException);
   });
   describe('MyAccount', () => {
-    it('shoudl return existing account', async () => {
-      mockPrisma.user.findUnique.mockResolvedValue({ username: 'Plopiplop' });
-
-      const result = await service.myAccount(mockUser);
-      expect(result).toEqual({ username: 'Plopiplop' });
-      expect(mockPrisma.user.findUnique).toHaveBeenCalledWith({
-        where: { id: mockUser.id },
-        select: { firstName: true, lastName: true, username: true },
-      });
-    });
-    it('should throw ForbiddenException if no account found', async () => {
-      mockPrisma.user.findUnique.mockResolvedValue(null);
-      await expect(service.myAccount(mockUser)).rejects.toThrow(
-        ForbiddenException,
-      );
+    it('should return data of my account', () => {
+      const data = {
+        email: userMock.email,
+        firstName: userMock.firstName,
+        lastName: userMock.lastName,
+        username: userMock.username,
+      };
+      const result = service.myAccount(userMock);
+      expect(result).toEqual({ data });
     });
   });
 
