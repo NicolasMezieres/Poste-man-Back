@@ -41,10 +41,12 @@ jobs:
 
       - name: Run generation schema prisma
         run: npx prisma generate
-
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
       - name: Run migrations on test
         run: npx prisma migrate deploy
-
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
       - name: Run seed
         run: npx prisma db seed
 
