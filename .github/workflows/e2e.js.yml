@@ -40,16 +40,16 @@ jobs:
         run: npm ci
 
       - name: Run generation schema prisma
-        run: npx prisma generate
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           DATABASE_URL_TEST: ${{ secrets.DATABASE_URL}}
+        run: npx prisma generate
 
       - name: Run migrations on test
-        run: npx prisma migrate deploy
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           DATABASE_URL_TEST: ${{ secrets.DATABASE_URL}}
+        run: npx prisma migrate deploy
 
       - name: Run seed
         run: npx prisma db seed
