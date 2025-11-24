@@ -24,5 +24,6 @@
     "paths": {
       "@prisma/*": ["src/prisma/generated/*"]
     }
-  }
+  },
+  "include": ["src"]
 }
