@@ -4,7 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import { ForbiddenException } from '@nestjs/common';
 import { Pool } from 'pg';
 import { PrismaPg } from '@prisma/adapter-pg';
-import { PrismaClient } from './prisma/generated/client';
+import { PrismaClient } from '../src/prisma/generated/client';
 const config = new ConfigService();
 const databaseUrl = process.env.DATABASE_URL as string;
 if (!databaseUrl) {
