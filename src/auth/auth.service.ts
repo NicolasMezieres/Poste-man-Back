@@ -31,7 +31,7 @@ export class AuthService {
   ) {}
 
   async signToken(user: User, delay: StringValue) {
-    const payload = { sub: user.id };
+    const payload = { sub: user.id }; // prisma
     return {
       connexion_token: await this.jwt.signAsync(payload, {
         secret: this.config.get('JWT_SECRET'),
@@ -41,6 +41,7 @@ export class AuthService {
   }
   async signup(dto: SignUpDTO) {
     const existingUsername = await this.prisma.user.findUnique({
+      //prisma
       where: { username: dto.username },
     });
     if (existingUsername) {
