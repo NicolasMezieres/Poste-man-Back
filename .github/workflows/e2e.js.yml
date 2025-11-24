@@ -39,6 +39,7 @@ jobs:
           echo "DATABASE_URL=postgres://${{ vars.POSTGRES_USER }}:${{ vars.POSTGRES_PASSWORD }}@localhost:5432/${{ vars.POSTGRES_DB }}" >> $GITHUB_ENV
           fi
           echo "DATABASE_URL_TEST=$DATABASE_URL" >> $GITHUB_ENV
+
       - name: Run generation schema prisma
         run: npx prisma generate
 
