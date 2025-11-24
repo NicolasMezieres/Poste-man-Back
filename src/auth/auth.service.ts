@@ -29,7 +29,10 @@ export class AuthService {
     private config: ConfigService,
   ) {}
 
-  async signToken(user: User, delay: string) {
+  async signToken(
+    user: User,
+    delay: number,
+  ): Promise<{ connexion_token: string }> {
     const payload = { sub: user.id };
     return {
       connexion_token: await this.jwt.signAsync(payload, {
