@@ -36,12 +36,6 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Who triggered this?
-        run: |
-          echo "Event: $GITHUB_EVENT_NAME"
-          echo "Actor: $GITHUB_ACTOR"
-          echo "From fork? $GITHUB_EVENT_PULL_REQUEST_HEAD_REPO_FORK"
-
       - name: Run generation schema prisma
         run: npx prisma generate
 
