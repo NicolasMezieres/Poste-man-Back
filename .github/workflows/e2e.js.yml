@@ -10,11 +10,9 @@ jobs:
   e2e-test:
     runs-on: ubuntu-24.04
     env:
-      POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-      POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-      POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
-      DATABASE_URL: postgres://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@localhost:5432/${{ secrets.POSTGRES_DB }}
-      DATABASE_URL_TEST: postgres://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@localhost:5432/${{ secrets.POSTGRES_DB }}
+      PASSWORD_ADMIN: ${{secrets.PASSWORD_ADMIN}}
+      DATABASE_URL: ${{secrets.DATABASE_URL}}
+      DATABASE_URL_TEST: ${{secrets.DATABASE_URL_TEST}}
     services:
       test_db:
         image: postgres:17.6
