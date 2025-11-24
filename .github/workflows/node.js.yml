@@ -22,14 +22,14 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Debug ESLint config
-        run: npx eslint --print-config src/main.ts
-
       - name: ESLint test
         run: npm run lint
 
       - name: Prettier check format
         run: npm run format:check
+
+      - name: Generate client
+        run: npx prisma generate
 
       - name: Unit test
         run: npm run test
