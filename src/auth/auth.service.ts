@@ -19,6 +19,7 @@ import {
   SignInDTO,
   SignUpDTO,
 } from './dto';
+import type { StringValue } from 'ms';
 
 @Injectable()
 export class AuthService {
@@ -29,7 +30,7 @@ export class AuthService {
     private config: ConfigService,
   ) {}
 
-  async signToken(user: User, delay: string) {
+  async signToken(user: User, delay: StringValue) {
     const payload = { sub: user.id };
     return {
       connexion_token: await this.jwt.signAsync(payload, {
