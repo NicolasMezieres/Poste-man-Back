@@ -10,11 +10,8 @@ jobs:
   e2e-test:
     runs-on: ubuntu-24.04
     env:
-      DATABASE_URL: ${{ secrets.DATABASE_URL }}
-      DATABASE_URL_TEST: ${{ secrets.DATABASE_URL_TEST }}
-      POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-      POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-      POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+      DATABASE_URL: postgres://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@localhost:5432/${{ secrets.POSTGRES_DB }}
+      DATABASE_URL_TEST: postgres://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@localhost:5432/${{ secrets.POSTGRES_DB }}
     services:
       test_db:
         image: postgres:17.6
@@ -36,12 +33,12 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Set DATABASE_URL dynamically
+      - name: Wait for Postgres
         run: |
-          if [ -z "$DATABASE_URL" ]; then
-          echo "DATABASE_URL=postgres://${{ vars.POSTGRES_USER }}:${{ vars.POSTGRES_PASSWORD }}@localhost:5432/${{ vars.POSTGRES_DB }}" >> $GITHUB_ENV
-          fi
-          echo "DATABASE_URL_TEST=$DATABASE_URL" >> $GITHUB_ENV
+          until pg_isready -h localhost -p 5432 -U ${{ secrets.POSTGRES_USER }}; do
+            echo "Waiting for Postgres..."
+            sleep 2
+          done
 
       - name: Run generation schema prisma
         run: npx prisma generate
