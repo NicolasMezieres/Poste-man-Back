@@ -25,5 +25,5 @@
       "@prisma": ["src/prisma/generated"]
     }
   },
-  "include": ["src"]
+  "include": ["src/**/*", "prisma/**/*"]
 }
