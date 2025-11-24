@@ -9,7 +9,7 @@ import { Server, Socket } from 'socket.io';
 import { forwardRef, Inject, UseGuards } from '@nestjs/common';
 import { message } from 'src/utils/type';
 import { getClient } from 'src/auth/decorator/get-client.decorator';
-import { User } from 'src/prisma/generated';
+import { User } from 'src/prisma/generated/client';
 import { WsJwtGuard } from 'src/auth/Guards/ws.jwt.guard';
 import { MessageService } from './message.service';
 

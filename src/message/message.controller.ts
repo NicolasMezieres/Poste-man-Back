@@ -10,7 +10,7 @@ import {
 import { MessageService } from './message.service';
 import { JwtGuard } from 'src/auth/Guards';
 import { GetUser } from 'src/auth/decorator';
-import { User } from 'src/prisma/generated';
+import { User } from 'src/prisma/generated/client';
 import { messageDTO } from './dto';
 import { UserWithRole } from 'src/utils/type';
 import {

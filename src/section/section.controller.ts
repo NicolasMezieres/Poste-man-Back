@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { GetUser } from 'src/auth/decorator';
 import { JwtGuard } from 'src/auth/Guards';
-import { User } from 'src/prisma/generated';
+import { User } from 'src/prisma/generated/client';
 import { createDTO, updateDTO } from './dto';
 import { SectionService } from './section.service';
 import { UserWithRole } from 'src/utils/type';

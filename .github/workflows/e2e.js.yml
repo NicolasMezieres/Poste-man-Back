@@ -9,7 +9,9 @@ on:
 jobs:
   e2e-test:
     runs-on: ubuntu-24.04
-
+    env:
+      DATABASE_URL: ${{ vars.DATABASE_URL }}
+      DATABASE_URL_TEST: ${{ vars.DATABASE_URL_TEST }}
     services:
       test_db:
         image: postgres:17.6
@@ -18,8 +20,6 @@ jobs:
           POSTGRES_USER: ${{ vars.POSTGRES_USER }}
           POSTGRES_DB: ${{ vars.POSTGRES_DB }}
           POSTGRES_HOST_AUTH_METHOD: trust
-          DATABASE_URL: ${{ vars.DATABASE_URL }}
-          DATABASE_URL_TEST: ${{ vars.DATABASE_URL}}
         ports:
           - '5432:5432'
         options: >-
@@ -33,6 +33,12 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Set DATABASE_URL dynamically
+        run: |
+          if [ -z "$DATABASE_URL" ]; then
+          echo "DATABASE_URL=postgres://${{ vars.POSTGRES_USER }}:${{ vars.POSTGRES_PASSWORD }}@localhost:5432/${{ vars.POSTGRES_DB }}" >> $GITHUB_ENV
+          fi
+          echo "DATABASE_URL_TEST=$DATABASE_URL" >> $GITHUB_ENV
       - name: Run generation schema prisma
         run: npx prisma generate
 

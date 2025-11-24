@@ -14,7 +14,7 @@ import {
   ApiResponse,
 } from '@nestjs/swagger';
 import type { Response } from 'express';
-import type { User } from 'src/prisma/generated';
+import type { User } from 'src/prisma/generated/client';
 import { AuthService } from './auth.service';
 import { GetUser } from './decorator';
 import {

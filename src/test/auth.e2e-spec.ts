@@ -22,7 +22,6 @@ describe('AuthController (e2e)', () => {
     await prisma.user.delete({
       where: { username: 'username' },
     });
-    await app.close();
   });
   describe('/ (POST) Signup', () => {
     it('Signup successfully', async () => {

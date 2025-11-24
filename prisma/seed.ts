@@ -1,12 +1,18 @@
-import { PrismaClient } from '../src/prisma/generated';
 import { role, roleProject } from '../src/utils/enum';
 import * as argon from 'argon2';
 import { ConfigService } from '@nestjs/config';
 import { ForbiddenException } from '@nestjs/common';
-
-const prisma = new PrismaClient();
+import { PrismaClient } from '@prisma/client';
+import { Pool } from 'pg';
+import { PrismaPg } from '@prisma/adapter-pg';
 const config = new ConfigService();
-
+const databaseUrl = process.env.DATABASE_URL as string;
+if (!databaseUrl) {
+  throw new Error('DATABASE_URL not defined');
+}
+const pool = new Pool({ connectionString: databaseUrl });
+const adapter = new PrismaPg(pool);
+const prisma = new PrismaClient({ adapter });
 const main = async () => {
   const adminRole = await prisma.role.create({
     data: { name: role.ADMIN },

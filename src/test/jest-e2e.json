@@ -6,9 +6,12 @@
   "transform": {
     "^.+\\.(t|j)s$": "ts-jest"
   },
+  "transformIgnorePatterns": ["node_modules/(?!(.*@prisma.*))"],
+  "setupFiles": ["dotenv/config"],
   "setupFilesAfterEnv": ["./test/setup.e2e.ts"],
   "rootDir": "../../src",
   "moduleNameMapper": {
-    "^src/(.*)$": "<rootDir>/$1"
+    "^src/(.*)$": "<rootDir>/$1",
+    "^@prisma/client$": "<rootDir>/../node_modules/@prisma/client"
   }
 }
