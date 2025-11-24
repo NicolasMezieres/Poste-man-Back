@@ -1,5 +1,4 @@
 import {
-  ForbiddenException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -14,19 +13,14 @@ import { queryUserList } from 'src/utils/type';
 export class UserService {
   constructor(private prisma: PrismaService) {}
 
-  async myAccount(user: User) {
-    const existingAccount = await this.prisma.user.findUnique({
-      where: { id: user.id },
-      select: {
-        firstName: true,
-        lastName: true,
-        username: true,
-      },
-    });
-    if (!existingAccount) {
-      throw new ForbiddenException('No account');
-    }
-    return existingAccount;
+  myAccount(user: User) {
+    const data = {
+      lastName: user.lastName,
+      firstName: user.firstName,
+      email: user.email,
+      username: user.username,
+    };
+    return { data };
   }
 
   async updateAccount(user: User, dto: updateAccountDTO) {

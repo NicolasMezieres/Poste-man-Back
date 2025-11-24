@@ -20,8 +20,8 @@ import { queryUserList } from 'src/utils/type';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Get('MyAsset')
-  myAsset(@GetUser() user: User) {
+  @Get('MyAccount')
+  myAccount(@GetUser() user: User) {
     return this.userService.myAccount(user);
   }
 
