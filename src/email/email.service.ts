@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
-import { User } from 'src/prisma/generated';
+import { User } from 'src/prisma/generated/client';
 import {
   inscriptionEmailTemplate,
   sendPasswordResetTemplate,

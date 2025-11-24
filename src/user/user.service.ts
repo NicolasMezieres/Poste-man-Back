@@ -3,7 +3,7 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { User } from 'src/prisma/generated';
+import { User } from 'src/prisma/generated/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { isNextPage, pagination } from 'src/utils/pagination';
 import { updateAccountDTO } from './dto';

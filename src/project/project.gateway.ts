@@ -10,7 +10,7 @@ import {
 import { forwardRef, Inject, UseGuards } from '@nestjs/common';
 import { WsJwtGuard } from 'src/auth/Guards/ws.jwt.guard';
 import { getClient } from 'src/auth/decorator/get-client.decorator';
-import { User } from 'src/prisma/generated';
+import { User } from 'src/prisma/generated/client';
 import { Server, Socket } from 'socket.io';
 import { ProjectService } from './project.service';
 import { memberGateway, userGateway, UserWithRole } from 'src/utils/type';

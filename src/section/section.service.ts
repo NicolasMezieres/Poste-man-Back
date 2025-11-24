@@ -4,7 +4,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { User } from 'src/prisma/generated';
+import { User } from 'src/prisma/generated/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { role, roleProject } from 'src/utils/enum';
 import { createDTO, updateDTO } from './dto';

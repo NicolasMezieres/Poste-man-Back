@@ -317,7 +317,7 @@ describe('ProjectService', () => {
         .mockResolvedValue(project);
       jest
         .spyOn(projectPrismaMock, '$transaction')
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call
+
         .mockImplementation((cb) => cb(projectPrismaMock));
       await expect(
         service.remove(project.projectId, adminWithRoleMock),

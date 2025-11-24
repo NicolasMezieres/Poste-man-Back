@@ -2,7 +2,7 @@ import { Controller, Delete, Get, Param, UseGuards } from '@nestjs/common';
 import { NotificationService } from './notification.service';
 import { JwtGuard } from 'src/auth/Guards';
 import { GetUser } from 'src/auth/decorator';
-import { User } from 'src/prisma/generated';
+import { User } from 'src/prisma/generated/client';
 import {
   ApiForbiddenResponse,
   ApiNoContentResponse,

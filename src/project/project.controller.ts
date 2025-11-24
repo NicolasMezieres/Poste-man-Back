@@ -11,7 +11,7 @@ import {
 } from '@nestjs/common';
 import { AdminGuard, JwtGuard } from 'src/auth/Guards';
 import { GetUser } from 'src/auth/decorator';
-import { User } from 'src/prisma/generated';
+import { User } from 'src/prisma/generated/client';
 import { projectDTO } from './dto';
 import { ProjectService } from './project.service';
 import {

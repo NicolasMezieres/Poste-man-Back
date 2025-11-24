@@ -10,7 +10,7 @@ import { JwtService } from '@nestjs/jwt';
 import * as argon from 'argon2';
 import { Response } from 'express';
 import { EmailService } from 'src/email/email.service';
-import { User } from 'src/prisma/generated';
+import { User } from 'src/prisma/generated/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { role } from 'src/utils/enum';
 import {
@@ -19,6 +19,7 @@ import {
   SignInDTO,
   SignUpDTO,
 } from './dto';
+import type { StringValue } from 'ms';
 
 @Injectable()
 export class AuthService {
@@ -29,8 +30,8 @@ export class AuthService {
     private config: ConfigService,
   ) {}
 
-  async signToken(user: User, delay: string) {
-    const payload = { sub: user.id };
+  async signToken(user: User, delay: StringValue) {
+    const payload = { sub: user.id }; // prisma
     return {
       connexion_token: await this.jwt.signAsync(payload, {
         secret: this.config.get('JWT_SECRET'),
@@ -40,6 +41,7 @@ export class AuthService {
   }
   async signup(dto: SignUpDTO) {
     const existingUsername = await this.prisma.user.findUnique({
+      //prisma
       where: { username: dto.username },
     });
     if (existingUsername) {

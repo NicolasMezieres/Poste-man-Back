@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { WsException } from '@nestjs/websockets';
 import { Socket } from 'socket.io';
-import { User } from 'src/prisma/generated';
+import { User } from 'src/prisma/generated/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { messageDTO } from './dto';
 import { role, roleProject } from 'src/utils/enum';

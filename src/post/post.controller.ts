@@ -11,7 +11,7 @@ import {
 } from '@nestjs/common';
 import { PostService } from './post.service';
 import { GetUser } from 'src/auth/decorator';
-import { User } from 'src/prisma/generated';
+import { User } from 'src/prisma/generated/client';
 import { JwtGuard } from 'src/auth/Guards';
 import { postDTO, voteDTO } from './dto';
 import { UserWithRole } from 'src/utils/type';

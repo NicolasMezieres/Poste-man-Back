@@ -1,6 +1,6 @@
 import { Request } from 'express';
 import { Socket } from 'socket.io';
-import { User } from 'src/prisma/generated';
+import { User } from 'src/prisma/generated/client';
 
 export interface RequestWithCookies extends Request {
   cookies: {

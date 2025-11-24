@@ -1,5 +1,5 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
-import { User } from 'src/prisma/generated';
+import { User } from 'src/prisma/generated/client';
 import { AuthenticatedSocket } from 'src/utils/interface';
 
 export const getClient = createParamDecorator(

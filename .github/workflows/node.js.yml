@@ -28,6 +28,9 @@ jobs:
       - name: Prettier check format
         run: npm run format:check
 
+      - name: Generate client
+        run: npx prisma generate
+
       - name: Unit test
         run: npm run test
 
