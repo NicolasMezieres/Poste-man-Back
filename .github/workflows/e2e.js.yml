@@ -36,12 +36,11 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Wait for Postgres
+      - name: Debug secrets
         run: |
-          until pg_isready -h localhost -p 5432 -U $POSTGRES_USER; do
-            echo "Waiting for Postgres..."
-            sleep 2
-          done
+          echo "POSTGRES_USER=$POSTGRES_USER"
+          echo "POSTGRES_PASSWORD=$POSTGRES_PASSWORD"
+          echo "POSTGRES_DB=$POSTGRES_DB"
 
       - name: Run generation schema prisma
         run: npx prisma generate
