@@ -20,10 +20,10 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm i
+        run: npm ci
 
-      - name: Generate Prisma
-        run: npx prisma generate
+      - name: Debug ESLint config
+        run: npx eslint --print-config src/main.ts
 
       - name: ESLint test
         run: npm run lint
