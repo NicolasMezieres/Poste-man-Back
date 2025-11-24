@@ -2,9 +2,9 @@ import { role, roleProject } from '../src/utils/enum';
 import * as argon from 'argon2';
 import { ConfigService } from '@nestjs/config';
 import { ForbiddenException } from '@nestjs/common';
-import { PrismaClient } from '@prisma/client';
 import { Pool } from 'pg';
 import { PrismaPg } from '@prisma/adapter-pg';
+import { PrismaClient } from 'src/prisma/generated/client';
 const config = new ConfigService();
 const databaseUrl = process.env.DATABASE_URL as string;
 if (!databaseUrl) {
