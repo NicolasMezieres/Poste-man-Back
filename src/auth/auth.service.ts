@@ -5,6 +5,7 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
+import type { StringValue } from 'ms';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as argon from 'argon2';
@@ -29,7 +30,10 @@ export class AuthService {
     private config: ConfigService,
   ) {}
 
-  async signToken(user: User, delay: string) {
+  async signToken(
+    user: User,
+    delay: StringValue,
+  ): Promise<{ connexion_token: string }> {
     const payload = { sub: user.id };
     return {
       connexion_token: await this.jwt.signAsync(payload, {
