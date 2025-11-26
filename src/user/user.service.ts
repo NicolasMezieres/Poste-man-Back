@@ -1,4 +1,5 @@
 import {
+  ForbiddenException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -24,11 +25,23 @@ export class UserService {
   }
 
   async updateAccount(user: User, dto: updateAccountDTO) {
-    const existingAccount = await this.prisma.user.findUnique({
-      where: { id: user.id },
-    });
-    if (!existingAccount) {
-      throw new InternalServerErrorException('Contact Support for more help.');
+    if (user.email !== dto.email) {
+      const existingEmail = await this.prisma.user.findUnique({
+        where: { email: dto.email },
+        select: { email: true },
+      });
+      if (existingEmail) {
+        throw new ForbiddenException('Email déjà utilisé');
+      }
+    }
+    if (user.username !== dto.username) {
+      const existingUsername = await this.prisma.user.findUnique({
+        where: { username: dto.username },
+        select: { username: true },
+      });
+      if (existingUsername) {
+        throw new ForbiddenException('Pseudonyme déjà utilisé');
+      }
     }
     await this.prisma.user.update({
       where: {
