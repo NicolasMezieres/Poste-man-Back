@@ -1,4 +1,5 @@
 import {
+  ForbiddenException,
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
@@ -29,33 +30,46 @@ describe('UserService', () => {
   });
 
   describe('updatedAccount', () => {
+    const dto = {
+      firstName: 'bidule',
+      lastName: 'muche',
+      email: 'email@example.com',
+      username: 'username',
+    };
     it('should update user and return sucess message', async () => {
       mockPrisma.user.findUnique.mockResolvedValue(mockUser);
       mockPrisma.user.update.mockResolvedValue(undefined);
-
-      const dto = mockUserUpdate;
-      const result = await service.updateAccount(mockUser, dto);
+      jest.spyOn(mockPrisma.user, 'findUnique').mockResolvedValue(null);
+      const result = await service.updateAccount(mockUser, mockUserUpdate);
 
       expect(result).toEqual({ message: 'Your account has been updated.' });
       expect(mockPrisma.user.update).toHaveBeenCalledWith({
         where: { id: mockUser.id },
-        data: dto,
+        data: mockUserUpdate,
         select: null,
       });
     });
+    it('Should fail email already used', async () => {
+      jest
+        .spyOn(mockPrisma.user, 'findUnique')
+        .mockResolvedValue({ something: true });
+      await expect(service.updateAccount(userMock, dto)).rejects.toEqual(
+        new ForbiddenException('Email déjà utilisé'),
+      );
+      expect(mockPrisma.user.update).not.toHaveBeenCalled();
+    });
+    it('Should fail username already used', async () => {
+      jest
+        .spyOn(mockPrisma.user, 'findUnique')
+        .mockResolvedValueOnce(null)
+        .mockResolvedValueOnce({ something: true });
+      await expect(service.updateAccount(userMock, dto)).rejects.toEqual(
+        new ForbiddenException('Pseudonyme déjà utilisé'),
+      );
+      expect(mockPrisma.user.update).not.toHaveBeenCalled();
+    });
   });
 
-  it('should throw InternalServerErrorExeption if user not found', async () => {
-    mockPrisma.user.findUnique.mockResolvedValue(null);
-
-    await expect(
-      service.updateAccount(mockUser, {
-        firstName: '',
-        lastName: '',
-        username: '',
-      }),
-    ).rejects.toThrow(InternalServerErrorException);
-  });
   describe('MyAccount', () => {
     it('should return data of my account', () => {
       const data = {
