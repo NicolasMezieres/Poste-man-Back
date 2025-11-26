@@ -20,12 +20,12 @@ import { queryUserList } from 'src/utils/type';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Get('MyAccount')
+  @Get('myAccount')
   myAccount(@GetUser() user: User) {
     return this.userService.myAccount(user);
   }
 
-  @Patch('MyAsset/update')
+  @Patch('myAccount')
   updateAsset(@GetUser() user: User, @Body() dto: updateAccountDTO) {
     return this.userService.updateAccount(user, dto);
   }
