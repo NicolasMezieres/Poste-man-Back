@@ -39,13 +39,13 @@ describe('UserController', () => {
     });
   });
 
-  describe('updateAsset', () => {
+  describe('updateAccount', () => {
     it('should call service.updateAccount with user and dto', async () => {
       const dto = mockUserUpdate;
       const excepted = { message: 'Your account has been updated.' };
       mockUserService.updateAccount.mockResolvedValue(excepted);
 
-      const result = await controller.updateAsset(mockUser, dto);
+      const result = await controller.updateAccount(mockUser, dto);
       expect(result).toEqual(excepted);
       expect(service.updateAccount).toHaveBeenCalledWith(mockUser, dto);
     });
