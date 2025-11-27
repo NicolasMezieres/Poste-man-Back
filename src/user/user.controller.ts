@@ -14,19 +14,26 @@ import { User } from 'src/prisma/generated';
 import { updateAccountDTO } from './dto';
 import { UserService } from './user.service';
 import { queryUserList } from 'src/utils/type';
+import { ApiResponse } from '@nestjs/swagger';
 
 @UseGuards(JwtGuard)
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
+  @ApiResponse({
+    status: 200,
+    description: 'Get your information of your account !',
+  })
   @Get('myAccount')
   myAccount(@GetUser() user: User) {
     return this.userService.myAccount(user);
   }
 
+  @ApiResponse({ status: 201, description: 'You account has been updated !' })
+  @ApiResponse({ status: 403, description: 'Email or Username already used !' })
   @Patch('myAccount')
-  updateAsset(@GetUser() user: User, @Body() dto: updateAccountDTO) {
+  updateAccount(@GetUser() user: User, @Body() dto: updateAccountDTO) {
     return this.userService.updateAccount(user, dto);
   }
 
