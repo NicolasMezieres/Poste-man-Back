@@ -13,7 +13,8 @@ import { CleangdprModule } from './cleangdpr/cleangdpr.module';
 import { CronModule } from './cron/cron.module';
 import { UserModule } from './user/user.module';
 import { PostModule } from './post/post.module';
-import { ThrottlerModule } from '@nestjs/throttler';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
 @Module({
   imports: [
     PrismaModule,
@@ -30,7 +31,11 @@ import { ThrottlerModule } from '@nestjs/throttler';
     CronModule,
     UserModule,
     PostModule,
-    ThrottlerModule.forRoot({ throttlers: [{ ttl: 30000, limit: 10 }] }),
+    ThrottlerModule.forRoot({
+      throttlers: [{ ttl: 30000, limit: 10 }],
+      errorMessage: 'Trop de requête, réessayer ultérieurement',
+    }),
   ],
+  providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })
 export class AppModule {}
