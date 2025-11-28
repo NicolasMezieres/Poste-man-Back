@@ -32,6 +32,7 @@ export class MessageService {
       throw new NotFoundException('Project not found !');
     }
     const isAdmin = user.role.name === role.ADMIN;
+    let isModerator: boolean = false;
     if (!isAdmin) {
       const didUserInProject = await this.prisma.user_Has_Project.findFirst({
         where: {
@@ -39,11 +40,12 @@ export class MessageService {
           isBanned: false,
           projectId: existingProject.id,
         },
-        select: { id: true },
+        select: { role: { select: { name: true } } },
       });
       if (!didUserInProject) {
         throw new ForbiddenException('You are unauthorized !');
       }
+      isModerator = didUserInProject.role.name === roleProject.MODERATOR;
     }
     const messages = await this.prisma.message.findMany({
       where: { projectId: existingProject.id, isVisible: true },
@@ -54,8 +56,9 @@ export class MessageService {
         createdAt: true,
         updatedAt: true,
       },
+      orderBy: { createdAt: 'desc' },
     });
-    return { data: messages };
+    return { data: messages, isModerator };
   }
   async createMessage(dto: messageDTO, projectId: string, user: User) {
     const existingProject = await this.prisma.project.findUnique({
