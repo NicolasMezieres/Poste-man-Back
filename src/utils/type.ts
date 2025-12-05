@@ -34,7 +34,9 @@ export type querySearchAdminProject = {
   fromDate: string;
   toDate: string;
 };
-
+export type queryMessage = {
+  items: string;
+};
 export type message = {
   id: string;
   createdAt: Date;
