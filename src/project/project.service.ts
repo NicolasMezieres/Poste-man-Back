@@ -28,7 +28,7 @@ export class ProjectService {
   ) {}
 
   async search(query: querySearchProject, user: User) {
-    const take = 10;
+    const take = 2;
     const skip =
       Number(query.page) - 1 <= 0 || isNaN(Number(query.page))
         ? 0

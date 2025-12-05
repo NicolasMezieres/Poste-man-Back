@@ -12,7 +12,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { messageDTO } from './dto';
 import { role, roleProject } from 'src/utils/enum';
 import { MessageGateway } from './message.gateway';
-import { UserWithRole } from 'src/utils/type';
+import { queryMessage, UserWithRole } from 'src/utils/type';
 import { NotificationService } from 'src/notification/notification.service';
 
 @Injectable()
@@ -23,7 +23,11 @@ export class MessageService {
     private socket: MessageGateway,
     private notification: NotificationService,
   ) {}
-  async projectMessages(projectId: string, user: UserWithRole) {
+  async projectMessages(
+    projectId: string,
+    user: UserWithRole,
+    query: queryMessage,
+  ) {
     const existingProject = await this.prisma.project.findUnique({
       where: { id: projectId },
       select: { id: true },
@@ -47,6 +51,8 @@ export class MessageService {
       }
       isModerator = didUserInProject.role.name === roleProject.MODERATOR;
     }
+    const take = 10;
+    const skip = Number(query.items) || 0;
     const messages = await this.prisma.message.findMany({
       where: { projectId: existingProject.id, isVisible: true },
       select: {
@@ -56,9 +62,11 @@ export class MessageService {
         createdAt: true,
         updatedAt: true,
       },
+      skip,
+      take,
       orderBy: { createdAt: 'desc' },
     });
-    return { data: messages, isModerator };
+    return { data: messages, isModerator, user: user.username };
   }
   async createMessage(dto: messageDTO, projectId: string, user: User) {
     const existingProject = await this.prisma.project.findUnique({

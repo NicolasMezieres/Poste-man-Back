@@ -46,19 +46,42 @@ describe('MessageService', () => {
     user: { username: 'username' },
   };
   describe('Project messages', () => {
-    it("should return project's messages", async () => {
+    const query = { items: '0' };
+    it("should return project's messages member", async () => {
       jest
         .spyOn(messagePrismaMock.project, 'findUnique')
         .mockResolvedValue({ id: projectId });
       jest
         .spyOn(messagePrismaMock.user_Has_Project, 'findFirst')
-        .mockResolvedValue({ id: 'userProjectId' });
+        .mockResolvedValue({ role: { name: 'member' } });
       jest
         .spyOn(messagePrismaMock.message, 'findMany')
         .mockResolvedValue(messages);
       await expect(
-        service.projectMessages(projectId, userWithRoleMock),
-      ).resolves.toEqual({ data: messages });
+        service.projectMessages(projectId, userWithRoleMock, query),
+      ).resolves.toEqual({
+        data: messages,
+        isModerator: false,
+        user: 'username',
+      });
+    });
+    it("should return project's messages moderator", async () => {
+      jest
+        .spyOn(messagePrismaMock.project, 'findUnique')
+        .mockResolvedValue({ id: projectId });
+      jest
+        .spyOn(messagePrismaMock.user_Has_Project, 'findFirst')
+        .mockResolvedValue({ role: { name: roleProject.MODERATOR } });
+      jest
+        .spyOn(messagePrismaMock.message, 'findMany')
+        .mockResolvedValue(messages);
+      await expect(
+        service.projectMessages(projectId, userWithRoleMock, query),
+      ).resolves.toEqual({
+        data: messages,
+        isModerator: true,
+        user: 'username',
+      });
     });
     it("should return project's messages by admin", async () => {
       jest
@@ -68,10 +91,14 @@ describe('MessageService', () => {
         .spyOn(messagePrismaMock.message, 'findMany')
         .mockResolvedValue(messages);
       await expect(
-        service.projectMessages(projectId, adminWithRoleMock),
-      ).resolves.toEqual({ data: messages });
+        service.projectMessages(projectId, adminWithRoleMock, query),
+      ).resolves.toEqual({
+        data: messages,
+        isModerator: false,
+        user: 'username',
+      });
     });
-    it("should return project's messages", async () => {
+    it('should fail Unauthorized', async () => {
       jest
         .spyOn(messagePrismaMock.project, 'findUnique')
         .mockResolvedValue({ id: projectId });
@@ -79,15 +106,15 @@ describe('MessageService', () => {
         .spyOn(messagePrismaMock.user_Has_Project, 'findFirst')
         .mockResolvedValue(null);
       await expect(
-        service.projectMessages(projectId, userWithRoleMock),
+        service.projectMessages(projectId, userWithRoleMock, query),
       ).rejects.toEqual(new ForbiddenException('You are unauthorized !'));
     });
-    it("should return project's messages", async () => {
+    it('should fail project not found', async () => {
       jest
         .spyOn(messagePrismaMock.project, 'findUnique')
         .mockResolvedValue(null);
       await expect(
-        service.projectMessages(projectId, userWithRoleMock),
+        service.projectMessages(projectId, userWithRoleMock, query),
       ).rejects.toEqual(new NotFoundException('Project not found !'));
     });
   });

@@ -5,6 +5,7 @@ import {
   Get,
   Param,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { MessageService } from './message.service';
@@ -12,7 +13,7 @@ import { JwtGuard } from 'src/auth/Guards';
 import { GetUser } from 'src/auth/decorator';
 import { User } from 'src/prisma/generated';
 import { messageDTO } from './dto';
-import { UserWithRole } from 'src/utils/type';
+import { queryMessage, UserWithRole } from 'src/utils/type';
 import {
   ApiCreatedResponse,
   ApiForbiddenResponse,
@@ -33,8 +34,9 @@ export class MessageController {
   projectMessages(
     @Param('projectId') projectId: string,
     @GetUser() user: UserWithRole,
+    @Query() query: queryMessage,
   ) {
-    return this.messageService.projectMessages(projectId, user);
+    return this.messageService.projectMessages(projectId, user, query);
   }
 
   @ApiCreatedResponse({
