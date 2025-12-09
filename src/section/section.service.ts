@@ -27,13 +27,16 @@ export class SectionService {
         projectId: existingProject.id,
         isBanned: false,
       },
-      select: { id: true },
+      select: { role: { select: { name: true } } },
     });
     const isAdmin = user.role.name === role.ADMIN;
+
     if (!didUserInProject && !isAdmin) {
       throw new ForbiddenException('You are unauthorized !');
     }
-    return { data: existingProject.section };
+    const isModerator: boolean =
+      didUserInProject?.role.name === roleProject.MODERATOR;
+    return { data: existingProject.section, isModerator, isAdmin };
   }
 
   async createSection(dto: createDTO, projectId: string, user: User) {

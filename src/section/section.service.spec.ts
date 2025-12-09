@@ -35,16 +35,35 @@ describe('SectionService', () => {
   });
 
   describe('Get sections of project', () => {
-    it('Should return a section list with an account user', async () => {
+    it('Should return a section list with an user account ', async () => {
       jest
         .spyOn(prisma.project, 'findUnique')
         .mockResolvedValue({ section: sectionDataMock, id: 'projectId' });
       jest
         .spyOn(prisma.user_Has_Project, 'findFirst')
-        .mockResolvedValue({ id: 'id' });
+        .mockResolvedValue({ role: { name: 'user' } });
       await expect(
         service.sections('projectId', userWithRoleMock),
-      ).resolves.toEqual({ data: sectionDataMock });
+      ).resolves.toEqual({
+        data: sectionDataMock,
+        isAdmin: false,
+        isModerator: false,
+      });
+    });
+    it('Should return a section list with an moderator account ', async () => {
+      jest
+        .spyOn(prisma.project, 'findUnique')
+        .mockResolvedValue({ section: sectionDataMock, id: 'projectId' });
+      jest
+        .spyOn(prisma.user_Has_Project, 'findFirst')
+        .mockResolvedValue({ role: { name: roleProject.MODERATOR } });
+      await expect(
+        service.sections('projectId', userWithRoleMock),
+      ).resolves.toEqual({
+        data: sectionDataMock,
+        isAdmin: false,
+        isModerator: true,
+      });
     });
     it('Should return a section list with an account admin', async () => {
       jest
@@ -53,7 +72,11 @@ describe('SectionService', () => {
       jest.spyOn(prisma.user_Has_Project, 'findFirst').mockResolvedValue(null);
       await expect(
         service.sections('projectId', adminWithRoleMock),
-      ).resolves.toEqual({ data: sectionDataMock });
+      ).resolves.toEqual({
+        data: sectionDataMock,
+        isModerator: false,
+        isAdmin: true,
+      });
     });
     it('Should return a Not Found Exception', async () => {
       jest.spyOn(prisma.project, 'findUnique').mockResolvedValue(null);
