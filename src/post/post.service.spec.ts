@@ -45,9 +45,14 @@ describe('PostService', () => {
         .mockResolvedValue(sectionMock);
       jest
         .spyOn(postPrismaMock.user_Has_Project, 'findFirst')
-        .mockResolvedValue({ id: 'userProjectId' });
+        .mockResolvedValue({ role: { name: 'userProjectId' } });
       await expect(service.posts(sectionId, userWithRoleMock)).resolves.toEqual(
-        { data: sectionMock.post },
+        {
+          data: sectionMock.post,
+          isAdmin: false,
+          isModerator: false,
+          user: userWithRoleMock.username,
+        },
       );
     });
     it('Should return Posts of Section with Admin', async () => {
@@ -59,7 +64,12 @@ describe('PostService', () => {
         .mockResolvedValue(null);
       await expect(
         service.posts(sectionId, adminWithRoleMock),
-      ).resolves.toEqual({ data: sectionMock.post });
+      ).resolves.toEqual({
+        data: sectionMock.post,
+        isAdmin: true,
+        isModerator: false,
+        user: adminWithRoleMock.username,
+      });
     });
     it('Should return a Not Found Exception, Section not found', async () => {
       jest.spyOn(postPrismaMock.section, 'findUnique').mockResolvedValue(null);

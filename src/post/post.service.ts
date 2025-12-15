@@ -42,12 +42,19 @@ export class PostService {
     const isAdmin = user.role.name === role.ADMIN;
     const isUserInProject = await this.prisma.user_Has_Project.findFirst({
       where: { userId: user.id, projectId: existingSection.projectId },
-      select: { id: true },
+      select: { role: { select: { name: true } } },
     });
     if (!isAdmin && !isUserInProject) {
       throw new ForbiddenException('You are unauthorized !');
     }
-    return { data: existingSection.post };
+    const isModerator: boolean =
+      isUserInProject?.role.name === roleProject.MODERATOR;
+    return {
+      data: existingSection.post,
+      isModerator,
+      isAdmin,
+      user: user.username,
+    };
   }
 
   async create(sectionId: string, dto: postDTO, user: User) {
