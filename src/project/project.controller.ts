@@ -14,11 +14,7 @@ import { GetUser } from 'src/auth/decorator';
 import { User } from 'src/prisma/generated';
 import { projectDTO } from './dto';
 import { ProjectService } from './project.service';
-import {
-  querySearchAdminProject,
-  querySearchProject,
-  UserWithRole,
-} from 'src/utils/type';
+import { querySearchAdminProject, UserWithRole } from 'src/utils/type';
 import {
   ApiCreatedResponse,
   ApiForbiddenResponse,
@@ -35,7 +31,7 @@ export class ProjectController {
 
   @ApiOkResponse({ description: 'List of project when you are member ' })
   @Get('/search')
-  search(@Query() query: querySearchProject, @GetUser() user: User) {
+  search(@Query() query: querySearchAdminProject, @GetUser() user: User) {
     return this.projectService.search(query, user);
   }
 

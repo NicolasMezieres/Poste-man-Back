@@ -28,20 +28,21 @@ export class ProjectService {
   ) {}
 
   async search(query: querySearchProject, user: User) {
-    const take = 2;
+    const take = 10;
     const skip =
       Number(query.page) - 1 <= 0 || isNaN(Number(query.page))
         ? 0
         : (Number(query.page) - 1) * take;
-    const countProject = await this.prisma.user_Has_Project.count({
-      where: { userId: user.id, isBanned: false },
+    const whereData = {
+      name: { contains: query?.search },
+      users: { some: { userId: user.id, isBanned: false } },
+    };
+    const countProject = await this.prisma.project.count({
+      where: whereData,
     });
-    const listProject = await this.prisma.user_Has_Project.findMany({
-      where: { userId: user.id, isBanned: false },
-      select: {
-        project: { select: { id: true, name: true } },
-      },
-      orderBy: { project: { updatedAt: 'desc' } },
+    const listProject = await this.prisma.project.findMany({
+      where: whereData,
+      select: { id: true, name: true },
       skip,
       take,
     });

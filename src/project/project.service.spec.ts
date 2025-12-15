@@ -40,10 +40,10 @@ describe('ProjectService', () => {
       const countProject = 1;
       const listProject = [projectPrismaMock];
       jest
-        .spyOn(projectPrismaMock.user_Has_Project, 'count')
+        .spyOn(projectPrismaMock.project, 'count')
         .mockResolvedValue(countProject);
       jest
-        .spyOn(projectPrismaMock.user_Has_Project, 'findMany')
+        .spyOn(projectPrismaMock.project, 'findMany')
         .mockResolvedValue(listProject);
       await expect(service.search(query, userMock)).resolves.toEqual({
         data: listProject,
