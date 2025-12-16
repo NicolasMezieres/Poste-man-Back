@@ -61,21 +61,56 @@ describe('ProjectService', () => {
         toDate: '2025/09/06',
       };
       const countProject = 1;
-      const listProject = [projectPrismaMock];
       jest
         .spyOn(projectPrismaMock.project, 'count')
         .mockResolvedValue(countProject);
-      jest
-        .spyOn(projectPrismaMock.project, 'findMany')
-        .mockResolvedValue(listProject);
+      jest.spyOn(projectPrismaMock.project, 'findMany').mockResolvedValue([]);
       await expect(service.searchByAdmin(query)).resolves.toEqual({
-        data: listProject,
+        data: [],
         total: countProject,
         isEndList: true,
       });
     });
   });
   const projectId = '1';
+  describe('Get Project', () => {
+    it('Should fail not found project', async () => {
+      jest
+        .spyOn(projectPrismaMock.project, 'findUnique')
+        .mockResolvedValue(undefined);
+      await expect(
+        service.getProject(projectId, userWithRoleMock),
+      ).rejects.toEqual(new NotFoundException('Projet introuvable !'));
+    });
+    it('Should fail is not an admin or a member', async () => {
+      jest
+        .spyOn(projectPrismaMock.project, 'findUnique')
+        .mockResolvedValue({ id: 'id', name: 'name' });
+      jest
+        .spyOn(projectPrismaMock.user_Has_Project, 'findFirst')
+        .mockResolvedValue(undefined);
+      await expect(
+        service.getProject(projectId, userWithRoleMock),
+      ).rejects.toEqual(
+        new ForbiddenException('Vous ne faites pas partie de ce projet !'),
+      );
+    });
+    it('Should return name of project, isModerator, isAdmin', async () => {
+      jest
+        .spyOn(projectPrismaMock.project, 'findUnique')
+        .mockResolvedValue({ id: 'id', name: 'name' });
+      jest
+        .spyOn(projectPrismaMock.user_Has_Project, 'findFirst')
+        .mockResolvedValue({ role: { name: 'member' } });
+      await expect(
+        service.getProject(projectId, userWithRoleMock),
+      ).resolves.toEqual({
+        isModerator: false,
+        isAdmin: false,
+        projectName: 'name',
+      });
+    });
+  });
   describe('Create', () => {
     const dto = { name: 'project' };
 

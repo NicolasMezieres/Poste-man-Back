@@ -26,7 +26,6 @@ export class ProjectService {
     @Inject(forwardRef(() => ProjectGateway))
     private socket: ProjectGateway,
   ) {}
-
   async search(query: querySearchProject, user: User) {
     const take = 10;
     const skip =
@@ -43,6 +42,7 @@ export class ProjectService {
     const listProject = await this.prisma.project.findMany({
       where: whereData,
       select: { id: true, name: true },
+      orderBy: { name: 'asc' },
       skip,
       take,
     });
@@ -103,20 +103,57 @@ export class ProjectService {
           where: { role: { name: roleProject.MODERATOR } },
           select: { user: { select: { username: true } } },
         },
-        _count: { select: { users: true, section: true } },
         section: { select: { _count: { select: { post: true } } } },
+        _count: { select: { users: true, section: true } },
       },
       skip,
       take,
     });
-
+    const dataProject = listProject.map((project) => {
+      return {
+        id: project.id,
+        name: project.name,
+        username: project.users[0].user.username,
+        createdAt: project.createdAt,
+        updatedAt: project.updatedAt,
+        totalUser: project._count.users,
+        totalSection: project._count.section,
+        totalPost: project.section.reduce(
+          (total, currentValue) => total + currentValue._count.post,
+          0,
+        ),
+      };
+    });
     return {
-      data: listProject,
+      data: dataProject,
       total: countProject,
       isEndList: isEndList(skip, take, countProject),
     };
   }
 
+  async getProject(projectId: string, user: UserWithRole) {
+    const existingProject = await this.prisma.project.findUnique({
+      where: { id: projectId },
+      select: { id: true, name: true },
+    });
+    if (!existingProject) {
+      throw new NotFoundException('Projet introuvable !');
+    }
+    const isAdmin = user.role.name === role.ADMIN;
+    const didUserInProject = await this.prisma.user_Has_Project.findFirst({
+      where: {
+        userId: user.id,
+        projectId: existingProject.id,
+        isBanned: false,
+      },
+      select: { role: { select: { name: true } } },
+    });
+    if (!isAdmin && !didUserInProject) {
+      throw new ForbiddenException('Vous ne faites pas partie de ce projet !');
+    }
+    const isModerator = didUserInProject?.role.name === roleProject.MODERATOR;
+    return { projectName: existingProject.name, isModerator, isAdmin };
+  }
   async listMember(projectId: string, user: UserWithRole) {
     const existingProject = await this.prisma.project.findUnique({
       where: { id: projectId },

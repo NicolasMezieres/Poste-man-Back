@@ -43,6 +43,17 @@ describe('ProjectController', () => {
       );
     });
   });
+  describe('get Project', () => {
+    it('Should return project name, isModerator, isAdmin', async () => {
+      await expect(
+        controller.getProject('projectId', userWithRoleMock),
+      ).resolves.toEqual({
+        nameProject: 'nameProject',
+        isModerator: false,
+        isAdmin: false,
+      });
+    });
+  });
   describe('Create', () => {
     it('should return message', async () => {
       const dto = { name: 'project' };

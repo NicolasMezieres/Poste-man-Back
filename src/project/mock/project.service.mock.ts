@@ -9,6 +9,11 @@ import {
 export const projectServiceMock = {
   search: jest.fn().mockResolvedValue(searchMock),
   searchByAdmin: jest.fn().mockResolvedValue(searchAdminMock),
+  getProject: jest.fn().mockResolvedValue({
+    nameProject: 'nameProject',
+    isModerator: false,
+    isAdmin: false,
+  }),
   create: jest.fn().mockResolvedValue(messageProjectMock),
   createInvitationLink: jest
     .fn()
