@@ -46,6 +46,14 @@ export class ProjectController {
     return this.projectService.searchByAdmin(query);
   }
 
+  @Get('/:projectId')
+  getProject(
+    @Param('projectId') projectId: string,
+    @GetUser() user: UserWithRole,
+  ) {
+    return this.projectService.getProject(projectId, user);
+  }
+
   @ApiCreatedResponse({ description: 'Project successfully create !' })
   @ApiInternalServerErrorResponse({ description: 'Role project not found !' })
   @Post('/create')

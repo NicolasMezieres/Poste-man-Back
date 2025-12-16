@@ -26,7 +26,6 @@ export class ProjectService {
     @Inject(forwardRef(() => ProjectGateway))
     private socket: ProjectGateway,
   ) {}
-
   async search(query: querySearchProject, user: User) {
     const take = 10;
     const skip =
@@ -43,6 +42,7 @@ export class ProjectService {
     const listProject = await this.prisma.project.findMany({
       where: whereData,
       select: { id: true, name: true },
+      orderBy: { name: 'asc' },
       skip,
       take,
     });
@@ -131,6 +131,29 @@ export class ProjectService {
     };
   }
 
+  async getProject(projectId: string, user: UserWithRole) {
+    const existingProject = await this.prisma.project.findUnique({
+      where: { id: projectId },
+      select: { id: true, name: true },
+    });
+    if (!existingProject) {
+      throw new NotFoundException('Projet introuvable !');
+    }
+    const isAdmin = user.role.name === role.ADMIN;
+    const didUserInProject = await this.prisma.user_Has_Project.findFirst({
+      where: {
+        userId: user.id,
+        projectId: existingProject.id,
+        isBanned: false,
+      },
+      select: { role: { select: { name: true } } },
+    });
+    if (!isAdmin && !didUserInProject) {
+      throw new ForbiddenException('Vous ne faites pas partie de ce projet !');
+    }
+    const isModerator = didUserInProject?.role.name === roleProject.MODERATOR;
+    return { projectName: existingProject.name, isModerator, isAdmin };
+  }
   async listMember(projectId: string, user: UserWithRole) {
     const existingProject = await this.prisma.project.findUnique({
       where: { id: projectId },
