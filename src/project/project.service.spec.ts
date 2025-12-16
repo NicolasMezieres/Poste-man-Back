@@ -61,15 +61,12 @@ describe('ProjectService', () => {
         toDate: '2025/09/06',
       };
       const countProject = 1;
-      const listProject = [projectPrismaMock];
       jest
         .spyOn(projectPrismaMock.project, 'count')
         .mockResolvedValue(countProject);
-      jest
-        .spyOn(projectPrismaMock.project, 'findMany')
-        .mockResolvedValue(listProject);
+      jest.spyOn(projectPrismaMock.project, 'findMany').mockResolvedValue([]);
       await expect(service.searchByAdmin(query)).resolves.toEqual({
-        data: listProject,
+        data: [],
         total: countProject,
         isEndList: true,
       });

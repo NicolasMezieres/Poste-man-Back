@@ -103,15 +103,29 @@ export class ProjectService {
           where: { role: { name: roleProject.MODERATOR } },
           select: { user: { select: { username: true } } },
         },
-        _count: { select: { users: true, section: true } },
         section: { select: { _count: { select: { post: true } } } },
+        _count: { select: { users: true, section: true } },
       },
       skip,
       take,
     });
-
+    const dataProject = listProject.map((project) => {
+      return {
+        id: project.id,
+        name: project.name,
+        username: project.users[0].user.username,
+        createdAt: project.createdAt,
+        updatedAt: project.updatedAt,
+        totalUser: project._count.users,
+        totalSection: project._count.section,
+        totalPost: project.section.reduce(
+          (total, currentValue) => total + currentValue._count.post,
+          0,
+        ),
+      };
+    });
     return {
-      data: listProject,
+      data: dataProject,
       total: countProject,
       isEndList: isEndList(skip, take, countProject),
     };
