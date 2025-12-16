@@ -99,6 +99,43 @@ describe('Project (e2e) ', () => {
         );
     });
   });
+  describe('/(GET) get Project', () => {
+    const path = '/project/';
+    it('Should fail need a cookie', async () => {
+      return request(app.getHttpServer())
+        .get(path + 'id')
+        .expect(401)
+        .expect((err: resMessageType) =>
+          expect(err.body.message).toContain('Unauthorized'),
+        );
+    });
+    it('Should fail Not Found Project', async () => {
+      return request(app.getHttpServer())
+        .get(path + 'notFoundId')
+        .expect(404)
+        .set('Cookie', cookieAdmin)
+        .expect((err: resMessageType) =>
+          expect(err.body.message).toContain('Projet introuvable'),
+        );
+    });
+    it('Should fail Not a member of project and not admin', async () => {
+      return request(app.getHttpServer())
+        .get(path + projectId)
+        .expect(403)
+        .set('Cookie', cookieOtherUser)
+        .expect((err: resMessageType) =>
+          expect(err.body.message).toContain(
+            'Vous ne faites pas partie de ce projet',
+          ),
+        );
+    });
+    it('Should get name of project, isModerator, isAdmin', async () => {
+      return request(app.getHttpServer())
+        .get(path + projectId)
+        .expect(200)
+        .set('Cookie', cookie);
+    });
+  });
   describe('/ (POST) create Inviation Link', () => {
     const path = `/project/`;
     it('Should fail need a cookie', async () => {
