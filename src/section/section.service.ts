@@ -166,8 +166,9 @@ export class SectionService {
         throw new ForbiddenException("Vous n'êtes pas modérateur !");
       }
     }
-    await this.prisma.section.deleteMany({
+    await this.prisma.section.updateMany({
       where: { projectId: existingProject.id },
+      data: { isArchive: true },
     });
     return { message: 'Sections supprimé avec succes !' };
   }
