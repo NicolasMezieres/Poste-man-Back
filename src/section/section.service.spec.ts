@@ -288,7 +288,7 @@ describe('SectionService', () => {
       await expect(
         service.removeAllSection('projectId', userWithRoleMock),
       ).rejects.toEqual(new NotFoundException('Projet introuvable'));
-      expect(prisma.section.deleteMany).not.toHaveBeenCalled();
+      expect(prisma.section.updateMany).not.toHaveBeenCalled();
     });
     it('Should fail Forbidden, not a moderator or admin', async () => {
       jest.spyOn(prisma.project, 'findUnique').mockReturnValue({ id: 'id' });
@@ -296,18 +296,20 @@ describe('SectionService', () => {
       await expect(
         service.removeAllSection('projectId', userWithRoleMock),
       ).rejects.toEqual(new ForbiddenException("Vous n'êtes pas modérateur !"));
-      expect(prisma.section.deleteMany).not.toHaveBeenCalled();
+      expect(prisma.section.updateMany).not.toHaveBeenCalled();
     });
     it('Should delete all Section by an admin', async () => {
       const projectId = 'projectId';
       jest
         .spyOn(prisma.project, 'findUnique')
         .mockReturnValue({ id: projectId });
+      jest.spyOn(prisma.section, 'updateMany');
       await expect(
         service.removeAllSection(projectId, adminWithRoleMock),
       ).resolves.toEqual({ message: 'Sections supprimé avec succes !' });
-      expect(prisma.section.deleteMany).toHaveBeenCalledWith({
+      expect(prisma.section.updateMany).toHaveBeenCalledWith({
         where: { projectId },
+        data: { isArchive: true },
       });
       expect(prisma.user_Has_Project.findFirst).not.toHaveBeenCalled();
     });
@@ -319,11 +321,13 @@ describe('SectionService', () => {
       jest
         .spyOn(prisma.user_Has_Project, 'findFirst')
         .mockReturnValue({ id: 'id' });
+      jest.spyOn(prisma.section, 'updateMany');
       await expect(
         service.removeAllSection(projectId, userWithRoleMock),
       ).resolves.toEqual({ message: 'Sections supprimé avec succes !' });
-      expect(prisma.section.deleteMany).toHaveBeenCalledWith({
+      expect(prisma.section.updateMany).toHaveBeenCalledWith({
         where: { projectId },
+        data: { isArchive: true },
       });
       expect(prisma.user_Has_Project.findFirst).toHaveBeenCalled();
     });
