@@ -96,9 +96,15 @@ describe('SectionService', () => {
   });
   describe('createSection', () => {
     it('should create a section successfully', async () => {
+      const sectionMock = {
+        id: 'id',
+        name: 'name',
+        isArchive: false,
+        projectId: 'id',
+      };
       prisma.user_Has_Project.findFirst.mockResolvedValue({ id: 'up-1' });
       prisma.section.findFirst.mockResolvedValue(null);
-      prisma.section.create.mockResolvedValue(null);
+      prisma.section.create.mockResolvedValue(sectionMock);
 
       const result = await service.createSection(
         mockCreateDTO,
@@ -122,10 +128,9 @@ describe('SectionService', () => {
 
       expect(prisma.section.create).toHaveBeenCalledWith({
         data: { name: mockCreateDTO.name, projectId: 'project-1' },
-        select: null,
       });
 
-      expect(result).toEqual({ message: 'Section create' });
+      expect(result).toEqual({ message: 'Section create', data: sectionMock });
     });
 
     it('should throw ForbiddenException if user project not found', async () => {
@@ -148,10 +153,16 @@ describe('SectionService', () => {
 
   describe('updateSection', () => {
     it('should update section successfully', async () => {
+      const sectionMock = {
+        id: 'id',
+        name: 'name',
+        isArchive: false,
+        projectId: 'project-1',
+      };
       prisma.section.findFirst
         .mockResolvedValueOnce({ id: 'section-1', projectId: 'project-1' })
         .mockResolvedValueOnce(null);
-      prisma.section.update.mockResolvedValue(null);
+      prisma.section.update.mockResolvedValue(sectionMock);
 
       const result = await service.updateSection(
         mockUpdateDTO,
@@ -165,10 +176,9 @@ describe('SectionService', () => {
       expect(prisma.section.update).toHaveBeenCalledWith({
         where: { id: 'section-1' },
         data: { name: mockUpdateDTO.name },
-        select: null,
       });
 
-      expect(result).toEqual({ message: 'Section Update' });
+      expect(result).toEqual({ message: 'Section Update', data: sectionMock });
     });
 
     it('should throw BadRequestException if section not found', async () => {
