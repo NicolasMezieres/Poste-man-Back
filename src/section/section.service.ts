@@ -16,7 +16,11 @@ export class SectionService {
   async sections(projectId: string, user: UserWithRole) {
     const existingProject = await this.prisma.project.findUnique({
       where: { id: projectId },
-      select: { id: true, section: { where: { isArchive: false } } },
+      select: {
+        id: true,
+        section: { where: { isArchive: false } },
+        name: true,
+      },
     });
     if (!existingProject) {
       throw new NotFoundException('Project not found !');
@@ -36,7 +40,12 @@ export class SectionService {
     }
     const isModerator: boolean =
       didUserInProject?.role.name === roleProject.MODERATOR;
-    return { data: existingProject.section, isModerator, isAdmin };
+    return {
+      data: existingProject.section,
+      isModerator,
+      isAdmin,
+      projectName: existingProject.name,
+    };
   }
 
   async createSection(dto: createDTO, projectId: string, user: User) {
