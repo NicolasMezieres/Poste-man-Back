@@ -54,6 +54,27 @@ describe('ProjectService', () => {
   });
   describe('Search admin', () => {
     it('should be return list project, total project, status end list', async () => {
+      const listProject = [
+        {
+          id: 'id',
+          name: 'name',
+          createdAt: '19-12-2025 22:32',
+          updatedAt: '19-12-2025 22:32',
+          users: [{ user: { username: 'username' } }],
+          section: [{ _count: { post: 0 } }],
+          _count: { users: 1, section: 0 },
+        },
+      ];
+      const resultDataProject = {
+        id: 'id',
+        name: 'name',
+        username: 'username',
+        createdAt: '19-12-2025 22:32',
+        updatedAt: '19-12-2025 22:32',
+        totalUser: 1,
+        totalSection: 0,
+        totalPost: 0,
+      };
       const query = {
         page: 1,
         search: '',
@@ -64,9 +85,11 @@ describe('ProjectService', () => {
       jest
         .spyOn(projectPrismaMock.project, 'count')
         .mockResolvedValue(countProject);
-      jest.spyOn(projectPrismaMock.project, 'findMany').mockResolvedValue([]);
+      jest
+        .spyOn(projectPrismaMock.project, 'findMany')
+        .mockResolvedValue(listProject);
       await expect(service.searchByAdmin(query)).resolves.toEqual({
-        data: [],
+        data: [resultDataProject],
         total: countProject,
         isEndList: true,
       });
@@ -163,11 +186,12 @@ describe('ProjectService', () => {
     });
   });
   describe('Join project', () => {
+    const projectId = 'projectId';
     const linkId = '1';
     const linkProject = {
       numberUsage: 10,
       outdatedAt: new Date(new Date().setDate(new Date().getDate() + 1)),
-      projet: { name: 'project', id: '1', users: [{ userId: '2' }] },
+      projet: { name: 'project', id: projectId, users: [{ userId: '2' }] },
     };
     it('should be return a message', async () => {
       jest
@@ -175,7 +199,7 @@ describe('ProjectService', () => {
         .mockResolvedValue(linkProject);
       jest
         .spyOn(projectPrismaMock.role_Project, 'findUnique')
-        .mockResolvedValue({ id: '1' });
+        .mockResolvedValue({ id: projectId });
       jest
         .spyOn(projectPrismaMock, '$transaction')
         .mockResolvedValue([userMock]);
@@ -189,6 +213,7 @@ describe('ProjectService', () => {
 
       await expect(service.joinProject(linkId, userMock)).resolves.toEqual({
         message: `Welcome to ${linkProject.projet.name} !`,
+        projectId,
       });
       expect(projectGatewayMock.emitUserUpdateProject).toHaveBeenCalledWith(
         userMock,

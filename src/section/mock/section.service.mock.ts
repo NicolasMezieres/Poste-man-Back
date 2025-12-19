@@ -7,4 +7,7 @@ export const SectionServiceMock = {
     .fn()
     .mockResolvedValue({ message: 'Section has been deleted' }),
   sections: jest.fn().mockResolvedValue(sectionDataMock),
+  removeAllSection: jest
+    .fn()
+    .mockResolvedValue({ message: 'Sections deleted !' }),
 };

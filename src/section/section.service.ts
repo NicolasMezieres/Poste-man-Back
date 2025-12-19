@@ -58,14 +58,13 @@ export class SectionService {
     if (existingSection) {
       throw new BadRequestException('This name is already used');
     }
-    await this.prisma.section.create({
+    const newSection = await this.prisma.section.create({
       data: {
         name: dto.name,
         projectId: projectId,
       },
-      select: null,
     });
-    return { message: 'Section create' };
+    return { message: 'Section create', data: newSection };
   }
 
   async updateSection(
@@ -96,14 +95,13 @@ export class SectionService {
     if (isSameNameSection) {
       throw new ForbiddenException('This name is already used');
     }
-    await this.prisma.section.update({
+    const sectionUpdated = await this.prisma.section.update({
       where: { id: existingSection.id },
       data: {
         name: dto.name,
       },
-      select: null,
     });
-    return { message: 'Section Update' };
+    return { message: 'Section Update', data: sectionUpdated };
   }
 
   async removeSection(sectionId: string, user: UserWithRole) {
@@ -136,5 +134,32 @@ export class SectionService {
       select: null,
     });
     return { message: 'Section has been deleted' };
+  }
+  async removeAllSection(projectId: string, user: UserWithRole) {
+    const existingProject = await this.prisma.project.findUnique({
+      where: { id: projectId },
+      select: { id: true },
+    });
+    if (!existingProject) {
+      throw new NotFoundException('Projet introuvable');
+    }
+    const isAdmin = user.role.name === role.ADMIN;
+    if (!isAdmin) {
+      const isModerator = await this.prisma.user_Has_Project.findFirst({
+        where: {
+          projectId: existingProject.id,
+          userId: user.id,
+          role: { name: roleProject.MODERATOR },
+        },
+        select: { id: true },
+      });
+      if (!isModerator) {
+        throw new ForbiddenException("Vous n'êtes pas modérateur !");
+      }
+    }
+    await this.prisma.section.deleteMany({
+      where: { projectId: existingProject.id },
+    });
+    return { message: 'Sections supprimé avec succes !' };
   }
 }

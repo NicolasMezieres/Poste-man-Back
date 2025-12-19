@@ -253,4 +253,45 @@ describe('Section (e2e)', () => {
         );
     });
   });
+  describe('/(DELETE) Remove All Section', () => {
+    const path = '/section/';
+    it('Should fail Unauthorized (401), need a cookie', async () => {
+      await request(app.getHttpServer())
+        .delete(path + 'project/projectId')
+        .expect(401)
+        .expect((res: resMessageType) =>
+          expect(res.body.message).toContain('Unauthorized'),
+        );
+    });
+    it('Should fail Not found Project (404)', async () => {
+      await request(app.getHttpServer())
+        .delete(path + 'project/projectId')
+        .set('Cookie', cookie)
+        .expect(404)
+        .expect((res: resMessageType) =>
+          expect(res.body.message).toContain('Projet introuvable'),
+        );
+    });
+    it('Should fail user is not a Moderator or Admin', async () => {
+      await request(app.getHttpServer())
+        .delete(path + 'project/' + projectId)
+        .set('Cookie', cookieOtherUser)
+        .expect(403)
+        .expect((res: resMessageType) =>
+          expect(res.body.message).toContain('pas modérateur'),
+        );
+    });
+    it('Should succes, delete all section by Moderator', async () => {
+      await request(app.getHttpServer())
+        .delete(path + 'project/' + projectId)
+        .set('Cookie', cookie)
+        .expect(200);
+    });
+    it('Should succes, delete all section by Admin', async () => {
+      await request(app.getHttpServer())
+        .delete(path + 'project/' + projectId)
+        .set('Cookie', cookieAdmin)
+        .expect(200);
+    });
+  });
 });

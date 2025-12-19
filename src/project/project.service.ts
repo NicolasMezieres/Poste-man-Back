@@ -35,6 +35,7 @@ export class ProjectService {
     const whereData = {
       name: { contains: query?.search },
       users: { some: { userId: user.id, isBanned: false } },
+      isArchive: false,
     };
     const countProject = await this.prisma.project.count({
       where: whereData,
@@ -289,7 +290,10 @@ export class ProjectService {
       );
     }
     this.socket.emitUserUpdateProject(userMember, existingLink.projet.id, true);
-    return { message: `Welcome to ${existingLink.projet.name} !` };
+    return {
+      message: `Welcome to ${existingLink.projet.name} !`,
+      projectId: existingLink.projet.id,
+    };
   }
   async ban(projectId: string, userId: string, user: User) {
     const existingModerator = await this.prisma.user_Has_Project.findFirst({
