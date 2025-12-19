@@ -73,4 +73,11 @@ export class SectionController {
   ) {
     return this.sectionService.removeSection(sectionId, user);
   }
+  @Delete('/project/:projectId')
+  removeAllSection(
+    @Param('projectId') projectId: string,
+    @GetUser() user: UserWithRole,
+  ) {
+    return this.sectionService.removeAllSection(projectId, user);
+  }
 }

@@ -7,6 +7,7 @@ export const sectionPrismaMock = {
     create: jest.fn(),
     update: jest.fn(),
     findUnique: jest.fn(),
+    deleteMany: jest.fn(),
   },
   project: {
     findUnique: jest.fn(),

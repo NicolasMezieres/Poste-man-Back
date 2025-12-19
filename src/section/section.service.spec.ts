@@ -272,4 +272,50 @@ describe('SectionService', () => {
       ).rejects.toEqual(new ForbiddenException('You are unauthorized !'));
     });
   });
+  describe('Remove All Section', () => {
+    it('Should fail Not Found Project', async () => {
+      jest.spyOn(prisma.project, 'findUnique').mockReturnValue(null);
+      await expect(
+        service.removeAllSection('projectId', userWithRoleMock),
+      ).rejects.toEqual(new NotFoundException('Projet introuvable'));
+      expect(prisma.section.deleteMany).not.toHaveBeenCalled();
+    });
+    it('Should fail Forbidden, not a moderator or admin', async () => {
+      jest.spyOn(prisma.project, 'findUnique').mockReturnValue({ id: 'id' });
+      jest.spyOn(prisma.user_Has_Project, 'findFirst').mockReturnValue(null);
+      await expect(
+        service.removeAllSection('projectId', userWithRoleMock),
+      ).rejects.toEqual(new ForbiddenException("Vous n'êtes pas modérateur !"));
+      expect(prisma.section.deleteMany).not.toHaveBeenCalled();
+    });
+    it('Should delete all Section by an admin', async () => {
+      const projectId = 'projectId';
+      jest
+        .spyOn(prisma.project, 'findUnique')
+        .mockReturnValue({ id: projectId });
+      await expect(
+        service.removeAllSection(projectId, adminWithRoleMock),
+      ).resolves.toEqual({ message: 'Sections supprimé avec succes !' });
+      expect(prisma.section.deleteMany).toHaveBeenCalledWith({
+        where: { projectId },
+      });
+      expect(prisma.user_Has_Project.findFirst).not.toHaveBeenCalled();
+    });
+    it('Should delete all Section by a moderator', async () => {
+      const projectId = 'projectId';
+      jest
+        .spyOn(prisma.project, 'findUnique')
+        .mockReturnValue({ id: projectId });
+      jest
+        .spyOn(prisma.user_Has_Project, 'findFirst')
+        .mockReturnValue({ id: 'id' });
+      await expect(
+        service.removeAllSection(projectId, userWithRoleMock),
+      ).resolves.toEqual({ message: 'Sections supprimé avec succes !' });
+      expect(prisma.section.deleteMany).toHaveBeenCalledWith({
+        where: { projectId },
+      });
+      expect(prisma.user_Has_Project.findFirst).toHaveBeenCalled();
+    });
+  });
 });

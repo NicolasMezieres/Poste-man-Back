@@ -97,5 +97,15 @@ describe('SectionController', () => {
       );
     });
   });
-  describe('Delete all post from section', () => {});
+  describe('Delete all post from section', () => {
+    it('Should call removeAllSection, return a message', async () => {
+      jest
+        .spyOn(service, 'removeAllSection')
+        .mockResolvedValue({ message: 'Sections deleted !' });
+      await expect(
+        controller.removeAllSection('projectId', userWithRoleMock),
+      ).resolves.toEqual({ message: 'Sections deleted !' });
+      expect(service.removeAllSection).toHaveBeenCalled();
+    });
+  });
 });
