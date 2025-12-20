@@ -11,6 +11,9 @@ export class CronService {
 
   @Cron(CronExpression.EVERY_MINUTE)
   async handleIsArchiveSection() {
+    await this.prisma.post.deleteMany({
+      where: { section: { isArchive: true } },
+    });
     const result = await this.prisma.section.deleteMany({
       where: {
         isArchive: true,
