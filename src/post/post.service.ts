@@ -78,12 +78,16 @@ export class PostService {
     if (!didUserInProject) {
       throw new ForbiddenException('You are unauthorized !');
     }
-    await this.prisma.post.create({
+    const newPost = await this.prisma.post.create({
       data: { ...dto, userId: user.id, sectionId: existingSection.id },
+      include: {
+        user: { select: { id: true, username: true } },
+        vote: { select: { isUp: true }, where: { userId: user.id } },
+      },
+      omit: { userId: true, isVisible: true, sectionId: true },
     });
-    return { message: 'Post created !' };
+    return { message: 'Post created !', data: newPost };
   }
-
   async update(postId: string, dto: postDTO, user: User) {
     const existingPost = await this.prisma.post.findUnique({
       where: { id: postId },
