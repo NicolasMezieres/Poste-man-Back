@@ -33,7 +33,7 @@ describe('PostService', () => {
   const projectId = 'projectId';
   const sectionId = 'sectionId';
   const postId = 'postId';
-  const postDTOMock = { text: 'text post' };
+  const postDTOMock = { text: 'text post', poseX: 0, poseY: 0 };
   it('should be defined', () => {
     expect(service).toBeDefined();
   });
@@ -97,10 +97,10 @@ describe('PostService', () => {
       jest
         .spyOn(postPrismaMock.user_Has_Project, 'findFirst')
         .mockResolvedValue({ id: 'userProjectId' });
-      jest.spyOn(postPrismaMock.post, 'create').mockResolvedValue(null);
+      jest.spyOn(postPrismaMock.post, 'create').mockResolvedValue(postDTOMock);
       await expect(
         service.create(sectionId, postDTOMock, userMock),
-      ).resolves.toEqual({ message: 'Post created !' });
+      ).resolves.toEqual({ message: 'Post created !', data: postDTOMock });
     });
     it('Should return a Not Found Exception Section not found', async () => {
       jest.spyOn(postPrismaMock.section, 'findUnique').mockResolvedValue(null);

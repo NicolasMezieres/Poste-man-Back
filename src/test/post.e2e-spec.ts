@@ -127,7 +127,7 @@ describe('Post (e2e)', () => {
     });
   });
   describe('/ (POST) Create Post', () => {
-    const postDTO = { text: 'new post' };
+    const postDTO = { text: 'new post', poseX: 0, poseY: 0 };
     const path = '/post/section/';
     it('Should fail Need a Cookie', async () =>
       req(app.getHttpServer())
@@ -188,7 +188,7 @@ describe('Post (e2e)', () => {
     });
   });
   describe('/ (PATCH) Update Post', () => {
-    const postDTO = { text: 'new post' };
+    const postDTO = { text: 'new post', poseX: 0, poseY: 0 };
     const path = '/post/';
     it('Should fail Need a Cookie', async () => {
       return req(app.getHttpServer())
