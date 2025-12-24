@@ -125,10 +125,10 @@ describe('PostService', () => {
       jest
         .spyOn(postPrismaMock.post, 'findUnique')
         .mockResolvedValue({ userId: userMock.id, id: postId });
-      jest.spyOn(postPrismaMock.post, 'update').mockResolvedValue(null);
+      jest.spyOn(postPrismaMock.post, 'update').mockResolvedValue(postMock);
       await expect(
         service.update(postId, postDTOMock, userMock),
-      ).resolves.toEqual({ message: 'Post updated !' });
+      ).resolves.toEqual({ message: 'Post updated !', data: postMock });
       expect(postPrismaMock.post.update).toHaveBeenCalled();
     });
     it('Should return a Forbidden Exception Post not found !', async () => {
