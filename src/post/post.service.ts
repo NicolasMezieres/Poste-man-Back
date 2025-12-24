@@ -99,11 +99,16 @@ export class PostService {
     if (existingPost.userId !== user.id) {
       throw new ForbiddenException('You are unauthorized !');
     }
-    await this.prisma.post.update({
+    const updatePost = await this.prisma.post.update({
       where: { id: existingPost.id },
       data: { ...dto, updatedAt: new Date() },
+      include: {
+        user: { select: { id: true, username: true } },
+        vote: { select: { isUp: true }, where: { userId: user.id } },
+      },
+      omit: { userId: true, isVisible: true, sectionId: true },
     });
-    return { message: 'Post updated !' };
+    return { message: 'Post updated !', data: updatePost };
   }
 
   async move(postId: string, sectionId: string, user: UserWithRole) {
