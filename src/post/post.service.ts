@@ -34,6 +34,7 @@ export class PostService {
         },
         id: true,
         projectId: true,
+        name: true,
       },
     });
     if (!existingSection) {
@@ -54,6 +55,7 @@ export class PostService {
       isModerator,
       isAdmin,
       user: user.username,
+      sectionName: existingSection.name,
     };
   }
 
