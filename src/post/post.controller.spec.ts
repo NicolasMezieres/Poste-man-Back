@@ -17,7 +17,7 @@ describe('PostController', () => {
     controller = module.get<PostController>(PostController);
   });
   const sectionId = 'sectionId';
-  const postDTO = { text: 'text post' };
+  const postDTO = { text: 'text post', poseX: 0, poseY: 0 };
   const postId = 'postId';
   const voteDTO = { isUp: true };
   it('should be defined', () => {
