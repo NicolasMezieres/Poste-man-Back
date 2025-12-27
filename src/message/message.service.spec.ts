@@ -355,7 +355,7 @@ describe('MessageService', () => {
       await expect(
         service.joinRoomMessage(socketMock, projectId, userMock),
       ).resolves.toEqual(undefined);
-      expect(socketMock.join).toHaveBeenCalledWith(projectId);
+      expect(socketMock.join).toHaveBeenCalledWith(`message/${projectId}`);
     });
     it('should return WsException You arent a member !', async () => {
       jest

@@ -34,15 +34,17 @@ export class MessageGateway {
   }
 
   emitNewMessage(message: message, projectId: string) {
-    this.server.to(projectId).emit('message', { action: 'create', message });
+    this.server
+      .to(`message/${projectId}`)
+      .emit('message', { action: 'create', message });
   }
 
   emitDeleteMessage(messageId: string, projectId: string) {
     this.server
-      .to(projectId)
+      .to(`message/${projectId}`)
       .emit('message', { action: 'delete', message: { id: messageId } });
   }
   emitResetMessage(projectId: string) {
-    this.server.to(projectId).emit('message', { action: 'reset' });
+    this.server.to(`message/${projectId}`).emit('message', { action: 'reset' });
   }
 }

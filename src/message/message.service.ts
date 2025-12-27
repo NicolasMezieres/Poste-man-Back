@@ -190,7 +190,7 @@ export class MessageService {
     if (!existingUserProject) {
       throw new WsException("You aren't a member !");
     }
-    await client.join(projectId);
+    await client.join(`message/${projectId}`);
     return;
   }
 }

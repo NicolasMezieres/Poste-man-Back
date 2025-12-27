@@ -14,6 +14,8 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { roleProject } from 'src/section/mock/section.mock';
+import { PostGateway } from './post.gateway';
+import { postGatewayMock } from './mock/post.gateway.mock';
 
 describe('PostService', () => {
   let service: PostService;
@@ -23,6 +25,7 @@ describe('PostService', () => {
       providers: [
         PostService,
         { provide: PrismaService, useValue: postPrismaMock },
+        { provide: PostGateway, useValue: postGatewayMock },
       ],
     }).compile();
     service = module.get<PostService>(PostService);

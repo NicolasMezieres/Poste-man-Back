@@ -1,6 +1,8 @@
 import {
   BadRequestException,
   ForbiddenException,
+  forwardRef,
+  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -10,10 +12,17 @@ import { roleProject } from 'src/section/mock/section.mock';
 import { role } from 'src/utils/enum';
 import { UserWithRole } from 'src/utils/type';
 import { postDTO, voteDTO } from './dto';
+import { WsException } from '@nestjs/websockets';
+import { PostGateway } from './post.gateway';
+import { Socket } from 'socket.io';
 
 @Injectable()
 export class PostService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    @Inject(forwardRef(() => PostGateway))
+    private socket: PostGateway,
+  ) {}
 
   async posts(sectionId: string, user: UserWithRole) {
     const existingSection = await this.prisma.section.findUnique({
@@ -88,12 +97,17 @@ export class PostService {
       },
       omit: { userId: true, isVisible: true, sectionId: true },
     });
+    this.socket.emitNewPost(newPost, existingSection.projectId);
     return { message: 'Post created !', data: newPost };
   }
   async update(postId: string, dto: postDTO, user: User) {
     const existingPost = await this.prisma.post.findUnique({
       where: { id: postId },
-      select: { userId: true, id: true },
+      select: {
+        userId: true,
+        id: true,
+        section: { select: { projectId: true } },
+      },
     });
     if (!existingPost) {
       throw new NotFoundException('Post not found !');
@@ -110,6 +124,7 @@ export class PostService {
       },
       omit: { userId: true, isVisible: true, sectionId: true },
     });
+    this.socket.emitUpdatePost(updatePost, existingPost.section.projectId);
     return { message: 'Post updated !', data: updatePost };
   }
 
@@ -201,13 +216,18 @@ export class PostService {
       where: { sectionId },
       data: { sectionId: moveSectionId },
     });
+    this.socket.emitResetPost(existingSection.projectId);
     return { message: 'Posts changed section !' };
   }
 
   async vote(postId: string, dto: voteDTO, user: User) {
     const existingPost = await this.prisma.post.findUnique({
       where: { id: postId, isVisible: true },
-      select: { section: { select: { projectId: true } }, id: true },
+      select: {
+        section: { select: { projectId: true } },
+        id: true,
+        score: true,
+      },
     });
     if (!existingPost) {
       throw new NotFoundException('Post not found !');
@@ -303,7 +323,19 @@ export class PostService {
           break;
       }
     }
-    return { message: 'Voted !' };
+    const newVote = await this.prisma.post.findUnique({
+      where: { id: existingPost.id },
+      select: { score: true },
+    });
+    if (!newVote) {
+      throw new NotFoundException('Post introuvable!');
+    }
+    this.socket.emitVotePost(
+      existingPost.id,
+      newVote.score,
+      existingPost.section.projectId,
+    );
+    return { message: 'Voted !', score: newVote.score };
   }
 
   async remove(postId: string, user: UserWithRole) {
@@ -337,6 +369,7 @@ export class PostService {
       where: { id: existingPost.id },
       data: { isVisible: false, updatedAt: new Date(), isArchive: true },
     });
+    this.socket.emitDeletePost(existingPost.id, existingPost.section.projectId);
     return {
       message: 'Post deleted !',
     };
@@ -368,6 +401,18 @@ export class PostService {
       where: { sectionId: existingSection.id },
       data: { isVisible: false, updatedAt: new Date(), isArchive: true },
     });
+    this.socket.emitResetPost(existingSection.projectId);
     return { message: 'All post have been deleted !' };
+  }
+  async joinRoomPost(client: Socket, projectId: string, user: User) {
+    const existingUserProject = await this.prisma.user_Has_Project.findFirst({
+      where: { projectId, userId: user.id, isBanned: false },
+      select: { id: true },
+    });
+    if (!existingUserProject) {
+      throw new WsException("You aren't a member !");
+    }
+    await client.join(`post/${projectId}`);
+    return;
   }
 }

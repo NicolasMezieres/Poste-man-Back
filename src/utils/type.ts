@@ -68,3 +68,23 @@ export type memberGateway = {
 export type resMessageType = { body: { message: string } };
 
 export type queryUserList = { page: number; search: string };
+
+export type postType = {
+  user: userType;
+  vote: voteType[];
+  text: string;
+  id: string;
+  isArchive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+  poseX: number | null;
+  poseY: number | null;
+  score: number;
+};
+export type userType = {
+  username: string;
+  id: string;
+};
+export type voteType = {
+  isUp: boolean | null;
+};
