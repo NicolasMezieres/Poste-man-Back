@@ -51,7 +51,7 @@ describe('EmailService', () => {
 
     service = module.get<EmailService>(EmailService);
 
-    process.env.FRONT_URL = 'http://localhost:3000/';
+    process.env.FRONT_URL = 'http://localhost:3000';
     process.env.MAILER_SECURE = 'false';
   });
 
@@ -66,7 +66,7 @@ describe('EmailService', () => {
         username: 'john',
       } as User;
       const token = 'abc123';
-      const expectedUrl = `${process.env.FRONT_URL}validAccount?token=${token}`;
+      const expectedUrl = `${process.env.FRONT_URL}/validAccount?token=${token}`;
 
       (inscriptionEmailTemplate as jest.Mock).mockReturnValue('<p>Welcome</p>');
 
@@ -92,7 +92,7 @@ describe('EmailService', () => {
         username: 'john',
       } as User;
       const token = 'reset123';
-      const expectedUrl = `${process.env.FRONT_URL}resetPassword/${token}`;
+      const expectedUrl = `${process.env.FRONT_URL}/resetPassword/${token}`;
 
       (sendPasswordResetTemplate as jest.Mock).mockReturnValue(
         '<p>Reset Password</p>',
