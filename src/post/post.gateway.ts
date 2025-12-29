@@ -48,10 +48,10 @@ export class PostGateway {
       .to(`post/${projectId}`)
       .emit('post', { action: 'delete', post: { id: postId } });
   }
-  emitMovePost(postId: string, projectId: string) {
+  emitTransfertPost(postId: string, projectId: string) {
     this.server
       .to(`post/${projectId}`)
-      .emit('post', { action: 'move', post: { id: postId } });
+      .emit('post', { action: 'transfert', post: { id: postId } });
   }
   emitVotePost(postId: string, score: number, projectId: string) {
     this.server

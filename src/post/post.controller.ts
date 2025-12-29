@@ -71,13 +71,13 @@ export class PostController {
     description:
       'Project is not the same project of section or you are unauthorized',
   })
-  @Patch('/:postId/move/:sectionId')
-  move(
+  @Patch('/:postId/transfert/:sectionId')
+  transfert(
     @Param('postId') postId: string,
     @Param('sectionId') sectionId: string,
     @GetUser() user: UserWithRole,
   ) {
-    return this.postService.move(postId, sectionId, user);
+    return this.postService.transfert(postId, sectionId, user);
   }
 
   @ApiNoContentResponse({ description: 'Posts changed section !' })
@@ -86,13 +86,13 @@ export class PostController {
   @ApiForbiddenResponse({
     description: 'Sections not have the same project or you are unauthorized !',
   })
-  @Patch('/section/:sectionId/move/:moveSectionId')
-  moveAll(
+  @Patch('/section/:sectionId/transfert/:moveSectionId')
+  transfertAll(
     @Param('sectionId') sectionId: string,
     @Param('moveSectionId') moveSectionId: string,
     @GetUser() user: UserWithRole,
   ) {
-    return this.postService.moveAll(sectionId, moveSectionId, user);
+    return this.postService.transfertAll(sectionId, moveSectionId, user);
   }
 
   @ApiNoContentResponse({ description: 'Voted !' })

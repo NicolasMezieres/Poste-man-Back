@@ -128,7 +128,7 @@ export class PostService {
     return { message: 'Post updated !', data: updatePost };
   }
 
-  async move(postId: string, sectionId: string, user: UserWithRole) {
+  async transfert(postId: string, sectionId: string, user: UserWithRole) {
     const isAdmin = user.role.name === role.ADMIN;
     const existingPost = await this.prisma.post.findUnique({
       where: { id: postId },
@@ -174,9 +174,17 @@ export class PostService {
       where: { id: existingPost.id },
       data: { sectionId: existingSection.id, updatedAt: new Date() },
     });
+    this.socket.emitTransfertPost(
+      existingPost.id,
+      existingPost.section.projectId,
+    );
     return { message: 'Section of post changed !' };
   }
-  async moveAll(sectionId: string, moveSectionId: string, user: UserWithRole) {
+  async transfertAll(
+    sectionId: string,
+    moveSectionId: string,
+    user: UserWithRole,
+  ) {
     if (sectionId === moveSectionId) {
       throw new BadRequestException('Need to other section !');
     }

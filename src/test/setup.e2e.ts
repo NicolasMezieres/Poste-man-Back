@@ -13,6 +13,8 @@ import { MessageGateway } from 'src/message/message.gateway';
 import { messageGatewayMock } from 'src/message/mock/message.gateway.mock';
 import { notificationGatewayMock } from 'src/notification/mock/notification.gateway.mock';
 import { NotificationGateway } from 'src/notification/notification.gateway';
+import { postGatewayMock } from 'src/post/mock/post.gateway.mock';
+import { PostGateway } from 'src/post/post.gateway';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { projectGatewayMock } from 'src/project/mock/project.gateway.mock';
 import { ProjectGateway } from 'src/project/project.gateway';
@@ -35,6 +37,8 @@ beforeAll(async () => {
     .useValue(projectGatewayMock)
     .overrideProvider(NotificationGateway)
     .useValue(notificationGatewayMock)
+    .overrideProvider(PostGateway)
+    .useValue(postGatewayMock)
     .compile();
   app = moduleRef.createNestApplication();
   app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
