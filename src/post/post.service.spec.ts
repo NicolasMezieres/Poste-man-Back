@@ -154,7 +154,7 @@ describe('PostService', () => {
     });
   });
 
-  describe('Move post', () => {
+  describe('Transfert post', () => {
     it('Should return a message Section of post changed with User account !', async () => {
       jest.spyOn(postPrismaMock.post, 'findUnique').mockResolvedValue({
         sectionId,
@@ -280,7 +280,7 @@ describe('PostService', () => {
     });
   });
 
-  describe('Move all post to another section', () => {
+  describe('Transfert all post to another section', () => {
     const otherSectionId = 'otherSectionId';
     it('Should change section of posts, Moderator account', async () => {
       jest

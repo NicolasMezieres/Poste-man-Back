@@ -53,6 +53,13 @@ describe('PostController', () => {
     });
   });
 
+  describe('Move post', () => {
+    it('Should return a message', async () => {
+      await expect(
+        controller.move(postId, userMock, { poseX: 0, poseY: 0 }),
+      ).resolves.toEqual({ message: 'Post mis à jour' });
+    });
+  });
   describe('Transfert post', () => {
     it('Should return a message', async () => {
       await expect(
