@@ -23,6 +23,7 @@ import {
   ApiNotFoundResponse,
   ApiOkResponse,
 } from '@nestjs/swagger';
+import { movePostDTO } from './dto/move.post.dto';
 
 @UseGuards(JwtGuard)
 @Controller('post')
@@ -61,7 +62,14 @@ export class PostController {
   ) {
     return this.postService.update(postId, dto, user);
   }
-
+  @Patch('/:postId/move')
+  move(
+    @Param('postId') postId: string,
+    @GetUser() user: User,
+    @Body() dto: movePostDTO,
+  ) {
+    return this.postService.movePost(postId, dto, user);
+  }
   @ApiNoContentResponse({ description: 'Section of post changed !' })
   @ApiNotFoundResponse({
     description: 'Post or Section not found !',

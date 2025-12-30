@@ -103,7 +103,7 @@ describe('PostService', () => {
       jest.spyOn(postPrismaMock.post, 'create').mockResolvedValue(postDTOMock);
       await expect(
         service.create(sectionId, postDTOMock, userMock),
-      ).resolves.toEqual({ message: 'Post created !', data: postDTOMock });
+      ).resolves.toEqual({ message: 'Post created !' });
     });
     it('Should return a Not Found Exception Section not found', async () => {
       jest.spyOn(postPrismaMock.section, 'findUnique').mockResolvedValue(null);
@@ -133,7 +133,7 @@ describe('PostService', () => {
       jest.spyOn(postPrismaMock.post, 'update').mockResolvedValue(postMock);
       await expect(
         service.update(postId, postDTOMock, userMock),
-      ).resolves.toEqual({ message: 'Post updated !', data: postMock });
+      ).resolves.toEqual({ message: 'Post updated !' });
       expect(postPrismaMock.post.update).toHaveBeenCalled();
     });
     it('Should return a Forbidden Exception Post not found !', async () => {

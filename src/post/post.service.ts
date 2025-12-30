@@ -15,6 +15,7 @@ import { postDTO, voteDTO } from './dto';
 import { WsException } from '@nestjs/websockets';
 import { PostGateway } from './post.gateway';
 import { Socket } from 'socket.io';
+import { movePostDTO } from './dto/move.post.dto';
 
 @Injectable()
 export class PostService {
@@ -98,7 +99,7 @@ export class PostService {
       omit: { userId: true, isVisible: true, sectionId: true },
     });
     this.socket.emitNewPost(newPost, existingSection.projectId);
-    return { message: 'Post created !', data: newPost };
+    return { message: 'Post created !' };
   }
   async update(postId: string, dto: postDTO, user: User) {
     const existingPost = await this.prisma.post.findUnique({
@@ -125,9 +126,39 @@ export class PostService {
       omit: { userId: true, isVisible: true, sectionId: true },
     });
     this.socket.emitUpdatePost(updatePost, existingPost.section.projectId);
-    return { message: 'Post updated !', data: updatePost };
+    return { message: 'Post updated !' };
   }
-
+  async movePost(postId: string, dto: movePostDTO, user: User) {
+    const existingPost = await this.prisma.post.findUnique({
+      where: { id: postId },
+      select: { id: true, section: { select: { projectId: true } } },
+    });
+    if (!existingPost) {
+      throw new NotFoundException('Post introuvable !');
+    }
+    const didUserInProject = await this.prisma.user_Has_Project.findFirst({
+      where: {
+        userId: user.id,
+        projectId: existingPost.section.projectId,
+        isBanned: false,
+      },
+      select: { id: true },
+    });
+    if (!didUserInProject) {
+      throw new ForbiddenException("Vous n'êtes pas membre du projet !");
+    }
+    const updatePost = await this.prisma.post.update({
+      where: { id: existingPost.id },
+      data: { poseX: dto.poseX, poseY: dto.poseY },
+      include: {
+        user: { select: { id: true, username: true } },
+        vote: { select: { isUp: true }, where: { userId: user.id } },
+      },
+      omit: { userId: true, isVisible: true, sectionId: true },
+    });
+    this.socket.emitUpdatePost(updatePost, existingPost.section.projectId);
+    return { message: 'Post mis à jour' };
+  }
   async transfert(postId: string, sectionId: string, user: UserWithRole) {
     const isAdmin = user.role.name === role.ADMIN;
     const existingPost = await this.prisma.post.findUnique({
