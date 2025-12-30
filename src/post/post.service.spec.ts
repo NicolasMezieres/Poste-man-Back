@@ -16,6 +16,8 @@ import {
 import { roleProject } from 'src/section/mock/section.mock';
 import { PostGateway } from './post.gateway';
 import { postGatewayMock } from './mock/post.gateway.mock';
+import { socketMock } from 'src/message/mock/socket.mock';
+import { WsException } from '@nestjs/websockets';
 
 describe('PostService', () => {
   let service: PostService;
@@ -151,6 +153,38 @@ describe('PostService', () => {
         service.update(postId, postDTOMock, userMock),
       ).rejects.toEqual(new ForbiddenException('You are unauthorized !'));
       expect(postPrismaMock.post.update).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('Move post', () => {
+    const moveDTO = { poseX: 0, poseY: 0 };
+    it('Should fail, not found post (404)', async () => {
+      jest.spyOn(postPrismaMock.post, 'findUnique').mockReturnValue(null);
+      await expect(service.movePost(postId, moveDTO, userMock)).rejects.toEqual(
+        new NotFoundException('Post introuvable !'),
+      );
+    });
+    it('Should fail, not a member (403)', async () => {
+      jest
+        .spyOn(postPrismaMock.post, 'findUnique')
+        .mockReturnValue({ id: 'id', section: { projectId: 'id' } });
+      jest
+        .spyOn(postPrismaMock.user_Has_Project, 'findFirst')
+        .mockReturnValue(null);
+      await expect(service.movePost(postId, moveDTO, userMock)).rejects.toEqual(
+        new ForbiddenException("Vous n'êtes pas membre du projet !"),
+      );
+    });
+    it('Should succes, post moved 200', async () => {
+      jest
+        .spyOn(postPrismaMock.post, 'findUnique')
+        .mockReturnValue({ id: 'id', section: { projectId: 'id' } });
+      jest
+        .spyOn(postPrismaMock.user_Has_Project, 'findFirst')
+        .mockReturnValue({ id: 'id' });
+      await expect(
+        service.movePost(postId, moveDTO, userMock),
+      ).resolves.toEqual({ message: 'Post mis à jour' });
     });
   });
 
@@ -672,6 +706,24 @@ describe('PostService', () => {
         service.removeAll(sectionId, userWithRoleMock),
       ).rejects.toEqual(new ForbiddenException('You are unauthorized !'));
       expect(postPrismaMock.post.updateMany).not.toHaveBeenCalled();
+    });
+  });
+  describe('Join Room Post', () => {
+    it('Should fail, not a member', async () => {
+      jest
+        .spyOn(postPrismaMock.user_Has_Project, 'findFirst')
+        .mockReturnValue(null);
+      await expect(
+        service.joinRoomPost(socketMock, projectId, userMock),
+      ).rejects.toEqual(new WsException("You aren't a member !"));
+    });
+    it('Should succes, join room post', async () => {
+      jest
+        .spyOn(postPrismaMock.user_Has_Project, 'findFirst')
+        .mockReturnValue({ id: 'id' });
+      await expect(
+        service.joinRoomPost(socketMock, projectId, userMock),
+      ).resolves.toEqual(undefined);
     });
   });
 });
