@@ -243,8 +243,53 @@ describe('Post (e2e)', () => {
         .expect(200);
     });
   });
-  describe('/ (PATCH) Move Post ', () => {
-    const path = '/post/postId/move/sectionId';
+  describe('/(PATCH) Move Post', () => {
+    const path = '/post/';
+    const moveDTO = { poseX: 0, poseY: 0 };
+    it('Should fail, Need a cookie', async () => {
+      return req(app.getHttpServer())
+        .patch(path + 'postId/move')
+        .expect(401)
+        .expect((err: resMessageType) =>
+          expect(err.body.message).toContain('Unauthorized'),
+        );
+    });
+    it('Should fail, Bad request exception (400)', async () => {
+      return req(app.getHttpServer())
+        .patch(path + 'notFoundPostId/move')
+        .set('Cookie', cookie)
+        .expect(400);
+    });
+    it('Should fail, not found post (404)', async () => {
+      return req(app.getHttpServer())
+        .patch(path + 'notFoundPostId/move')
+        .set('Cookie', cookie)
+        .send(moveDTO)
+        .expect(404)
+        .expect((err: resMessageType) =>
+          expect(err.body.message).toContain('Post introuvable'),
+        );
+    });
+    it('Should fail, Not a member (403)', async () => {
+      return req(app.getHttpServer())
+        .patch(path + postId + '/move')
+        .set('Cookie', cookieAdmin)
+        .send(moveDTO)
+        .expect(403)
+        .expect((err: resMessageType) =>
+          expect(err.body.message).toContain('pas membre'),
+        );
+    });
+    it('Should success', () => {
+      return req(app.getHttpServer())
+        .patch(path + postId + '/move')
+        .set('Cookie', cookieAdmin)
+        .send(moveDTO)
+        .expect(403);
+    });
+  });
+  describe('/ (PATCH) Transfert Post ', () => {
+    const path = '/post/postId/transfert/sectionId';
     it('Should fail Need a Cookie', async () => {
       return req(app.getHttpServer())
         .patch(path)
@@ -264,7 +309,7 @@ describe('Post (e2e)', () => {
     });
     it('Should fail Bad Request Exception, Post already in section', async () => {
       return req(app.getHttpServer())
-        .patch(`/post/${postId}/move/${sectionId}`)
+        .patch(`/post/${postId}/transfert/${sectionId}`)
         .set('Cookie', cookie)
         .expect(400)
         .expect((err: resMessageType) =>
@@ -273,7 +318,7 @@ describe('Post (e2e)', () => {
     });
     it('Should fail Not Found Exception, Section not found', async () => {
       return req(app.getHttpServer())
-        .patch(`/post/${postId}/move/sectionId`)
+        .patch(`/post/${postId}/transfert/sectionId`)
         .set('Cookie', cookie)
         .expect(404)
         .expect((err: resMessageType) =>
@@ -282,7 +327,7 @@ describe('Post (e2e)', () => {
     });
     it('Should fail Forbidden Exception, Project is not in the same project of section', async () => {
       return req(app.getHttpServer())
-        .patch(`/post/${postId}/move/${otherUserSectionId}`)
+        .patch(`/post/${postId}/transfert/${otherUserSectionId}`)
         .set('Cookie', cookie)
         .expect(403)
         .expect((err: resMessageType) =>
@@ -293,7 +338,7 @@ describe('Post (e2e)', () => {
     });
     it('Should fail Forbidden Exception, Not Author of post, Moderator or Admin', async () => {
       return req(app.getHttpServer())
-        .patch(`/post/${postId}/move/${otherSectionId}`)
+        .patch(`/post/${postId}/transfert/${otherSectionId}`)
         .set('Cookie', cookieOtherUser)
         .expect(403)
         .expect((err: resMessageType) =>
@@ -302,7 +347,7 @@ describe('Post (e2e)', () => {
     });
     it('Should Section of Post Changed', async () => {
       return req(app.getHttpServer())
-        .patch(`/post/${postId}/move/${otherSectionId}`)
+        .patch(`/post/${postId}/transfert/${otherSectionId}`)
         .set('Cookie', cookie)
         .expect(200);
     });
@@ -311,7 +356,7 @@ describe('Post (e2e)', () => {
     const path = '/post/section/';
     it('Should fail Need a Cookie', async () => {
       return req(app.getHttpServer())
-        .patch(path + 'sectionId/move/moveSectionId')
+        .patch(path + 'sectionId/transfert/moveSectionId')
         .expect(401)
         .expect((err: resMessageType) =>
           expect(err.body.message).toContain('Unauthorized'),
@@ -319,7 +364,7 @@ describe('Post (e2e)', () => {
     });
     it('Should Bad Request Exception, same sections', async () => {
       return req(app.getHttpServer())
-        .patch(path + 'sectionId/move/sectionId')
+        .patch(path + 'sectionId/transfert/sectionId')
         .set('Cookie', cookie)
         .expect(400)
         .expect((err: resMessageType) =>
@@ -337,7 +382,7 @@ describe('Post (e2e)', () => {
     });
     it('Should Not Found Exception, Section to move not found !', async () => {
       return req(app.getHttpServer())
-        .patch(path + `${sectionId}/move/sectionId`)
+        .patch(path + `${sectionId}/transfert/sectionId`)
         .set('Cookie', cookie)
         .expect(404)
         .expect((err: resMessageType) =>
@@ -346,7 +391,7 @@ describe('Post (e2e)', () => {
     });
     it('Should Forbidden Exception, Sections do not have the same Project', async () => {
       return req(app.getHttpServer())
-        .patch(path + `${sectionId}/move/${otherUserSectionId}`)
+        .patch(path + `${sectionId}/transfert/${otherUserSectionId}`)
         .set('Cookie', cookie)
         .expect(403)
         .expect((err: resMessageType) =>
@@ -357,7 +402,7 @@ describe('Post (e2e)', () => {
     });
     it('Should ForbiddenException, Not a Moderator or Admin', async () => {
       return req(app.getHttpServer())
-        .patch(path + `${sectionId}/move/${otherSectionId}`)
+        .patch(path + `${sectionId}/transfert/${otherSectionId}`)
         .set('Cookie', cookieOtherUser)
         .expect(403)
         .expect((err: resMessageType) =>
@@ -366,7 +411,7 @@ describe('Post (e2e)', () => {
     });
     it('Should Move all Post', async () => {
       return req(app.getHttpServer())
-        .patch(path + `${sectionId}/move/${otherSectionId}`)
+        .patch(path + `${sectionId}/transfert/${otherSectionId}`)
         .set('Cookie', cookie)
         .expect(200);
     });

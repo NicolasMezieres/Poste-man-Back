@@ -14,6 +14,10 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { roleProject } from 'src/section/mock/section.mock';
+import { PostGateway } from './post.gateway';
+import { postGatewayMock } from './mock/post.gateway.mock';
+import { socketMock } from 'src/message/mock/socket.mock';
+import { WsException } from '@nestjs/websockets';
 
 describe('PostService', () => {
   let service: PostService;
@@ -23,6 +27,7 @@ describe('PostService', () => {
       providers: [
         PostService,
         { provide: PrismaService, useValue: postPrismaMock },
+        { provide: PostGateway, useValue: postGatewayMock },
       ],
     }).compile();
     service = module.get<PostService>(PostService);
@@ -100,7 +105,7 @@ describe('PostService', () => {
       jest.spyOn(postPrismaMock.post, 'create').mockResolvedValue(postDTOMock);
       await expect(
         service.create(sectionId, postDTOMock, userMock),
-      ).resolves.toEqual({ message: 'Post created !', data: postDTOMock });
+      ).resolves.toEqual({ message: 'Post created !' });
     });
     it('Should return a Not Found Exception Section not found', async () => {
       jest.spyOn(postPrismaMock.section, 'findUnique').mockResolvedValue(null);
@@ -122,13 +127,15 @@ describe('PostService', () => {
   });
   describe('Update post', () => {
     it('Should return a message Post updated !', async () => {
-      jest
-        .spyOn(postPrismaMock.post, 'findUnique')
-        .mockResolvedValue({ userId: userMock.id, id: postId });
+      jest.spyOn(postPrismaMock.post, 'findUnique').mockResolvedValue({
+        userId: userMock.id,
+        id: postId,
+        section: { projectId: 'id' },
+      });
       jest.spyOn(postPrismaMock.post, 'update').mockResolvedValue(postMock);
       await expect(
         service.update(postId, postDTOMock, userMock),
-      ).resolves.toEqual({ message: 'Post updated !', data: postMock });
+      ).resolves.toEqual({ message: 'Post updated !' });
       expect(postPrismaMock.post.update).toHaveBeenCalled();
     });
     it('Should return a Forbidden Exception Post not found !', async () => {
@@ -150,6 +157,38 @@ describe('PostService', () => {
   });
 
   describe('Move post', () => {
+    const moveDTO = { poseX: 0, poseY: 0 };
+    it('Should fail, not found post (404)', async () => {
+      jest.spyOn(postPrismaMock.post, 'findUnique').mockReturnValue(null);
+      await expect(service.movePost(postId, moveDTO, userMock)).rejects.toEqual(
+        new NotFoundException('Post introuvable !'),
+      );
+    });
+    it('Should fail, not a member (403)', async () => {
+      jest
+        .spyOn(postPrismaMock.post, 'findUnique')
+        .mockReturnValue({ id: 'id', section: { projectId: 'id' } });
+      jest
+        .spyOn(postPrismaMock.user_Has_Project, 'findFirst')
+        .mockReturnValue(null);
+      await expect(service.movePost(postId, moveDTO, userMock)).rejects.toEqual(
+        new ForbiddenException("Vous n'êtes pas membre du projet !"),
+      );
+    });
+    it('Should succes, post moved 200', async () => {
+      jest
+        .spyOn(postPrismaMock.post, 'findUnique')
+        .mockReturnValue({ id: 'id', section: { projectId: 'id' } });
+      jest
+        .spyOn(postPrismaMock.user_Has_Project, 'findFirst')
+        .mockReturnValue({ id: 'id' });
+      await expect(
+        service.movePost(postId, moveDTO, userMock),
+      ).resolves.toEqual({ message: 'Post mis à jour' });
+    });
+  });
+
+  describe('Transfert post', () => {
     it('Should return a message Section of post changed with User account !', async () => {
       jest.spyOn(postPrismaMock.post, 'findUnique').mockResolvedValue({
         sectionId,
@@ -165,7 +204,7 @@ describe('PostService', () => {
         .mockResolvedValue(null);
       jest.spyOn(postPrismaMock.post, 'update').mockResolvedValue(null);
       await expect(
-        service.move(postId, 'otherSectionId', userWithRoleMock),
+        service.transfert(postId, 'otherSectionId', userWithRoleMock),
       ).resolves.toEqual({ message: 'Section of post changed !' });
       expect(postPrismaMock.post.update).toHaveBeenCalled();
     });
@@ -184,7 +223,7 @@ describe('PostService', () => {
         .mockResolvedValue({ id: 'userProjectId' });
       jest.spyOn(postPrismaMock.post, 'update').mockResolvedValue(null);
       await expect(
-        service.move(postId, 'otherSectionId', userWithRoleMock),
+        service.transfert(postId, 'otherSectionId', userWithRoleMock),
       ).resolves.toEqual({ message: 'Section of post changed !' });
       expect(postPrismaMock.post.update).toHaveBeenCalled();
     });
@@ -200,7 +239,7 @@ describe('PostService', () => {
         .mockResolvedValue({ projectId, id: 'otherSectionId' });
       jest.spyOn(postPrismaMock.post, 'update').mockResolvedValue(null);
       await expect(
-        service.move(postId, 'otherSectionId', adminWithRoleMock),
+        service.transfert(postId, 'otherSectionId', adminWithRoleMock),
       ).resolves.toEqual({ message: 'Section of post changed !' });
       expect(postPrismaMock.post.update).toHaveBeenCalled();
       expect(postPrismaMock.user_Has_Project.findFirst).not.toHaveBeenCalled();
@@ -208,7 +247,7 @@ describe('PostService', () => {
     it('Should return a Not Found Exception, Post not found !', async () => {
       jest.spyOn(postPrismaMock.post, 'findUnique').mockResolvedValue(null);
       await expect(
-        service.move(postId, sectionId, userWithRoleMock),
+        service.transfert(postId, sectionId, userWithRoleMock),
       ).rejects.toEqual(new NotFoundException('Post not found !'));
       expect(postPrismaMock.post.update).not.toHaveBeenCalled();
     });
@@ -220,7 +259,7 @@ describe('PostService', () => {
         section: { projectId },
       });
       await expect(
-        service.move(postId, sectionId, userWithRoleMock),
+        service.transfert(postId, sectionId, userWithRoleMock),
       ).rejects.toEqual(new BadRequestException('Post already in section'));
       expect(postPrismaMock.post.update).not.toHaveBeenCalled();
     });
@@ -233,7 +272,7 @@ describe('PostService', () => {
       });
       jest.spyOn(postPrismaMock.section, 'findUnique').mockResolvedValue(null);
       await expect(
-        service.move(postId, 'otherSectionId', userWithRoleMock),
+        service.transfert(postId, 'otherSectionId', userWithRoleMock),
       ).rejects.toEqual(new NotFoundException('Section not found !'));
       expect(postPrismaMock.post.update).not.toHaveBeenCalled();
     });
@@ -249,7 +288,7 @@ describe('PostService', () => {
         id: 'otherSectionId',
       });
       await expect(
-        service.move(postId, 'otherSectionId', userWithRoleMock),
+        service.transfert(postId, 'otherSectionId', userWithRoleMock),
       ).rejects.toEqual(
         new ForbiddenException('Project is not the same project of section'),
       );
@@ -269,13 +308,13 @@ describe('PostService', () => {
         .spyOn(postPrismaMock.user_Has_Project, 'findFirst')
         .mockResolvedValue(null);
       await expect(
-        service.move(postId, 'otherSectionId', userWithRoleMock),
+        service.transfert(postId, 'otherSectionId', userWithRoleMock),
       ).rejects.toEqual(new ForbiddenException('You are not authorized'));
       expect(postPrismaMock.post.update).not.toHaveBeenCalled();
     });
   });
 
-  describe('Move all post to another section', () => {
+  describe('Transfert all post to another section', () => {
     const otherSectionId = 'otherSectionId';
     it('Should change section of posts, Moderator account', async () => {
       jest
@@ -287,7 +326,7 @@ describe('PostService', () => {
         .mockResolvedValue({ id: 'userProjectId' });
       jest.spyOn(postPrismaMock.post, 'updateMany').mockResolvedValue(null);
       await expect(
-        service.moveAll(sectionId, otherSectionId, userWithRoleMock),
+        service.transfertAll(sectionId, otherSectionId, userWithRoleMock),
       ).resolves.toEqual({ message: 'Posts changed section !' });
       expect(postPrismaMock.post.updateMany).toHaveBeenCalled();
     });
@@ -298,13 +337,13 @@ describe('PostService', () => {
         .mockResolvedValueOnce({ id: otherSectionId, projectId });
       jest.spyOn(postPrismaMock.post, 'updateMany').mockResolvedValue(null);
       await expect(
-        service.moveAll(sectionId, otherSectionId, adminWithRoleMock),
+        service.transfertAll(sectionId, otherSectionId, adminWithRoleMock),
       ).resolves.toEqual({ message: 'Posts changed section !' });
       expect(postPrismaMock.post.updateMany).toHaveBeenCalled();
     });
     it('Should return Bad Request Exception, Need to other section !', async () => {
       await expect(
-        service.moveAll(sectionId, sectionId, userWithRoleMock),
+        service.transfertAll(sectionId, sectionId, userWithRoleMock),
       ).rejects.toEqual(new BadRequestException('Need to other section !'));
       expect(postPrismaMock.post.updateMany).not.toHaveBeenCalled();
     });
@@ -313,7 +352,7 @@ describe('PostService', () => {
         .spyOn(postPrismaMock.section, 'findUnique')
         .mockResolvedValueOnce(null);
       await expect(
-        service.moveAll(sectionId, otherSectionId, userWithRoleMock),
+        service.transfertAll(sectionId, otherSectionId, userWithRoleMock),
       ).rejects.toEqual(new NotFoundException('Section not found !'));
       expect(postPrismaMock.post.updateMany).not.toHaveBeenCalled();
     });
@@ -323,7 +362,7 @@ describe('PostService', () => {
         .mockResolvedValueOnce({ id: sectionId, projectId })
         .mockResolvedValueOnce(null);
       await expect(
-        service.moveAll(sectionId, otherSectionId, userWithRoleMock),
+        service.transfertAll(sectionId, otherSectionId, userWithRoleMock),
       ).rejects.toEqual(new NotFoundException('Section to move not found !'));
       expect(postPrismaMock.post.updateMany).not.toHaveBeenCalled();
     });
@@ -336,7 +375,7 @@ describe('PostService', () => {
           projectId: 'otherProjectId',
         });
       await expect(
-        service.moveAll(sectionId, otherSectionId, userWithRoleMock),
+        service.transfertAll(sectionId, otherSectionId, userWithRoleMock),
       ).rejects.toEqual(
         new ForbiddenException('Sections do not have the same project'),
       );
@@ -352,7 +391,7 @@ describe('PostService', () => {
         .mockResolvedValue(null);
       jest.spyOn(postPrismaMock.post, 'updateMany').mockResolvedValue(null);
       await expect(
-        service.moveAll(sectionId, otherSectionId, userWithRoleMock),
+        service.transfertAll(sectionId, otherSectionId, userWithRoleMock),
       ).rejects.toEqual(new ForbiddenException('You are unauthorized !'));
       expect(postPrismaMock.post.updateMany).not.toHaveBeenCalled();
     });
@@ -514,7 +553,8 @@ describe('PostService', () => {
     it('Should decrement 1 score when user change vote cancel to down', async () => {
       jest
         .spyOn(postPrismaMock.post, 'findUnique')
-        .mockResolvedValue({ id: postId, section: { projectId } });
+        .mockResolvedValueOnce({ id: postId, section: { projectId } })
+        .mockResolvedValueOnce({ score: 0 });
       jest
         .spyOn(postPrismaMock.user_Has_Project, 'findFirst')
         .mockResolvedValue({ id: 'userProjectId' });
@@ -526,6 +566,7 @@ describe('PostService', () => {
         service.vote(postId, voteDownDTO, userMock),
       ).resolves.toEqual({
         message: 'Voted !',
+        score: 0,
       });
       expect(postPrismaMock.vote.create).not.toHaveBeenCalled();
       expect(postPrismaMock.vote.update).toHaveBeenCalledWith({
@@ -665,6 +706,24 @@ describe('PostService', () => {
         service.removeAll(sectionId, userWithRoleMock),
       ).rejects.toEqual(new ForbiddenException('You are unauthorized !'));
       expect(postPrismaMock.post.updateMany).not.toHaveBeenCalled();
+    });
+  });
+  describe('Join Room Post', () => {
+    it('Should fail, not a member', async () => {
+      jest
+        .spyOn(postPrismaMock.user_Has_Project, 'findFirst')
+        .mockReturnValue(null);
+      await expect(
+        service.joinRoomPost(socketMock, projectId, userMock),
+      ).rejects.toEqual(new WsException("You aren't a member !"));
+    });
+    it('Should succes, join room post', async () => {
+      jest
+        .spyOn(postPrismaMock.user_Has_Project, 'findFirst')
+        .mockReturnValue({ id: 'id' });
+      await expect(
+        service.joinRoomPost(socketMock, projectId, userMock),
+      ).resolves.toEqual(undefined);
     });
   });
 });

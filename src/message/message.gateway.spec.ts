@@ -44,7 +44,7 @@ describe('MessageGateway', () => {
   describe('Emit New Message', () => {
     it('Should Emit New Message', () => {
       expect(gateway.emitNewMessage(newMessage, projectId));
-      expect(serverMock.to).toHaveBeenCalledWith(projectId);
+      expect(serverMock.to).toHaveBeenCalledWith(`message/${projectId}`);
       expect(serverMock.emit).toHaveBeenCalledWith('message', {
         action: 'create',
         message: newMessage,
@@ -54,7 +54,7 @@ describe('MessageGateway', () => {
   describe('Emit Delete Message', () => {
     it('Should Emit Delete Message', () => {
       expect(gateway.emitDeleteMessage(newMessage.id, projectId));
-      expect(serverMock.to).toHaveBeenCalledWith(projectId);
+      expect(serverMock.to).toHaveBeenCalledWith(`message/${projectId}`);
       expect(serverMock.emit).toHaveBeenCalledWith('message', {
         action: 'delete',
         message: { id: newMessage.id },
@@ -64,7 +64,7 @@ describe('MessageGateway', () => {
   describe('Emit Reset Message', () => {
     it('Should Emit Reset Message', () => {
       expect(gateway.emitResetMessage(projectId));
-      expect(serverMock.to).toHaveBeenCalledWith(projectId);
+      expect(serverMock.to).toHaveBeenCalledWith(`message/${projectId}`);
       expect(serverMock.emit).toHaveBeenCalledWith('message', {
         action: 'reset',
       });

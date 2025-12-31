@@ -56,7 +56,14 @@ describe('PostController', () => {
   describe('Move post', () => {
     it('Should return a message', async () => {
       await expect(
-        controller.move(postId, sectionId, userWithRoleMock),
+        controller.move(postId, userMock, { poseX: 0, poseY: 0 }),
+      ).resolves.toEqual({ message: 'Post mis à jour' });
+    });
+  });
+  describe('Transfert post', () => {
+    it('Should return a message', async () => {
+      await expect(
+        controller.transfert(postId, sectionId, userWithRoleMock),
       ).resolves.toEqual({ message: 'Section of post changed !' });
     });
   });
@@ -64,7 +71,7 @@ describe('PostController', () => {
   describe('Move all post', () => {
     it('Should return a message', async () => {
       await expect(
-        controller.moveAll(sectionId, 'otherSectionId', userWithRoleMock),
+        controller.transfertAll(sectionId, 'otherSectionId', userWithRoleMock),
       ).resolves.toEqual({ message: 'Posts changed section !' });
     });
   });
