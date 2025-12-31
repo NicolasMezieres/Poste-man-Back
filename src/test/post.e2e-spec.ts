@@ -243,6 +243,51 @@ describe('Post (e2e)', () => {
         .expect(200);
     });
   });
+  describe('/(PATCH) Move Post', () => {
+    const path = '/post/';
+    const moveDTO = { poseX: 0, poseY: 0 };
+    it('Should fail, Need a cookie', async () => {
+      return req(app.getHttpServer())
+        .patch(path + 'postId/move')
+        .expect(401)
+        .expect((err: resMessageType) =>
+          expect(err.body.message).toContain('Unauthorized'),
+        );
+    });
+    it('Should fail, Bad request exception (400)', async () => {
+      return req(app.getHttpServer())
+        .patch(path + 'notFoundPostId/move')
+        .set('Cookie', cookie)
+        .expect(400);
+    });
+    it('Should fail, not found post (404)', async () => {
+      return req(app.getHttpServer())
+        .patch(path + 'notFoundPostId/move')
+        .set('Cookie', cookie)
+        .send(moveDTO)
+        .expect(404)
+        .expect((err: resMessageType) =>
+          expect(err.body.message).toContain('Post introuvable'),
+        );
+    });
+    it('Should fail, Not a member (403)', async () => {
+      return req(app.getHttpServer())
+        .patch(path + postId + '/move')
+        .set('Cookie', cookieAdmin)
+        .send(moveDTO)
+        .expect(403)
+        .expect((err: resMessageType) =>
+          expect(err.body.message).toContain('pas membre'),
+        );
+    });
+    it('Should success', () => {
+      return req(app.getHttpServer())
+        .patch(path + postId + '/move')
+        .set('Cookie', cookieAdmin)
+        .send(moveDTO)
+        .expect(403);
+    });
+  });
   describe('/ (PATCH) Transfert Post ', () => {
     const path = '/post/postId/transfert/sectionId';
     it('Should fail Need a Cookie', async () => {
