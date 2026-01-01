@@ -18,4 +18,5 @@ export const postServiceMock = {
   removeAll: jest
     .fn()
     .mockResolvedValue({ message: 'All post have been deleted !' }),
+  joinRoomPost: jest.fn(),
 };
