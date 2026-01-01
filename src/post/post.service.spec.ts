@@ -591,6 +591,22 @@ describe('PostService', () => {
         new ForbiddenException('You are unauthorized !'),
       );
     });
+    it('Should fail, newScore  post not found', async () => {
+      jest
+        .spyOn(postPrismaMock.post, 'findUnique')
+        .mockResolvedValueOnce({ id: postId, section: { projectId } })
+        .mockResolvedValueOnce(null);
+      jest
+        .spyOn(postPrismaMock.user_Has_Project, 'findFirst')
+        .mockResolvedValue({ id: 'userProjectId' });
+      jest.spyOn(postPrismaMock.vote, 'findFirst').mockResolvedValue(null);
+      jest.spyOn(postPrismaMock, '$transaction').mockResolvedValue(null);
+      jest.spyOn(postPrismaMock.vote, 'create').mockResolvedValue(null);
+      jest.spyOn(postPrismaMock.post, 'update').mockResolvedValue(null);
+      await expect(service.vote(postId, voteUpDTO, userMock)).rejects.toEqual(
+        new NotFoundException('Post introuvable!'),
+      );
+    });
   });
 
   describe('Remove post', () => {
