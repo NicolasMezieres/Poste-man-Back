@@ -8,7 +8,8 @@ import { EmailService } from 'src/email/email.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { resMessageType } from 'src/utils/type';
 import * as request from 'supertest';
-import { app, prisma } from './setup.e2e';
+import { app, bearerToken, prisma } from './setup.e2e';
+
 const signupDTO = {
   firstName: 'firstName',
   lastName: 'lastName',
@@ -273,6 +274,25 @@ describe('AuthController (e2e)', () => {
         .then((res: resMessageType) => {
           expect(res.body.message).toEqual('Deconnection Success');
         });
+    });
+  });
+  describe('/(PATCH) reset Password with token', () => {
+    const path = '/auth/resetPasswordWithToken';
+    it('Should fail need a token (401)', () => {
+      return request(app.getHttpServer()).patch(path).expect(401);
+    });
+    it('Should fail missing dto (400)', () => {
+      return request(app.getHttpServer())
+        .patch(path)
+        .set('Authorization', `Bearer ${bearerToken.connexion_token}`)
+        .expect(400);
+    });
+    it('Should Success', async () => {
+      return request(app.getHttpServer())
+        .patch(path)
+        .set('Authorization', `Bearer ${bearerToken.connexion_token}`)
+        .send({ password: 'StrongP@ssword73' })
+        .expect(200);
     });
   });
 });

@@ -3,10 +3,13 @@ import {
   NotFoundException,
   ValidationPipe,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
 import { Test } from '@nestjs/testing';
 import * as cookieParser from 'cookie-parser';
 import { Server } from 'http';
 import { AppModule } from 'src/app.module';
+import { AuthService } from 'src/auth/auth.service';
 import { AuthEmailMock } from 'src/auth/mock/auth.email.mock';
 import { EmailService } from 'src/email/email.service';
 import { MessageGateway } from 'src/message/message.gateway';
@@ -24,6 +27,7 @@ export let prisma: PrismaService;
 export let cookie: string;
 export let cookieAdmin: string;
 export let cookieOtherUser: string;
+export let bearerToken: { connexion_token: string };
 beforeAll(async () => {
   process.env.DATABASE_URL = process.env.DATABASE_URL_TEST;
   const moduleRef = await Test.createTestingModule({
@@ -44,6 +48,7 @@ beforeAll(async () => {
   app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
   app.use(cookieParser());
   prisma = app.get(PrismaService);
+
   await app.init();
   const resCookie = await request(app.getHttpServer())
     .post('/auth/signin')
@@ -62,6 +67,17 @@ beforeAll(async () => {
     cookieAdmin = resCookieAdmin.headers['set-cookie'];
     cookieOtherUser = resCookieOtherUser.headers['set-cookie'];
   }
+  const userBearer = await prisma.user.findFirst({
+    where: { username: 'user3' },
+  });
+  if (!userBearer) {
+    throw new NotFoundException('User not found');
+  }
+  const email = app.get(EmailService);
+  const jwt = app.get(JwtService);
+  const config = app.get(ConfigService);
+  const auth = new AuthService(prisma, email, jwt, config);
+  bearerToken = await auth.signToken(userBearer, '10m');
 });
 
 afterAll(async () => {
