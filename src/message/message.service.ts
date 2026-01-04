@@ -30,7 +30,7 @@ export class MessageService {
   ) {
     const existingProject = await this.prisma.project.findUnique({
       where: { id: projectId },
-      select: { id: true },
+      select: { id: true, name: true },
     });
     if (!existingProject) {
       throw new NotFoundException('Project not found !');
@@ -66,7 +66,12 @@ export class MessageService {
       take,
       orderBy: { createdAt: 'desc' },
     });
-    return { data: messages, isModerator, user: user.username };
+    return {
+      data: messages,
+      isModerator,
+      user: user.username,
+      projectName: existingProject.name,
+    };
   }
   async createMessage(dto: messageDTO, projectId: string, user: User) {
     const existingProject = await this.prisma.project.findUnique({
