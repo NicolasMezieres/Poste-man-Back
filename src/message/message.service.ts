@@ -70,7 +70,6 @@ export class MessageService {
       data: messages,
       isModerator,
       user: user.username,
-      projectName: existingProject.name,
     };
   }
   async createMessage(dto: messageDTO, projectId: string, user: User) {
