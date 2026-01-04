@@ -29,6 +29,13 @@ describe('MessageController', () => {
       ).resolves.toEqual({ data: [messageMock] });
     });
   });
+  describe('Project Name', () => {
+    it('Should return project name', async () => {
+      await expect(
+        controller.projectName(projectId, userWithRoleMock),
+      ).resolves.toEqual({ projectName: 'projectName' });
+    });
+  });
   describe('Create Message', () => {
     it('should return Message created', async () => {
       await expect(
