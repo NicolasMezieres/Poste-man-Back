@@ -73,6 +73,38 @@ describe('Message (e2e)', () => {
         .expect(200);
     });
   });
+  describe('/ (GET) Project Name', () => {
+    const path = '/message/project/';
+    it('Should fail unauthorized, Need a Cookie (401)', async () => {
+      return req(app.getHttpServer())
+        .get(path + 'projectId/name')
+        .expect(401);
+    });
+    it('Should fail project not found (404)', async () => {
+      return req(app.getHttpServer())
+        .get(path + 'projectId/name')
+        .set('Cookie', cookie)
+        .expect(404);
+    });
+    it('Should fail Not a Member and Admin (403)', async () => {
+      return req(app.getHttpServer())
+        .get(path + projectId + '/name')
+        .set('Cookie', cookieOtherUser)
+        .expect(403);
+    });
+    it('Should succes Member', async () => {
+      return req(app.getHttpServer())
+        .get(path + projectId + '/name')
+        .set('Cookie', cookie)
+        .expect(200);
+    });
+    it('Should succes Admin', async () => {
+      return req(app.getHttpServer())
+        .get(path + projectId + '/name')
+        .set('Cookie', cookieAdmin)
+        .expect(200);
+    });
+  });
   describe('/ (POST) Create Message', () => {
     const path = '/message/project/';
     const messageDTO = { message: 'message' };

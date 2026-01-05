@@ -38,6 +38,13 @@ export class MessageController {
   ) {
     return this.messageService.projectMessages(projectId, user, query);
   }
+  @Get('/project/:projectId/name')
+  projectName(
+    @Param('projectId') projectId: string,
+    @GetUser() user: UserWithRole,
+  ) {
+    return this.messageService.projectName(projectId, user);
+  }
 
   @ApiCreatedResponse({
     description: 'The message has been successfully created.',

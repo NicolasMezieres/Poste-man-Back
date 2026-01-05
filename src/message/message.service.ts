@@ -23,6 +23,26 @@ export class MessageService {
     private socket: MessageGateway,
     private notification: NotificationService,
   ) {}
+  async projectName(projectId: string, user: UserWithRole) {
+    const existingProject = await this.prisma.project.findUnique({
+      where: { id: projectId },
+      select: { name: true },
+    });
+    if (!existingProject) {
+      throw new NotFoundException('Project introuvable');
+    }
+    const isAdmin = user.role.name === role.ADMIN;
+    if (!isAdmin) {
+      const didUserInProject = await this.prisma.user_Has_Project.findFirst({
+        where: { userId: user.id, projectId, isBanned: false },
+        select: { id: true },
+      });
+      if (!didUserInProject) {
+        throw new ForbiddenException("Vous n'êtes pas dans le projet");
+      }
+    }
+    return { projectName: existingProject.name };
+  }
   async projectMessages(
     projectId: string,
     user: UserWithRole,
@@ -70,7 +90,6 @@ export class MessageService {
       data: messages,
       isModerator,
       user: user.username,
-      projectName: existingProject.name,
     };
   }
   async createMessage(dto: messageDTO, projectId: string, user: User) {

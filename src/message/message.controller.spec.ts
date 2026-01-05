@@ -23,9 +23,17 @@ describe('MessageController', () => {
   const messageDTO = { message: 'text' };
   describe('Project Messages', () => {
     it('should return list messages', async () => {
+      const queryMock = { items: '0' };
       await expect(
-        controller.projectMessages(projectId, userWithRoleMock),
+        controller.projectMessages(projectId, userWithRoleMock, queryMock),
       ).resolves.toEqual({ data: [messageMock] });
+    });
+  });
+  describe('Project Name', () => {
+    it('Should return project name', async () => {
+      await expect(
+        controller.projectName(projectId, userWithRoleMock),
+      ).resolves.toEqual({ projectName: 'projectName' });
     });
   });
   describe('Create Message', () => {
