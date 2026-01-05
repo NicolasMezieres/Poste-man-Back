@@ -118,6 +118,49 @@ describe('MessageService', () => {
       ).rejects.toEqual(new NotFoundException('Project not found !'));
     });
   });
+  describe('Project Name', () => {
+    it('Should fail, project not found (404)', async () => {
+      jest.spyOn(messagePrismaMock.project, 'findUnique').mockReturnValue(null);
+      await expect(
+        service.projectName(projectId, userWithRoleMock),
+      ).rejects.toEqual(new NotFoundException('Project introuvable'));
+    });
+    it('Should fail, Not a member and admin', async () => {
+      jest
+        .spyOn(messagePrismaMock.project, 'findUnique')
+        .mockReturnValue({ name: 'projectName' });
+      jest
+        .spyOn(messagePrismaMock.user_Has_Project, 'findFirst')
+        .mockReturnValue(null);
+      await expect(
+        service.projectName(projectId, userWithRoleMock),
+      ).rejects.toEqual(
+        new ForbiddenException("Vous n'êtes pas dans le projet"),
+      );
+    });
+    it('Should succes return project name (member)', async () => {
+      jest
+        .spyOn(messagePrismaMock.project, 'findUnique')
+        .mockReturnValue({ name: 'projectName' });
+      jest
+        .spyOn(messagePrismaMock.user_Has_Project, 'findFirst')
+        .mockReturnValue({ id: 'id' });
+      await expect(
+        service.projectName(projectId, userWithRoleMock),
+      ).resolves.toEqual({ projectName: 'projectName' });
+    });
+    it('Should succes return project name (admin)', async () => {
+      jest
+        .spyOn(messagePrismaMock.project, 'findUnique')
+        .mockReturnValue({ name: 'projectName' });
+      await expect(
+        service.projectName(projectId, adminWithRoleMock),
+      ).resolves.toEqual({ projectName: 'projectName' });
+      expect(
+        messagePrismaMock.user_Has_Project.findFirst,
+      ).not.toHaveBeenCalled();
+    });
+  });
   describe('Create Message', () => {
     const messageDTO = { message: 'text' };
     it('should return Message created !', async () => {
