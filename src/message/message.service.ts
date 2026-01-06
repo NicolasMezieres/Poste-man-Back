@@ -81,6 +81,7 @@ export class MessageService {
         user: { select: { username: true } },
         createdAt: true,
         updatedAt: true,
+        isArchive: false,
       },
       skip,
       take,
