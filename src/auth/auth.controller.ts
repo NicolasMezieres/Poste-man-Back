@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Param,
   Patch,
   Post,
@@ -80,7 +81,7 @@ export class AuthController {
   }
 
   @ApiResponse({ status: 201, description: 'Deconnection Success' })
-  @Post('logout')
+  @Delete('logout')
   logout(@Res({ passthrough: true }) res: Response) {
     res.clearCookie('access_token', {
       httpOnly: true,
