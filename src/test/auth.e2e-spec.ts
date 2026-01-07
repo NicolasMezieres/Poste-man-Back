@@ -265,12 +265,12 @@ describe('AuthController (e2e)', () => {
         });
     });
   });
-  describe('/ (POST) logout', () => {
+  describe('/ (DELETE) logout', () => {
     const path = '/auth/logout';
     it('Should clear cookie', async () => {
       return request(app.getHttpServer())
-        .post(path)
-        .expect(201)
+        .delete(path)
+        .expect(200)
         .then((res: resMessageType) => {
           expect(res.body.message).toEqual('Deconnection Success');
         });
