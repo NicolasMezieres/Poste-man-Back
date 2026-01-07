@@ -51,6 +51,7 @@ export class ProjectService {
       data: listProject,
       total: countProject,
       isEndList: isEndList(skip, take, countProject),
+      user: { username: user.username },
     };
   }
   async searchByAdmin(query: querySearchAdminProject) {
