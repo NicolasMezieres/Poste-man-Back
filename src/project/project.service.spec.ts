@@ -49,6 +49,7 @@ describe('ProjectService', () => {
         data: listProject,
         total: countProject,
         isEndList: true,
+        user: { username: userMock.username },
       });
     });
   });
