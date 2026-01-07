@@ -61,11 +61,9 @@ describe('MessageService', () => {
         service.projectMessages(projectId, userWithRoleMock, query),
       ).resolves.toEqual({
         data: messages,
-        isModerator: false,
-        user: 'username',
       });
     });
-    it("should return project's messages moderator", async () => {
+    it("should return project's messages", async () => {
       jest
         .spyOn(messagePrismaMock.project, 'findUnique')
         .mockResolvedValue({ id: projectId });
@@ -79,8 +77,6 @@ describe('MessageService', () => {
         service.projectMessages(projectId, userWithRoleMock, query),
       ).resolves.toEqual({
         data: messages,
-        isModerator: true,
-        user: 'username',
       });
     });
     it("should return project's messages by admin", async () => {
@@ -94,8 +90,6 @@ describe('MessageService', () => {
         service.projectMessages(projectId, adminWithRoleMock, query),
       ).resolves.toEqual({
         data: messages,
-        isModerator: false,
-        user: 'username',
       });
     });
     it('should fail Unauthorized', async () => {
@@ -144,10 +138,31 @@ describe('MessageService', () => {
         .mockReturnValue({ name: 'projectName' });
       jest
         .spyOn(messagePrismaMock.user_Has_Project, 'findFirst')
-        .mockReturnValue({ id: 'id' });
+        .mockReturnValue({ role: { name: 'member' } });
       await expect(
         service.projectName(projectId, userWithRoleMock),
-      ).resolves.toEqual({ projectName: 'projectName' });
+      ).resolves.toEqual({
+        projectName: 'projectName',
+        isAdmin: false,
+        isModerator: false,
+        user: { username: userWithRoleMock.username },
+      });
+    });
+    it('Should succes return project name (moderator)', async () => {
+      jest
+        .spyOn(messagePrismaMock.project, 'findUnique')
+        .mockReturnValue({ name: 'projectName' });
+      jest
+        .spyOn(messagePrismaMock.user_Has_Project, 'findFirst')
+        .mockReturnValue({ role: { name: roleProject.MODERATOR } });
+      await expect(
+        service.projectName(projectId, userWithRoleMock),
+      ).resolves.toEqual({
+        projectName: 'projectName',
+        isAdmin: false,
+        isModerator: true,
+        user: { username: userWithRoleMock.username },
+      });
     });
     it('Should succes return project name (admin)', async () => {
       jest
@@ -155,7 +170,12 @@ describe('MessageService', () => {
         .mockReturnValue({ name: 'projectName' });
       await expect(
         service.projectName(projectId, adminWithRoleMock),
-      ).resolves.toEqual({ projectName: 'projectName' });
+      ).resolves.toEqual({
+        projectName: 'projectName',
+        isAdmin: true,
+        isModerator: false,
+        user: { username: adminWithRoleMock.username },
+      });
       expect(
         messagePrismaMock.user_Has_Project.findFirst,
       ).not.toHaveBeenCalled();
