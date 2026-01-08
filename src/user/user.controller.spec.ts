@@ -50,7 +50,16 @@ describe('UserController', () => {
       expect(service.updateAccount).toHaveBeenCalledWith(mockUser, dto);
     });
   });
-
+  describe('changePassword', () => {
+    it('Should call changePassword in service and return message', async () => {
+      const message = 'Mot de passe mis à jour';
+      const dto = { oldPassword: 'oldPassword', password: 'newPassword' };
+      jest.spyOn(service, 'changePassword').mockResolvedValue({ message });
+      await expect(controller.changePassword(userMock, dto)).resolves.toEqual({
+        message,
+      });
+    });
+  });
   describe('deleteAccount', () => {
     it('should call service.deleteAccount and return message', async () => {
       const expected = { message: 'Your account gonna be deleted !' };

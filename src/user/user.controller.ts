@@ -15,6 +15,7 @@ import { updateAccountDTO } from './dto';
 import { UserService } from './user.service';
 import { queryUserList } from 'src/utils/type';
 import { ApiResponse } from '@nestjs/swagger';
+import { changePasswordDTO } from './dto/change.password.dto';
 
 @UseGuards(JwtGuard)
 @Controller('user')
@@ -37,7 +38,12 @@ export class UserController {
     return this.userService.updateAccount(user, dto);
   }
 
-  @Patch('account/desactivate')
+  @Patch('changePassword')
+  changePassword(@GetUser() user: User, @Body() dto: changePasswordDTO) {
+    return this.userService.changePassword(user, dto);
+  }
+
+  @Delete('account/desactivate')
   deleteAccount(@GetUser() user: User) {
     return this.userService.deleteAccount(user);
   }

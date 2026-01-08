@@ -1,5 +1,5 @@
 import { NotFoundException } from '@nestjs/common';
-import { app, prisma } from './setup.e2e';
+import { app, cookie, prisma } from './setup.e2e';
 import * as req from 'supertest';
 import { resMessageType } from 'src/utils/type';
 describe('Section (e2e)', () => {
@@ -162,8 +162,50 @@ describe('Section (e2e)', () => {
         );
     });
   });
+  describe('/(PATCH) changePassword', () => {
+    const path = '/user/changePassword';
+    it('Should fail, Need a cookie (401)', async () => {
+      return req(app.getHttpServer())
+        .patch(path)
+        .expect(401)
+        .expect((res: resMessageType) =>
+          expect(res.body.message).toContain('Unauthorized'),
+        );
+    });
+    it('Should fail, dto error (400)', async () => {
+      return req(app.getHttpServer())
+        .patch(path)
+        .set('Cookie', cookie)
+        .expect(400)
+        .expect((err: resMessageType) =>
+          expect(err.body.message[0]).toContain('password'),
+        );
+    });
+    it('Should fail, invalid verify password (403)', async () => {
+      return req(app.getHttpServer())
+        .patch(path)
+        .set('Cookie', cookie)
+        .send({
+          oldPassword: 'OldOtherP@ssword73',
+          password: 'StrongP@ssword73',
+        })
+        .expect(403)
+        .expect((err: resMessageType) =>
+          expect(err.body.message).toContain('incorrecte'),
+        );
+    });
+    it('Should succes, password changed', async () => {
+      return req(app.getHttpServer())
+        .patch(path)
+        .set('Cookie', cookie)
+        .send({
+          oldPassword: 'StrongP@ssword73',
+          password: 'StrongP@ssword73',
+        })
+        .expect(200);
+    });
+  });
   describe('/ (PATCH or DELETE) MyAccount', () => {});
-  describe('/ (GET) MyAccount', () => {});
   describe('/ (PATCH) MyAccount', () => {});
   describe('/ (PATCH) MyAccount', () => {});
 });

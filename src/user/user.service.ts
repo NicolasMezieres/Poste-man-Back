@@ -9,7 +9,8 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { isNextPage, pagination } from 'src/utils/pagination';
 import { updateAccountDTO } from './dto';
 import { queryUserList } from 'src/utils/type';
-
+import { changePasswordDTO } from './dto/change.password.dto';
+import * as argon from 'argon2';
 @Injectable()
 export class UserService {
   constructor(private prisma: PrismaService) {}
@@ -53,6 +54,31 @@ export class UserService {
       select: null,
     });
     return { message: 'Your account has been updated.' };
+  }
+
+  async changePassword(user: User, dto: changePasswordDTO) {
+    const existingUser = await this.prisma.user.findUnique({
+      where: { id: user.id, isActive: true },
+      select: { id: true, password: true },
+    });
+
+    if (!existingUser) {
+      throw new NotFoundException('Compte introuvable');
+    }
+    const isSamePassword = await argon.verify(
+      existingUser.password,
+      dto.oldPassword,
+    );
+    if (!isSamePassword) {
+      throw new ForbiddenException('Mot de passe incorrecte');
+    }
+    const newPassword = await argon.hash(dto.password);
+    await this.prisma.user.update({
+      where: { id: existingUser.id },
+      data: { password: newPassword },
+      select: null,
+    });
+    return { message: 'Mot de passe mis à jour' };
   }
 
   async deleteAccount(user: User) {
