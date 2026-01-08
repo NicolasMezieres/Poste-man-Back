@@ -5,4 +5,5 @@ export const mockUserService = {
   listUser: jest.fn(),
   banUser: jest.fn(),
   deleteUser: jest.fn(),
+  changePassword: jest.fn(),
 };

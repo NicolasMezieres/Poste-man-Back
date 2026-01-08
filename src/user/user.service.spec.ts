@@ -9,7 +9,7 @@ import { mockPrisma } from './mock/prisma.mock';
 import { mockUser, mockUserUpdate } from './mock/user.mock';
 import { UserService } from './user.service';
 import { userMock } from 'src/auth/mock/auth.mock';
-
+import * as argon from 'argon2';
 jest.mock('src/utils/pagination.ts', () => ({
   pagination: jest.fn().mockReturnValue(0),
   isNextPage: jest.fn().mockReturnValue(false),
@@ -67,6 +67,36 @@ describe('UserService', () => {
         new ForbiddenException('Pseudonyme déjà utilisé'),
       );
       expect(mockPrisma.user.update).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('changePassword', () => {
+    const dto = { oldPassword: 'oldPassword', password: 'password' };
+    it('Should fail, not found account', async () => {
+      jest.spyOn(mockPrisma.user, 'findUnique').mockReturnValue(undefined);
+      await expect(service.changePassword(userMock, dto)).rejects.toEqual(
+        new NotFoundException('Compte introuvable'),
+      );
+    });
+    it('Should fail, password incorrect', async () => {
+      jest
+        .spyOn(mockPrisma.user, 'findUnique')
+        .mockReturnValue({ id: 'id', password: 'oldPassword' });
+      jest.spyOn(argon, 'verify').mockResolvedValue(false);
+      await expect(service.changePassword(userMock, dto)).rejects.toEqual(
+        new ForbiddenException('Mot de passe incorrecte'),
+      );
+    });
+    it('Should succes password updated', async () => {
+      jest
+        .spyOn(mockPrisma.user, 'findUnique')
+        .mockReturnValue({ id: 'id', password: 'oldPassword' });
+      jest.spyOn(argon, 'verify').mockResolvedValue(true);
+      jest.spyOn(argon, 'hash');
+      jest.spyOn(mockPrisma.user, 'update').mockReturnValue(null);
+      await expect(service.changePassword(userMock, dto)).resolves.toEqual({
+        message: 'Mot de passe mis à jour',
+      });
     });
   });
 
