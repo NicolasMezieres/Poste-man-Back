@@ -12,4 +12,5 @@ export const sectionPrismaMock = {
   project: {
     findUnique: jest.fn(),
   },
+  post: { updateMany: jest.fn() },
 };

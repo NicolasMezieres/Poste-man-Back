@@ -23,31 +23,31 @@ describe('CronService', () => {
 
     jest.clearAllMocks();
   });
-
-  describe('handleIsArchiveSection', () => {
-    it('should delete archived sections and log result', async () => {
-      mockPrismaService.section.deleteMany.mockResolvedValue({ count: 3 });
-      await service.handleIsArchiveSection();
+  describe('clear Archive', () => {
+    it('Should clear post,section,message,project,account archived', async () => {
+      mockPrismaService.post.deleteMany.mockReturnValue({ count: 3 });
+      mockPrismaService.section.deleteMany.mockReturnValue({ count: 5 });
+      mockPrismaService.message.deleteMany.mockReturnValue({ count: 1 });
+      mockPrismaService.project.deleteMany.mockReturnValue({ count: 3 });
+      mockPrismaService.user.deleteMany.mockReturnValue({ count: 2 });
+      await service.clearArchive();
+      expect(prisma.post.deleteMany).toHaveBeenCalledWith({
+        where: { OR: [{ isArchive: true }, { section: { isArchive: true } }] },
+      });
       expect(prisma.section.deleteMany).toHaveBeenCalledWith({
         where: { isArchive: true },
       });
-      expect(mockLogger.log).toHaveBeenCalledWith('3 section delete');
-    });
-  });
-
-  describe('handleIsArchiveMessage', () => {
-    it('should delete archived messages and log result', async () => {
-      mockPrismaService.message.deleteMany.mockResolvedValue({ count: 5 });
-
-      await service.handleIsArchiveMessage();
-
       expect(prisma.message.deleteMany).toHaveBeenCalledWith({
         where: { isArchive: true },
       });
-      expect(mockLogger.log).toHaveBeenCalledWith('5 message delete');
+      expect(prisma.project.deleteMany).toHaveBeenCalledWith({
+        where: { isArchive: true },
+      });
+      expect(prisma.user.deleteMany).toHaveBeenCalledWith({
+        where: { isArchive: true },
+      });
     });
   });
-
   describe('handleLinkProject', () => {
     it('should delete outdated links and log when count > 0', async () => {
       const now = new Date();
@@ -76,57 +76,6 @@ describe('CronService', () => {
       expect(mockLogger.log).not.toHaveBeenCalled();
     });
   });
-
-  describe('handleAccountDelete', () => {
-    it('should delete archived users and log result', async () => {
-      mockPrismaService.user.deleteMany.mockResolvedValue({ count: 4 });
-
-      await service.handleAccountDelete();
-
-      expect(prisma.user.deleteMany).toHaveBeenCalledWith({
-        where: { isArchive: true },
-      });
-      expect(mockLogger.log).toHaveBeenCalledWith('4 account deleted');
-    });
-  });
-  describe('handleAccountBanned', () => {
-    it('should delete banned archived users and log result', async () => {
-      mockPrismaService.user.deleteMany.mockResolvedValue({ count: 2 });
-
-      await service.handleAccountBanned();
-
-      expect(prisma.user.deleteMany).toHaveBeenCalledWith({
-        where: { isActive: false, isArchive: true },
-      });
-      expect(mockLogger.log).toHaveBeenCalledWith('2 account ban deleted');
-    });
-  });
-  describe('handleProjectDelete', () => {
-    it('should delete archived projects and log result', async () => {
-      mockPrismaService.project.deleteMany.mockResolvedValue({ count: 6 });
-
-      await service.handleProjectDelete();
-
-      expect(prisma.project.deleteMany).toHaveBeenCalledWith({
-        where: { isArchive: true },
-      });
-      expect(mockLogger.log).toHaveBeenCalledWith('6 project archived deleted');
-    });
-  });
-
-  describe('handlePostDelete', () => {
-    it('should delete archived post and log result', async () => {
-      mockPrismaService.post.deleteMany.mockResolvedValue({ count: 6 });
-
-      await service.handlePostDelete();
-
-      expect(prisma.post.deleteMany).toHaveBeenCalledWith({
-        where: { isArchive: true },
-      });
-      expect(mockLogger.log).toHaveBeenCalledWith('6 post archived delete');
-    });
-  });
-
   it('should be defined', () => {
     expect(service).toBeDefined();
   });

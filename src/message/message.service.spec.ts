@@ -253,10 +253,11 @@ describe('MessageService', () => {
       ).resolves.toEqual({
         message: 'Message deleted !',
       });
-      expect(messagePrismaMock.message.delete).toHaveBeenCalledWith({
+      expect(messagePrismaMock.message.update).toHaveBeenCalledWith({
         where: {
           id: messageId,
         },
+        data: { isArchive: true },
       });
       expect(messageGatewayMock.emitDeleteMessage).toHaveBeenCalledWith(
         existingMessage.id,
@@ -272,10 +273,11 @@ describe('MessageService', () => {
       ).resolves.toEqual({
         message: 'Message deleted !',
       });
-      expect(messagePrismaMock.message.delete).toHaveBeenCalledWith({
+      expect(messagePrismaMock.message.update).toHaveBeenCalledWith({
         where: {
           id: messageId,
         },
+        data: { isArchive: true },
       });
       expect(messageGatewayMock.emitDeleteMessage).toHaveBeenCalledWith(
         existingMessage.id,
@@ -297,10 +299,11 @@ describe('MessageService', () => {
       ).resolves.toEqual({
         message: 'Message deleted !',
       });
-      expect(messagePrismaMock.message.delete).toHaveBeenCalledWith({
+      expect(messagePrismaMock.message.update).toHaveBeenCalledWith({
         where: {
           id: messageId,
         },
+        data: { isArchive: true },
       });
       expect(messageGatewayMock.emitDeleteMessage).toHaveBeenCalledWith(
         existingMessage.id,

@@ -117,7 +117,11 @@ describe('UserService', () => {
     it('should desactivate and archive account', async () => {
       mockPrisma.user.findUnique.mockResolvedValue(mockUser);
       mockPrisma.user.update.mockResolvedValue(undefined);
-
+      mockPrisma.post.updateMany.mockResolvedValue(undefined);
+      mockPrisma.section.updateMany.mockResolvedValue(undefined);
+      mockPrisma.message.updateMany.mockResolvedValue(undefined);
+      mockPrisma.project.updateMany.mockResolvedValue(undefined);
+      mockPrisma.$transaction.mockResolvedValue(undefined);
       const result = await service.deleteAccount(mockUser);
       expect(result).toEqual({ message: 'Your account gonna be deleted !' });
       expect(mockPrisma.user.update).toHaveBeenCalledWith({

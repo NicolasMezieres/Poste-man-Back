@@ -63,7 +63,10 @@ export class AuthService {
     }
     const hashPassword = await argon.hash(dto.password);
     const activateToken = await argon.hash(dto.password + dto.email);
-    const newToken = activateToken.replaceAll('/', '').replaceAll('=', '');
+    const newToken = activateToken
+      .replaceAll('/', '')
+      .replaceAll('=', '')
+      .replaceAll('+', '');
     const newUser = await this.prisma.user.create({
       data: {
         ...dto,

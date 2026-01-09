@@ -11,6 +11,7 @@ import { updateAccountDTO } from './dto';
 import { queryUserList } from 'src/utils/type';
 import { changePasswordDTO } from './dto/change.password.dto';
 import * as argon from 'argon2';
+import { roleProject } from 'src/utils/enum';
 @Injectable()
 export class UserService {
   constructor(private prisma: PrismaService) {}
@@ -90,6 +91,51 @@ export class UserService {
     if (!existingAccount) {
       throw new InternalServerErrorException('Contact Support for more help.');
     }
+    await this.prisma.$transaction([
+      this.prisma.post.updateMany({
+        where: { userId: user.id },
+        data: { isArchive: true },
+      }),
+      this.prisma.section.updateMany({
+        where: {
+          project: {
+            users: {
+              some: {
+                userId: user.id,
+                role: { name: roleProject.MODERATOR },
+              },
+            },
+          },
+        },
+        data: { isArchive: true },
+      }),
+      this.prisma.message.updateMany({
+        where: {
+          OR: [
+            { user: { id: user.id } },
+            {
+              project: {
+                users: {
+                  some: {
+                    userId: user.id,
+                    role: { name: roleProject.MODERATOR },
+                  },
+                },
+              },
+            },
+          ],
+        },
+        data: { isArchive: true },
+      }),
+      this.prisma.project.updateMany({
+        where: {
+          users: {
+            some: { userId: user.id, role: { name: roleProject.MODERATOR } },
+          },
+        },
+        data: { isArchive: true },
+      }),
+    ]);
     await this.prisma.user.update({
       where: { id: user.id },
       data: {

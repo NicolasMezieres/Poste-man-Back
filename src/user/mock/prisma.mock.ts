@@ -6,4 +6,13 @@ export const mockPrisma = {
     count: jest.fn(),
     findMany: jest.fn(),
   },
+  post: {
+    updateMany: jest.fn(),
+  },
+  section: {
+    updateMany: jest.fn(),
+  },
+  message: { updateMany: jest.fn() },
+  project: { updateMany: jest.fn() },
+  $transaction: jest.fn(),
 };

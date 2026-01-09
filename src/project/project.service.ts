@@ -369,14 +369,17 @@ export class ProjectService {
     const isModerator = didUserInProject?.role.name === roleProject.MODERATOR;
     if (isModerator || isAdmin) {
       await this.prisma.$transaction(async (tPrisma) => {
-        await tPrisma.post.deleteMany({
+        await tPrisma.post.updateMany({
           where: { section: { projectId: existingProject.id } },
+          data: { isArchive: true },
         });
-        await tPrisma.section.deleteMany({
+        await tPrisma.section.updateMany({
           where: { projectId: existingProject.id },
+          data: { isArchive: true },
         });
-        await tPrisma.message.deleteMany({
+        await tPrisma.message.updateMany({
           where: { projectId: existingProject.id },
+          data: { isArchive: true },
         });
         await tPrisma.project.update({
           where: { id: existingProject.id },
