@@ -251,6 +251,7 @@ describe('SectionService', () => {
         id: 'sectionId',
         projectId: 'projectId',
       });
+      jest.spyOn(prisma.post, 'updateMany').mockResolvedValue(null);
       jest.spyOn(prisma.section, 'update').mockResolvedValue(null);
       await expect(
         service.removeSection('sectionId', adminWithRoleMock),

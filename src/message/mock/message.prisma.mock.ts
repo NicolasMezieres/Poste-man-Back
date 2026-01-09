@@ -6,6 +6,7 @@ export const messagePrismaMock = {
     findFirst: jest.fn(),
     delete: jest.fn(),
     updateMany: jest.fn(),
+    update: jest.fn(),
   },
   project: {
     findUnique: jest.fn(),

@@ -10,26 +10,27 @@ export class CronService {
   ) {}
 
   @Cron(CronExpression.EVERY_MINUTE)
-  async handleIsArchiveSection() {
-    await this.prisma.post.deleteMany({
-      where: { section: { isArchive: true } },
+  async clearArchive() {
+    const countPostDeleted = await this.prisma.post.deleteMany({
+      where: { OR: [{ isArchive: true }, { section: { isArchive: true } }] },
     });
-    const result = await this.prisma.section.deleteMany({
-      where: {
-        isArchive: true,
-      },
+    this.logger.log(`${countPostDeleted.count} post archived delete`);
+    const countSectionDeleted = await this.prisma.section.deleteMany({
+      where: { isArchive: true },
     });
-    this.logger.log(`${result.count} section delete`);
-  }
-
-  @Cron(CronExpression.EVERY_MINUTE)
-  async handleIsArchiveMessage() {
-    const result = await this.prisma.message.deleteMany({
-      where: {
-        isArchive: true,
-      },
+    this.logger.log(`${countSectionDeleted.count} section delete`);
+    const countMessageDeleted = await this.prisma.message.deleteMany({
+      where: { isArchive: true },
     });
-    this.logger.log(`${result.count} message delete`);
+    this.logger.log(`${countMessageDeleted.count} message delete`);
+    const countProjectDelete = await this.prisma.project.deleteMany({
+      where: { isArchive: true },
+    });
+    this.logger.log(`${countProjectDelete.count} project delete`);
+    const countAccountDelete = await this.prisma.user.deleteMany({
+      where: { isArchive: true },
+    });
+    this.logger.log(`${countAccountDelete.count} account delete`);
   }
 
   @Cron(CronExpression.EVERY_MINUTE)
@@ -41,44 +42,5 @@ export class CronService {
     if (result.count > 0) {
       this.logger.log(`${result.count} lien(s) expiré(s) supprimé(s)`);
     }
-  }
-
-  @Cron(CronExpression.EVERY_MINUTE)
-  async handleAccountDelete() {
-    const result = await this.prisma.user.deleteMany({
-      where: {
-        isArchive: true,
-      },
-    });
-    this.logger.log(`${result.count} account deleted`);
-  }
-
-  @Cron(CronExpression.EVERY_MINUTE)
-  async handleAccountBanned() {
-    const result = await this.prisma.user.deleteMany({
-      where: {
-        isActive: false,
-        isArchive: true,
-      },
-    });
-    this.logger.log(`${result.count} account ban deleted`);
-  }
-
-  @Cron(CronExpression.EVERY_MINUTE)
-  async handleProjectDelete() {
-    const result = await this.prisma.project.deleteMany({
-      where: {
-        isArchive: true,
-      },
-    });
-    this.logger.log(`${result.count} project archived deleted`);
-  }
-
-  @Cron(CronExpression.EVERY_MINUTE)
-  async handlePostDelete() {
-    const result = await this.prisma.post.deleteMany({
-      where: { isArchive: true },
-    });
-    this.logger.log(`${result.count} post archived delete`);
   }
 }

@@ -84,7 +84,11 @@ export class MessageService {
     const take = 10;
     const skip = Number(query.items) || 0;
     const messages = await this.prisma.message.findMany({
-      where: { projectId: existingProject.id, isVisible: true },
+      where: {
+        projectId: existingProject.id,
+        isVisible: true,
+        isArchive: false,
+      },
       select: {
         id: true,
         message: true,
@@ -171,8 +175,9 @@ export class MessageService {
         throw new ForbiddenException('You are unauthorized !');
       }
     }
-    await this.prisma.message.delete({
+    await this.prisma.message.update({
       where: { id: existingMessage.id },
+      data: { isArchive: true },
     });
 
     this.socket.emitDeleteMessage(

@@ -15,7 +15,7 @@ export class SectionService {
   constructor(private prisma: PrismaService) {}
   async sections(projectId: string, user: UserWithRole) {
     const existingProject = await this.prisma.project.findUnique({
-      where: { id: projectId },
+      where: { id: projectId, isArchive: false },
       select: {
         id: true,
         section: { where: { isArchive: false } },
@@ -135,6 +135,10 @@ export class SectionService {
         throw new ForbiddenException('You are unauthorized !');
       }
     }
+    await this.prisma.post.updateMany({
+      where: { sectionId },
+      data: { isArchive: true },
+    });
     await this.prisma.section.update({
       where: { id: sectionId },
       data: {

@@ -27,10 +27,10 @@ export class PostService {
 
   async posts(sectionId: string, user: UserWithRole) {
     const existingSection = await this.prisma.section.findUnique({
-      where: { id: sectionId },
+      where: { id: sectionId, isArchive: false },
       select: {
         post: {
-          where: { isVisible: true },
+          where: { isVisible: true, isArchive: false },
           include: {
             user: {
               select: {
