@@ -177,7 +177,6 @@ export class UserService {
           ],
         },
         omit: {
-          iconId: true,
           roleId: true,
           isArchive: true,
           activateToken: true,

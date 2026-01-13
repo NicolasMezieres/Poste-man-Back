@@ -197,4 +197,12 @@ describe('UserService', () => {
   it('should be defined', () => {
     expect(service).toBeDefined();
   });
+  describe('changeAvatar', () => {
+    it('Should change avatar', async () => {
+      mockPrisma.user.update.mockResolvedValue(null);
+      await expect(
+        service.changeAvatar(mockUser, { icon: 'cat' }),
+      ).resolves.toEqual({ message: 'Avatar modifié' });
+    });
+  });
 });
