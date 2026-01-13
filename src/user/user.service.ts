@@ -12,6 +12,7 @@ import { queryUserList } from 'src/utils/type';
 import { changePasswordDTO } from './dto/change.password.dto';
 import * as argon from 'argon2';
 import { roleProject } from 'src/utils/enum';
+import { changeAvatarDTO } from './dto/change.avatar.dto';
 @Injectable()
 export class UserService {
   constructor(private prisma: PrismaService) {}
@@ -223,5 +224,11 @@ export class UserService {
       },
     });
     return { message: 'User has been deleted' };
+  }
+  async changeAvatar(user: User, dto: changeAvatarDTO) {
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: { icon: dto.icon },
+    });
   }
 }
