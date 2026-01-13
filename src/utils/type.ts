@@ -54,9 +54,7 @@ export type userGateway = {
 };
 export type userDataGateway = {
   username: string;
-  icon: {
-    image: string;
-  } | null;
+  icon: string | null;
 };
 export type memberGateway = {
   user: userDataGateway;

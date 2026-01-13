@@ -171,7 +171,7 @@ export class ProjectService {
       select: {
         userId: true,
         user: {
-          select: { username: true, icon: { select: { image: true } } },
+          select: { username: true, icon: true },
         },
         isBanned: true,
       },
@@ -275,7 +275,7 @@ export class ProjectService {
           userId: true,
           isBanned: true,
           user: {
-            select: { username: true, icon: { select: { image: true } } },
+            select: { username: true, icon: true },
           },
         },
       }),
@@ -425,7 +425,7 @@ export class ProjectService {
             userId: true,
             isBanned: true,
             user: {
-              select: { username: true, icon: { select: { image: true } } },
+              select: { username: true, icon: true },
             },
           },
         },
