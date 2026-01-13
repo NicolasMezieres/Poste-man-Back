@@ -205,7 +205,31 @@ describe('Section (e2e)', () => {
         .expect(200);
     });
   });
-  describe('/ (PATCH or DELETE) MyAccount', () => {});
-  describe('/ (PATCH) MyAccount', () => {});
-  describe('/ (PATCH) MyAccount', () => {});
+  describe('changeAvatar', () => {
+    const path = '/user/changeAvatar';
+    it('Should fail, Need a cookie (401)', async () => {
+      return req(app.getHttpServer())
+        .patch(path)
+        .expect(401)
+        .expect((err: resMessageType) =>
+          expect(err.body.message).toContain('Unauthorized'),
+        );
+    });
+    it('Should fail invalid dto (400)', async () => {
+      return req(app.getHttpServer())
+        .patch(path)
+        .set('Cookie', cookie)
+        .expect(400)
+        .expect((err: resMessageType) =>
+          expect(err.body.message[0]).toContain('icon'),
+        );
+    });
+    it('Should succes avatar changed (200)', async () => {
+      return req(app.getHttpServer())
+        .patch(path)
+        .set('Cookie', cookie)
+        .send({ icon: 'cat' })
+        .expect(200);
+    });
+  });
 });

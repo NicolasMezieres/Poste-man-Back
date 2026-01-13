@@ -13,14 +13,11 @@ export const mockUser = {
   gdpr: true,
   createdAt: new Date('2025-09-06'),
   updatedAt: new Date('2025-09-06'),
-  icon: {
-    id: 1,
-    url: 'https://example.com/icon.png',
-  },
   role: {
     id: '1',
     name: 'MEMBER',
   },
+  icon: '',
   participationProject: [],
   message: [],
   post: [],
@@ -40,12 +37,9 @@ export const mockUserUpdate = {
   isArchive: false,
   activateToken: null,
   gdpr: true,
+  icon: '',
   createdAt: new Date('2025-09-06'),
   updatedAt: new Date('2025-09-06'),
-  icon: {
-    id: 1,
-    url: 'https://example.com/icon.png',
-  },
   role: {
     id: '1',
     name: 'MEMBER',
