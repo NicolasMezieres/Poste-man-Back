@@ -230,5 +230,6 @@ export class UserService {
       where: { id: user.id },
       data: { icon: dto.icon },
     });
+    return { message: 'Avatar modifié' };
   }
 }
