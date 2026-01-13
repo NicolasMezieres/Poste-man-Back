@@ -23,7 +23,6 @@ export class UserService {
       firstName: user.firstName,
       email: user.email,
       username: user.username,
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       icon: user.icon,
     };
     return { data };
