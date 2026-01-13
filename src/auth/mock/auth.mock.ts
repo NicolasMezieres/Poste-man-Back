@@ -27,6 +27,7 @@ export const roleMock = {
 export const userMock = {
   id: '1',
   roleId: '1',
+  icon: null,
   firstName: 'Unit',
   lastName: 'TestUnit',
   username: 'UnitTest',
