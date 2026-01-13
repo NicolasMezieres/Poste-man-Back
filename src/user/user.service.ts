@@ -23,6 +23,7 @@ export class UserService {
       firstName: user.firstName,
       email: user.email,
       username: user.username,
+      icon: user.icon,
     };
     return { data };
   }

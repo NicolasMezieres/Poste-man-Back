@@ -107,6 +107,7 @@ describe('UserService', () => {
         firstName: userMock.firstName,
         lastName: userMock.lastName,
         username: userMock.username,
+        icon: null,
       };
       const result = service.myAccount(userMock);
       expect(result).toEqual({ data });
