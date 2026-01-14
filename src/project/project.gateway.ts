@@ -88,6 +88,7 @@ export class ProjectGateway implements OnGatewayDisconnect {
         clientId: client.id,
         userId: user.id,
         projectMemberIds: [],
+        icon: user.icon,
       });
       this.emitUserStatus(user.id, true);
     }

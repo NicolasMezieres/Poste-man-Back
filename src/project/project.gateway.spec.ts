@@ -29,7 +29,12 @@ describe('ProjectGateway', () => {
   describe('handle disconnect', () => {
     it('should disconnect and emit ', () => {
       gateway['userConnected'] = [
-        { clientId: socketMock.id, userId: userMock.id, projectMemberIds: [] },
+        {
+          clientId: socketMock.id,
+          userId: userMock.id,
+          projectMemberIds: [],
+          icon: userMock.icon,
+        },
       ];
       const emitUserSpyon = jest.spyOn(gateway, 'emitUserStatus');
       expect(gateway.handleDisconnect(socketMock));
@@ -43,8 +48,18 @@ describe('ProjectGateway', () => {
     });
     it('should not emit if another session user is already connected', () => {
       gateway['userConnected'] = [
-        { clientId: socketMock.id, userId: userMock.id, projectMemberIds: [] },
-        { clientId: '2', userId: userMock.id, projectMemberIds: [] },
+        {
+          clientId: socketMock.id,
+          userId: userMock.id,
+          projectMemberIds: [],
+          icon: userMock.icon,
+        },
+        {
+          clientId: '2',
+          userId: userMock.id,
+          projectMemberIds: [],
+          icon: userMock.icon,
+        },
       ];
       const emitUserSpyon = jest.spyOn(gateway, 'emitUserStatus');
       expect(gateway.handleDisconnect(socketMock));
@@ -61,6 +76,7 @@ describe('ProjectGateway', () => {
           userId: userMock.id,
           clientId: socketMock.id,
           projectMemberIds: [],
+          icon: userMock.icon,
         },
       ]);
     });
@@ -70,6 +86,7 @@ describe('ProjectGateway', () => {
           userId: userMock.id,
           clientId: socketMock.id,
           projectMemberIds: [],
+          icon: userMock.icon,
         },
       ];
       const emitUserStatusSpy = jest.spyOn(gateway, 'emitUserStatus');
@@ -85,6 +102,7 @@ describe('ProjectGateway', () => {
           clientId: 'clientId',
           projectMemberIds: [userMock.id],
           projectId: projectId,
+          icon: userMock.icon,
         },
       ];
       const status = 'online';
@@ -102,11 +120,13 @@ describe('ProjectGateway', () => {
           clientId: socketMock.id,
           projectMemberIds: [],
           projectId: projectId,
+          icon: userMock.icon,
         },
         {
           userId: 'userId',
           clientId: 'clientId',
           projectMemberIds: [],
+          icon: userMock.icon,
         },
       ];
       jest
@@ -124,6 +144,7 @@ describe('ProjectGateway', () => {
           clientId: socketMock.id,
           projectMemberIds: [],
           projectId: projectId,
+          icon: userMock.icon,
         },
       ];
       const members = dataMemberMock;
@@ -145,7 +166,7 @@ describe('ProjectGateway', () => {
   describe('emit User Update Project', () => {
     it('Should emit user join project', () => {
       const data = {
-        user: { username: 'username', icon: { image: 'image' } },
+        user: { username: 'username', icon: 'squirrel' },
         userId: '2',
         isBanned: false,
       };
@@ -155,6 +176,7 @@ describe('ProjectGateway', () => {
           clientId: socketMock.id,
           projectMemberIds: [],
           projectId: projectId,
+          icon: userMock.icon,
         },
       ];
       expect(gateway.emitUserUpdateProject(data, projectId, true));
@@ -168,7 +190,7 @@ describe('ProjectGateway', () => {
     });
     it('Should emit user leave project', () => {
       const data = {
-        user: { username: 'username', icon: { image: 'image' } },
+        user: { username: 'username', icon: 'cat' },
         userId: '2',
         isBanned: false,
       };
@@ -178,6 +200,7 @@ describe('ProjectGateway', () => {
           clientId: socketMock.id,
           projectMemberIds: ['2'],
           projectId: projectId,
+          icon: userMock.icon,
         },
       ];
       expect(gateway.emitUserUpdateProject(data, projectId, false));
@@ -190,7 +213,7 @@ describe('ProjectGateway', () => {
     });
     it('Should disconnect user socket', () => {
       const data = {
-        user: { username: 'username', icon: { image: 'image' } },
+        user: { username: 'username', icon: 'fox' },
         userId: userMock.id,
         isBanned: false,
       };
@@ -200,6 +223,7 @@ describe('ProjectGateway', () => {
           clientId: socketMock.id,
           projectMemberIds: [userMock.id],
           projectId: projectId,
+          icon: userMock.icon,
         },
       ];
       expect(gateway.emitUserUpdateProject(data, projectId, false));

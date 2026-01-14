@@ -51,6 +51,7 @@ export type userGateway = {
   userId: string;
   projectMemberIds: string[];
   projectId?: string;
+  icon: string | null;
 };
 export type userDataGateway = {
   username: string;
