@@ -43,6 +43,7 @@ export class WsJwtStrategy extends PassportStrategy(Strategy, 'wsJwt') {
         lastName: true,
         username: true,
         email: true,
+        icon: true,
       },
     });
     if (!user) {

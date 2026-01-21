@@ -73,6 +73,7 @@ export type postType = {
   vote: voteType[];
   text: string;
   id: string;
+  isVisible: boolean;
   isArchive: boolean;
   createdAt: Date;
   updatedAt: Date;

@@ -98,7 +98,7 @@ export class ProjectGateway implements OnGatewayDisconnect {
     const status = isConnected ? 'online' : 'offline';
     this.userConnected.forEach((user) => {
       if (user.projectMemberIds.includes(userId)) {
-        this.server.to(user.clientId).emit(status, { userId });
+        this.server.to(user.clientId).emit('auth', { userId, action: status });
       }
     });
   }
@@ -116,20 +116,48 @@ export class ProjectGateway implements OnGatewayDisconnect {
       if (user.projectId === projectId) {
         if (isUserJoin && !user.projectMemberIds.includes(data.userId)) {
           user.projectMemberIds.push(data.userId);
-          this.server
-            .to(user.clientId)
-            .emit('userJoinProject', { ...data, isConnected: isConnected });
+          this.server.to(user.clientId).emit('auth', {
+            ...data,
+            isConnected: isConnected,
+            action: 'userJoinProject',
+          });
         } else if (!isUserJoin && user.projectMemberIds.includes(data.userId)) {
           user.projectMemberIds = user.projectMemberIds.filter(
             (userList) => userList !== data.userId,
           );
           if (user.userId === data.userId) {
+            console.log("coucou c'est kick ici");
+            this.server.to(user.clientId).emit('auth', { action: 'kicked' });
             this.server.to(user.clientId).disconnectSockets();
           } else {
-            this.server
-              .to(user.clientId)
-              .emit('userLeaveProject', { userId: data.userId });
+            this.server.to(user.clientId).emit('auth', {
+              userId: data.userId,
+              action: 'userLeaveProject',
+            });
           }
+        }
+      }
+    });
+  }
+  emitUserBanned(userId: string, projectId: string, isUserBan: boolean) {
+    const existingUser = this.userConnected.some(
+      (user) => user.userId === userId,
+    );
+    const isConnected = existingUser ? true : false;
+    this.userConnected.forEach((user) => {
+      if (user.projectId === projectId) {
+        if (user.userId === userId && isConnected && isUserBan) {
+          console.log("coucou c'est ban ici");
+          this.server.to(user.clientId).emit('auth', { action: 'banned' });
+          this.server.to(user.clientId).disconnectSockets();
+        } else if (isUserBan) {
+          this.server
+            .to(user.clientId)
+            .emit('auth', { userId, action: 'userBanned' });
+        } else if (!isUserBan) {
+          this.server
+            .to(user.clientId)
+            .emit('auth', { userId, isConnected, action: 'userUnBanned' });
         }
       }
     });
