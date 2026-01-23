@@ -177,9 +177,6 @@ describe('Post (e2e)', () => {
         );
     });
     it('Should Create Post', async () => {
-      if (!sectionId) {
-        console.log(sectionId);
-      }
       return req(app.getHttpServer())
         .post(path + sectionId)
         .set('Cookie', cookie)

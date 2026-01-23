@@ -4,4 +4,5 @@ export const projectGatewayMock = {
   newConnectedUser: jest.fn(),
   emitUserStatus: jest.fn(),
   emitUserUpdateProject: jest.fn(),
+  emitUserBanned: jest.fn(),
 };

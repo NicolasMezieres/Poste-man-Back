@@ -107,7 +107,8 @@ describe('ProjectGateway', () => {
       ];
       const status = 'online';
       expect(gateway.emitUserStatus(userMock.id, true));
-      expect(serverMock.to('clientId').emit).toHaveBeenCalledWith(status, {
+      expect(serverMock.to('clientId').emit).toHaveBeenCalledWith('auth', {
+        action: status,
         userId: userMock.id,
       });
     });
@@ -181,10 +182,11 @@ describe('ProjectGateway', () => {
       ];
       expect(gateway.emitUserUpdateProject(data, projectId, true));
       expect(gateway.server.to(socketMock.id).emit).toHaveBeenCalledWith(
-        'userJoinProject',
+        'auth',
         {
           ...data,
           isConnected: false,
+          action: 'userJoinProject',
         },
       );
     });
@@ -205,9 +207,10 @@ describe('ProjectGateway', () => {
       ];
       expect(gateway.emitUserUpdateProject(data, projectId, false));
       expect(gateway.server.to(socketMock.id).emit).toHaveBeenCalledWith(
-        'userLeaveProject',
+        'auth',
         {
           userId: '2',
+          action: 'userLeaveProject',
         },
       );
     });

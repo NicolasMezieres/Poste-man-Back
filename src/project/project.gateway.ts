@@ -126,7 +126,6 @@ export class ProjectGateway implements OnGatewayDisconnect {
             (userList) => userList !== data.userId,
           );
           if (user.userId === data.userId) {
-            console.log("coucou c'est kick ici");
             this.server.to(user.clientId).emit('auth', { action: 'kicked' });
             this.server.to(user.clientId).disconnectSockets();
           } else {
@@ -147,7 +146,6 @@ export class ProjectGateway implements OnGatewayDisconnect {
     this.userConnected.forEach((user) => {
       if (user.projectId === projectId) {
         if (user.userId === userId && isConnected && isUserBan) {
-          console.log("coucou c'est ban ici");
           this.server.to(user.clientId).emit('auth', { action: 'banned' });
           this.server.to(user.clientId).disconnectSockets();
         } else if (isUserBan) {
