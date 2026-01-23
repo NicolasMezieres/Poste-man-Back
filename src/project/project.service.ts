@@ -9,8 +9,8 @@ import {
 } from '@nestjs/common';
 import { User } from 'src/prisma/generated';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { isEndList } from 'src/utils/function';
 import { role, roleProject } from 'src/utils/enum';
+import { isEndList } from 'src/utils/function';
 import {
   querySearchAdminProject,
   querySearchProject,
@@ -198,15 +198,16 @@ export class ProjectService {
       data: { name: dto.name },
       select: { id: true },
     });
-    await this.prisma.user_Has_Project.create({
+
+    const idProject = await this.prisma.user_Has_Project.create({
       data: {
         userId: user.id,
         projectId: newProject.id,
         roleProjectId: moderatorRole.id,
       },
-      select: null,
+      select: { projectId: true },
     });
-    return { message: 'Project successfully create !' };
+    return { message: 'Project successfully create !', data: idProject };
   }
 
   async createInvitationLink(projectId: string, user: User) {
