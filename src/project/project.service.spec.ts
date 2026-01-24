@@ -22,7 +22,6 @@ import { MessageGateway } from 'src/message/message.gateway';
 import { messageGatewayMock } from 'src/message/mock/message.gateway.mock';
 describe('ProjectService', () => {
   let service: ProjectService;
-
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [

@@ -235,4 +235,7 @@ describe('ProjectGateway', () => {
       ).toHaveBeenCalled();
     });
   });
+  describe('emit User Banned', () => {
+    it('emit action banned and disconnect', () => {});
+  });
 });
