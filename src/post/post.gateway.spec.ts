@@ -27,6 +27,7 @@ describe('PostGateway', () => {
     text: 'text',
     id: 'postId',
     isArchive: false,
+    isVisible: true,
     poseX: 0,
     poseY: 0,
     score: 0,
@@ -101,6 +102,27 @@ describe('PostGateway', () => {
       expect(gateway.emitResetPost(projectId));
       expect(serverMock.to).toHaveBeenCalledWith(postRoom);
       expect(serverMock.emit).toHaveBeenCalledWith('post', { action: 'reset' });
+    });
+  });
+  describe('emit Update Many Post (ban or unBan post)', () => {
+    it('Should emit postsUpdate', () => {
+      gateway.emitUpdateManyPost('userId', 'id', true);
+      expect(serverMock.to).toHaveBeenCalledWith(postRoom);
+      expect(serverMock.emit).toHaveBeenCalledWith('post', {
+        action: 'postsUpdate',
+        userId: 'userId',
+        isBan: true,
+      });
+    });
+  });
+  describe('emit Kick User ', () => {
+    it('Should emit kickUser', () => {
+      gateway.emitKickUser('userId', 'id');
+      expect(serverMock.to).toHaveBeenCalledWith(postRoom);
+      expect(serverMock.emit).toHaveBeenCalledWith('post', {
+        action: 'kickUser',
+        userId: 'userId',
+      });
     });
   });
 });

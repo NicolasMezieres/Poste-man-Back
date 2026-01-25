@@ -204,12 +204,14 @@ describe('MessageService', () => {
         },
         select: {
           id: true,
+          isVisible: true,
           createdAt: true,
           updatedAt: true,
           projectId: true,
           message: true,
           user: {
             select: {
+              id: true,
               username: true,
             },
           },

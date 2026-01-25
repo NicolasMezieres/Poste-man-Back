@@ -21,7 +21,6 @@ export class PostGateway {
     @Inject(forwardRef(() => PostService))
     private post: PostService,
   ) {}
-
   @WebSocketServer() server: Server;
 
   @SubscribeMessage('postJoinRoom')
@@ -42,6 +41,16 @@ export class PostGateway {
     this.server
       .to(`post/${projectId}`)
       .emit('post', { action: 'update', post: post });
+  }
+  emitUpdateManyPost(userId: string, projectId: string, isBan: boolean) {
+    this.server
+      .to(`post/${projectId}`)
+      .emit('post', { action: 'postsUpdate', userId, isBan });
+  }
+  emitKickUser(userId: string, projectId: string) {
+    this.server
+      .to(`post/${projectId}`)
+      .emit('post', { action: 'kickUser', userId });
   }
   emitDeletePost(postId: string, projectId: string) {
     this.server

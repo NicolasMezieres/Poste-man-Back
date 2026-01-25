@@ -47,4 +47,14 @@ export class MessageGateway {
   emitResetMessage(projectId: string) {
     this.server.to(`message/${projectId}`).emit('message', { action: 'reset' });
   }
+  emitMessageBan(userId: string, projectId: string, isBanned: boolean) {
+    this.server
+      .to(`message/${projectId}`)
+      .emit('message', { action: 'ban', userId, isBanned });
+  }
+  emitMessageKick(userId: string, projectId: string) {
+    this.server
+      .to(`message/${projectId}`)
+      .emit('message', { action: 'kickUser', userId });
+  }
 }

@@ -40,7 +40,7 @@ export class PostService {
             },
             vote: { select: { isUp: true }, where: { userId: user.id } },
           },
-          omit: { isVisible: true, sectionId: true, userId: true },
+          omit: { sectionId: true, userId: true },
         },
         id: true,
         projectId: true,
@@ -52,7 +52,11 @@ export class PostService {
     }
     const isAdmin = user.role.name === role.ADMIN;
     const isUserInProject = await this.prisma.user_Has_Project.findFirst({
-      where: { userId: user.id, projectId: existingSection.projectId },
+      where: {
+        userId: user.id,
+        projectId: existingSection.projectId,
+        isBanned: false,
+      },
       select: { role: { select: { name: true } } },
     });
     if (!isAdmin && !isUserInProject) {
@@ -96,7 +100,7 @@ export class PostService {
         user: { select: { id: true, username: true } },
         vote: { select: { isUp: true }, where: { userId: user.id } },
       },
-      omit: { userId: true, isVisible: true, sectionId: true },
+      omit: { userId: true, sectionId: true },
     });
     this.socket.emitNewPost(newPost, existingSection.projectId);
     return { message: 'Post créer !' };
@@ -123,7 +127,7 @@ export class PostService {
         user: { select: { id: true, username: true } },
         vote: { select: { isUp: true }, where: { userId: user.id } },
       },
-      omit: { userId: true, isVisible: true, sectionId: true },
+      omit: { userId: true, sectionId: true },
     });
     this.socket.emitUpdatePost(updatePost, existingPost.section.projectId);
     return { message: 'Post modifier !' };
@@ -154,7 +158,7 @@ export class PostService {
         user: { select: { id: true, username: true } },
         vote: { select: { isUp: true }, where: { userId: user.id } },
       },
-      omit: { userId: true, isVisible: true, sectionId: true },
+      omit: { userId: true, sectionId: true },
     });
     this.socket.emitUpdatePost(updatePost, existingPost.section.projectId);
     return { message: 'Post mis à jour' };

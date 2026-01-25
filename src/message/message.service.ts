@@ -92,10 +92,11 @@ export class MessageService {
       select: {
         id: true,
         message: true,
-        user: { select: { username: true } },
+        user: { select: { username: true, id: true } },
         createdAt: true,
         updatedAt: true,
         isArchive: false,
+        isVisible: true,
       },
       skip,
       take,
@@ -128,12 +129,14 @@ export class MessageService {
       select: {
         id: true,
         createdAt: true,
+        isVisible: true,
         updatedAt: true,
         projectId: true,
         message: true,
         user: {
           select: {
             username: true,
+            id: true,
           },
         },
       },

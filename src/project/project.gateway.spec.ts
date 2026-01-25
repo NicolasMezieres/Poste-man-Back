@@ -29,7 +29,12 @@ describe('ProjectGateway', () => {
   describe('handle disconnect', () => {
     it('should disconnect and emit ', () => {
       gateway['userConnected'] = [
-        { clientId: socketMock.id, userId: userMock.id, projectMemberIds: [] },
+        {
+          clientId: socketMock.id,
+          userId: userMock.id,
+          projectMemberIds: [],
+          icon: userMock.icon,
+        },
       ];
       const emitUserSpyon = jest.spyOn(gateway, 'emitUserStatus');
       expect(gateway.handleDisconnect(socketMock));
@@ -43,8 +48,18 @@ describe('ProjectGateway', () => {
     });
     it('should not emit if another session user is already connected', () => {
       gateway['userConnected'] = [
-        { clientId: socketMock.id, userId: userMock.id, projectMemberIds: [] },
-        { clientId: '2', userId: userMock.id, projectMemberIds: [] },
+        {
+          clientId: socketMock.id,
+          userId: userMock.id,
+          projectMemberIds: [],
+          icon: userMock.icon,
+        },
+        {
+          clientId: '2',
+          userId: userMock.id,
+          projectMemberIds: [],
+          icon: userMock.icon,
+        },
       ];
       const emitUserSpyon = jest.spyOn(gateway, 'emitUserStatus');
       expect(gateway.handleDisconnect(socketMock));
@@ -61,6 +76,7 @@ describe('ProjectGateway', () => {
           userId: userMock.id,
           clientId: socketMock.id,
           projectMemberIds: [],
+          icon: userMock.icon,
         },
       ]);
     });
@@ -70,6 +86,7 @@ describe('ProjectGateway', () => {
           userId: userMock.id,
           clientId: socketMock.id,
           projectMemberIds: [],
+          icon: userMock.icon,
         },
       ];
       const emitUserStatusSpy = jest.spyOn(gateway, 'emitUserStatus');
@@ -85,11 +102,13 @@ describe('ProjectGateway', () => {
           clientId: 'clientId',
           projectMemberIds: [userMock.id],
           projectId: projectId,
+          icon: userMock.icon,
         },
       ];
       const status = 'online';
       expect(gateway.emitUserStatus(userMock.id, true));
-      expect(serverMock.to('clientId').emit).toHaveBeenCalledWith(status, {
+      expect(serverMock.to('clientId').emit).toHaveBeenCalledWith('auth', {
+        action: status,
         userId: userMock.id,
       });
     });
@@ -102,11 +121,13 @@ describe('ProjectGateway', () => {
           clientId: socketMock.id,
           projectMemberIds: [],
           projectId: projectId,
+          icon: userMock.icon,
         },
         {
           userId: 'userId',
           clientId: 'clientId',
           projectMemberIds: [],
+          icon: userMock.icon,
         },
       ];
       jest
@@ -124,6 +145,7 @@ describe('ProjectGateway', () => {
           clientId: socketMock.id,
           projectMemberIds: [],
           projectId: projectId,
+          icon: userMock.icon,
         },
       ];
       const members = dataMemberMock;
@@ -145,7 +167,7 @@ describe('ProjectGateway', () => {
   describe('emit User Update Project', () => {
     it('Should emit user join project', () => {
       const data = {
-        user: { username: 'username', icon: { image: 'image' } },
+        user: { username: 'username', icon: 'squirrel' },
         userId: '2',
         isBanned: false,
       };
@@ -155,20 +177,22 @@ describe('ProjectGateway', () => {
           clientId: socketMock.id,
           projectMemberIds: [],
           projectId: projectId,
+          icon: userMock.icon,
         },
       ];
       expect(gateway.emitUserUpdateProject(data, projectId, true));
       expect(gateway.server.to(socketMock.id).emit).toHaveBeenCalledWith(
-        'userJoinProject',
+        'auth',
         {
           ...data,
           isConnected: false,
+          action: 'userJoinProject',
         },
       );
     });
     it('Should emit user leave project', () => {
       const data = {
-        user: { username: 'username', icon: { image: 'image' } },
+        user: { username: 'username', icon: 'cat' },
         userId: '2',
         isBanned: false,
       };
@@ -178,19 +202,21 @@ describe('ProjectGateway', () => {
           clientId: socketMock.id,
           projectMemberIds: ['2'],
           projectId: projectId,
+          icon: userMock.icon,
         },
       ];
       expect(gateway.emitUserUpdateProject(data, projectId, false));
       expect(gateway.server.to(socketMock.id).emit).toHaveBeenCalledWith(
-        'userLeaveProject',
+        'auth',
         {
           userId: '2',
+          action: 'userLeaveProject',
         },
       );
     });
     it('Should disconnect user socket', () => {
       const data = {
-        user: { username: 'username', icon: { image: 'image' } },
+        user: { username: 'username', icon: 'fox' },
         userId: userMock.id,
         isBanned: false,
       };
@@ -200,12 +226,102 @@ describe('ProjectGateway', () => {
           clientId: socketMock.id,
           projectMemberIds: [userMock.id],
           projectId: projectId,
+          icon: userMock.icon,
         },
       ];
       expect(gateway.emitUserUpdateProject(data, projectId, false));
       expect(
         gateway.server.to(socketMock.id).disconnectSockets,
       ).toHaveBeenCalled();
+    });
+  });
+  describe('emit User Banned', () => {
+    it('emit action banned and disconnect', () => {
+      gateway['userConnected'] = [
+        {
+          clientId: 'clientId',
+          userId: 'userId',
+          icon: 'icon',
+          projectMemberIds: [],
+          projectId: 'projectId',
+        },
+      ];
+      jest.spyOn(gateway.server, 'to');
+      jest.spyOn(gateway.server.to('clientId'), 'disconnectSockets');
+      gateway.emitUserBanned('userId', 'projectId', true);
+      expect(gateway.server.to).toHaveBeenCalledWith('clientId');
+      expect(gateway.server.to('clientId').emit).toHaveBeenCalledWith('auth', {
+        action: 'banned',
+      });
+      expect(
+        gateway.server.to('clientId').disconnectSockets,
+      ).toHaveBeenCalled();
+    });
+    it('emit action userBanned', () => {
+      gateway['userConnected'] = [
+        {
+          clientId: 'clientId',
+          userId: 'userId',
+          icon: 'icon',
+          projectMemberIds: [],
+          projectId: 'projectId',
+        },
+      ];
+      jest.spyOn(gateway.server, 'to');
+      jest.spyOn(gateway.server.to('clientId'), 'disconnectSockets');
+      gateway.emitUserBanned('otherUserId', 'projectId', true);
+      expect(gateway.server.to).toHaveBeenCalledWith('clientId');
+      expect(gateway.server.to('clientId').emit).toHaveBeenCalledWith('auth', {
+        userId: 'otherUserId',
+        action: 'userBanned',
+      });
+    });
+    it('emit userUnBanned isConnected false', () => {
+      gateway['userConnected'] = [
+        {
+          clientId: 'clientId',
+          userId: 'userId',
+          icon: 'icon',
+          projectMemberIds: [],
+          projectId: 'projectId',
+        },
+      ];
+      jest.spyOn(gateway.server, 'to');
+      jest.spyOn(gateway.server.to('clientId'), 'disconnectSockets');
+      gateway.emitUserBanned('otherUserId', 'projectId', false);
+      expect(gateway.server.to).toHaveBeenCalledWith('clientId');
+      expect(gateway.server.to('clientId').emit).toHaveBeenCalledWith('auth', {
+        userId: 'otherUserId',
+        isConnected: false,
+        action: 'userUnBanned',
+      });
+    });
+    it('emit userUnBanned isConnected false', () => {
+      gateway['userConnected'] = [
+        {
+          clientId: 'clientId',
+          userId: 'userId',
+          icon: 'icon',
+          projectMemberIds: [],
+          projectId: 'projectId',
+        },
+        {
+          clientId: 'otherClientId',
+          userId: 'otherUserId',
+          icon: 'icon',
+          projectMemberIds: [],
+          projectId: 'projectId',
+        },
+      ];
+      jest.spyOn(gateway.server, 'to');
+      jest.spyOn(gateway.server.to('clientId'), 'disconnectSockets');
+      gateway.emitUserBanned('otherUserId', 'projectId', false);
+      expect(gateway.server.to).toHaveBeenCalledWith('clientId');
+      expect(gateway.server.to('clientId').emit).toHaveBeenCalledWith('auth', {
+        userId: 'otherUserId',
+        isConnected: true,
+        action: 'userUnBanned',
+      });
     });
   });
 });

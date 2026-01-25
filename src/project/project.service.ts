@@ -18,6 +18,8 @@ import {
 } from 'src/utils/type';
 import { projectDTO } from './dto';
 import { ProjectGateway } from './project.gateway';
+import { PostGateway } from 'src/post/post.gateway';
+import { MessageGateway } from 'src/message/message.gateway';
 
 @Injectable()
 export class ProjectService {
@@ -25,6 +27,8 @@ export class ProjectService {
     private prisma: PrismaService,
     @Inject(forwardRef(() => ProjectGateway))
     private socket: ProjectGateway,
+    private socketPost: PostGateway,
+    private socketMessage: MessageGateway,
   ) {}
   async search(query: querySearchProject, user: User) {
     const take = 10;
@@ -315,16 +319,46 @@ export class ProjectService {
         projectId: projectId,
         role: { name: { not: roleProject.MODERATOR } },
       },
-      select: { id: true, isBanned: true },
+      select: { id: true, isBanned: true, userId: true, projectId: true },
     });
     if (!existingMember) {
       throw new NotFoundException('Not found member !');
     }
-    await this.prisma.user_Has_Project.update({
-      where: { id: existingMember.id },
-      data: { isBanned: !existingMember.isBanned },
-      select: null,
-    });
+    await this.prisma.$transaction([
+      this.prisma.user_Has_Project.update({
+        where: { id: existingMember.id },
+        data: { isBanned: !existingMember.isBanned },
+      }),
+      this.prisma.post.updateMany({
+        where: {
+          userId: existingMember.userId,
+          section: { projectId: existingMember.projectId },
+        },
+        data: { isVisible: existingMember.isBanned },
+      }),
+      this.prisma.message.updateMany({
+        where: {
+          projectId: existingMember.projectId,
+          authorId: existingMember.userId,
+        },
+        data: { isVisible: existingMember.isBanned },
+      }),
+    ]);
+    this.socketPost.emitUpdateManyPost(
+      existingMember.userId,
+      existingMember.projectId,
+      existingMember.isBanned,
+    );
+    this.socket.emitUserBanned(
+      existingMember.userId,
+      existingMember.projectId,
+      !existingMember.isBanned,
+    );
+    this.socketMessage.emitMessageBan(
+      existingMember.userId,
+      existingMember.projectId,
+      existingMember.isBanned,
+    );
     return { message: 'Ban status updated' };
   }
   async rename(dto: projectDTO, projectId: string, user: User) {
@@ -438,6 +472,8 @@ export class ProjectService {
     await this.prisma.user_Has_Project.delete({
       where: { id: existingProject.users[0].id },
     });
+    this.socketPost.emitKickUser(existingProject.users[0].id, projectId);
+    this.socketMessage.emitMessageKick(existingProject.users[0].id, projectId);
     this.socket.emitUserUpdateProject(
       existingProject.users[0],
       projectId,

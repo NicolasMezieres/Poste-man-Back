@@ -177,9 +177,6 @@ describe('Post (e2e)', () => {
         );
     });
     it('Should Create Post', async () => {
-      if (!sectionId) {
-        console.log(sectionId);
-      }
       return req(app.getHttpServer())
         .post(path + sectionId)
         .set('Cookie', cookie)
@@ -373,12 +370,12 @@ describe('Post (e2e)', () => {
     });
     it('Should Not Found Exception, Section not found !', async () => {
       return req(app.getHttpServer())
-        .patch(path + 'sectionId/move/otherSectionId')
+        .patch(path + 'sectionId/transfert/otherSectionId')
         .set('Cookie', cookie)
         .expect(404)
-        .expect((err: resMessageType) =>
-          expect(err.body.message).toContain('Section'),
-        );
+        .expect((err: resMessageType) => {
+          expect(err.body.message).toContain('Section not found !');
+        });
     });
     it('Should Not Found Exception, Section to move not found !', async () => {
       return req(app.getHttpServer())

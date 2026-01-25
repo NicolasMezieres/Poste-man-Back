@@ -1,7 +1,6 @@
 import {
   ForbiddenException,
   Injectable,
-  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { User } from 'src/prisma/generated';
@@ -60,24 +59,13 @@ export class UserService {
   }
 
   async changePassword(user: User, dto: changePasswordDTO) {
-    const existingUser = await this.prisma.user.findUnique({
-      where: { id: user.id, isActive: true },
-      select: { id: true, password: true },
-    });
-
-    if (!existingUser) {
-      throw new NotFoundException('Compte introuvable');
-    }
-    const isSamePassword = await argon.verify(
-      existingUser.password,
-      dto.oldPassword,
-    );
+    const isSamePassword = await argon.verify(user.password, dto.oldPassword);
     if (!isSamePassword) {
       throw new ForbiddenException('Mot de passe incorrecte');
     }
     const newPassword = await argon.hash(dto.password);
     await this.prisma.user.update({
-      where: { id: existingUser.id },
+      where: { id: user.id },
       data: { password: newPassword },
       select: null,
     });
@@ -85,14 +73,6 @@ export class UserService {
   }
 
   async deleteAccount(user: User) {
-    const existingAccount = await this.prisma.user.findUnique({
-      where: {
-        id: user.id,
-      },
-    });
-    if (!existingAccount) {
-      throw new InternalServerErrorException('Contact Support for more help.');
-    }
     await this.prisma.$transaction([
       this.prisma.post.updateMany({
         where: { userId: user.id },
@@ -191,15 +171,16 @@ export class UserService {
   async banUser(user: User, id: string) {
     const existingUser = await this.prisma.user.findUnique({
       where: {
-        id: user.id,
+        id: id,
       },
+      select: { id: true },
     });
     if (!existingUser) {
       throw new NotFoundException('User not found');
     }
     await this.prisma.user.update({
       where: {
-        id: id,
+        id: existingUser.id,
       },
       data: {
         isActive: false,
@@ -212,16 +193,17 @@ export class UserService {
   async deleteUser(user: User, id: string) {
     const existingUser = await this.prisma.user.findUnique({
       where: {
-        id: user.id,
+        id: id,
       },
     });
     if (!existingUser) {
       throw new NotFoundException('User not found');
     }
-    await this.prisma.user.delete({
+    await this.prisma.user.update({
       where: {
-        id: id,
+        id: existingUser.id,
       },
+      data: { isActive: false, isArchive: true },
     });
     return { message: 'User has been deleted' };
   }

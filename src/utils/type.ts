@@ -51,6 +51,7 @@ export type userGateway = {
   userId: string;
   projectMemberIds: string[];
   projectId?: string;
+  icon: string | null;
 };
 export type userDataGateway = {
   username: string;
@@ -72,6 +73,7 @@ export type postType = {
   vote: voteType[];
   text: string;
   id: string;
+  isVisible: boolean;
   isArchive: boolean;
   createdAt: Date;
   updatedAt: Date;
