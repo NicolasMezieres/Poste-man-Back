@@ -9,16 +9,6 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { AdminGuard, JwtGuard } from 'src/auth/Guards';
-import { GetUser } from 'src/auth/decorator';
-import { User } from 'src/prisma/generated';
-import { projectDTO } from './dto';
-import { ProjectService } from './project.service';
-import {
-  querySearchAdminProject,
-  querySearchProject,
-  UserWithRole,
-} from 'src/utils/type';
 import {
   ApiCreatedResponse,
   ApiForbiddenResponse,
@@ -27,6 +17,16 @@ import {
   ApiNotFoundResponse,
   ApiOkResponse,
 } from '@nestjs/swagger';
+import { AdminGuard, JwtGuard } from 'src/auth/Guards';
+import { GetUser } from 'src/auth/decorator';
+import { User } from 'src/prisma/generated';
+import {
+  querySearchAdminProject,
+  querySearchProject,
+  UserWithRole,
+} from 'src/utils/type';
+import { projectDTO } from './dto';
+import { ProjectService } from './project.service';
 
 @UseGuards(JwtGuard)
 @Controller('project')
