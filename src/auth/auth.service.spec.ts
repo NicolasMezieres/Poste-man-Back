@@ -83,7 +83,7 @@ describe('AuthService', () => {
     it('should return a { message: "Username already taken 😱"}', async () => {
       jest.spyOn(AuthPrismaMock.user, 'findUnique').mockResolvedValue(userMock);
       await expect(() => authService.signup(dto)).rejects.toEqual(
-        new UnauthorizedException('Username already taken 😱'),
+        new UnauthorizedException('Pseudo déjà utilisé 😱'),
       );
     });
     it('should return a { message: "Email already taken 😱"}', async () => {
@@ -92,7 +92,7 @@ describe('AuthService', () => {
         .mockResolvedValueOnce(undefined)
         .mockResolvedValueOnce(userMock);
       await expect(() => authService.signup(dto)).rejects.toEqual(
-        new UnauthorizedException('Email already taken 😱'),
+        new UnauthorizedException('Email déjà utilisé 😱'),
       );
     });
     it('should return internal servor exception', async () => {
@@ -115,13 +115,13 @@ describe('AuthService', () => {
       jest.spyOn(AuthPrismaMock.user, 'findFirst').mockResolvedValue(userMock);
       jest.spyOn(AuthPrismaMock.user, 'update').mockResolvedValue(userMock);
       await expect(authService.activationAccount(token)).resolves.toEqual({
-        message: 'Your account has been created !',
+        message: 'Vôtre compte à été créer !',
       });
     });
     it('should return a { message: "Account not found"}', async () => {
       jest.spyOn(AuthPrismaMock.user, 'findFirst').mockResolvedValue(undefined);
       await expect(authService.activationAccount(token)).rejects.toEqual(
-        new NotFoundException('Account not found'),
+        new NotFoundException('Compte introuvable'),
       );
     });
   });
@@ -144,11 +144,10 @@ describe('AuthService', () => {
         cookieRuleMock,
       );
     });
-    //Testunitaire pour quand ca fonctionne pas
     it('should return unauthorized exception Invalid credential', async () => {
       jest.spyOn(AuthPrismaMock.user, 'findFirst').mockResolvedValue(undefined);
       await expect(authService.signin(dto, resMock)).rejects.toEqual(
-        new UnauthorizedException('Invalid credential'),
+        new UnauthorizedException('Identifiant ou mot de passe incorrecte'),
       );
     });
     it('should return unauthorized exception Your account is not activate', async () => {
@@ -156,14 +155,14 @@ describe('AuthService', () => {
       user.isActive = false;
       jest.spyOn(AuthPrismaMock.user, 'findFirst').mockResolvedValue(user);
       await expect(authService.signin(dto, resMock)).rejects.toEqual(
-        new UnauthorizedException('Your account is not activate'),
+        new UnauthorizedException("Vôtre compte n'est pas activer"),
       );
     });
     it('should return unauthorized exception Invalid credential', async () => {
       jest.spyOn(AuthPrismaMock.user, 'findFirst').mockResolvedValue(userMock);
       jest.spyOn(argon, 'verify').mockResolvedValue(false);
       await expect(authService.signin(dto, resMock)).rejects.toEqual(
-        new UnauthorizedException('Invalid credential'),
+        new UnauthorizedException('Identifiant ou mot de passe incorrecte'),
       );
     });
   });
@@ -174,7 +173,7 @@ describe('AuthService', () => {
     it('should return a { message: "A mail was send."}', async () => {
       jest.spyOn(AuthPrismaMock.user, 'findUnique').mockResolvedValue(userMock);
       await expect(authService.forgetPassword(dto)).resolves.toEqual({
-        message: 'A mail was send.',
+        message: 'Un email a été envoyé',
       });
     });
 
@@ -192,7 +191,7 @@ describe('AuthService', () => {
       jest.spyOn(argon, 'hash').mockResolvedValue('hashed new password');
       await expect(
         authService.resetPassword(userMock, { password: 'new password' }),
-      ).resolves.toEqual({ message: 'Your password has been change' });
+      ).resolves.toEqual({ message: 'Vôtre mot de passe à été modifier' });
     });
   });
 });

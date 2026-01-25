@@ -213,7 +213,7 @@ export class PostService {
       existingPost.id,
       existingPost.section.projectId,
     );
-    return { message: 'La section des posts à été modifier ! !' };
+    return { message: 'La section des posts à été modifier !' };
   }
   async transfertAll(
     sectionId: string,

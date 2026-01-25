@@ -154,9 +154,10 @@ describe('ProjectService', () => {
         .mockResolvedValue(projectId);
       jest
         .spyOn(projectPrismaMock.user_Has_Project, 'create')
-        .mockResolvedValue(null);
+        .mockResolvedValue({ projectId: 'projectId' });
       await expect(service.create(dto, userMock)).resolves.toEqual({
         message: 'Project successfully create !',
+        data: { projectId: 'projectId' },
       });
     });
     it('should return an Internal Server Error Exception', async () => {

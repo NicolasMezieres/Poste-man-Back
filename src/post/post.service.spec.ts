@@ -79,7 +79,7 @@ describe('PostService', () => {
     it('Should return a Not Found Exception, Section not found', async () => {
       jest.spyOn(postPrismaMock.section, 'findUnique').mockResolvedValue(null);
       await expect(service.posts(sectionId, userWithRoleMock)).rejects.toEqual(
-        new NotFoundException('Section not found !'),
+        new NotFoundException('Section introuvable !'),
       );
     });
     it('Should return a Forbidden Exception, You are unauthorized !', async () => {
@@ -90,7 +90,7 @@ describe('PostService', () => {
         .spyOn(postPrismaMock.user_Has_Project, 'findFirst')
         .mockResolvedValue(null);
       await expect(service.posts(sectionId, userWithRoleMock)).rejects.toEqual(
-        new ForbiddenException('You are unauthorized !'),
+        new ForbiddenException('Vous êtes pas autoriser !'),
       );
     });
   });
@@ -105,13 +105,13 @@ describe('PostService', () => {
       jest.spyOn(postPrismaMock.post, 'create').mockResolvedValue(postDTOMock);
       await expect(
         service.create(sectionId, postDTOMock, userMock),
-      ).resolves.toEqual({ message: 'Post created !' });
+      ).resolves.toEqual({ message: 'Post créer !' });
     });
     it('Should return a Not Found Exception Section not found', async () => {
       jest.spyOn(postPrismaMock.section, 'findUnique').mockResolvedValue(null);
       await expect(
         service.create(sectionId, postDTOMock, userMock),
-      ).rejects.toEqual(new NotFoundException('Section not found'));
+      ).rejects.toEqual(new NotFoundException('Section introuvable'));
     });
     it('Should return a Forbidden Exception You are unauthorized !', async () => {
       jest
@@ -122,7 +122,7 @@ describe('PostService', () => {
         .mockResolvedValue(null);
       await expect(
         service.create(sectionId, postDTOMock, userMock),
-      ).rejects.toEqual(new ForbiddenException('You are unauthorized !'));
+      ).rejects.toEqual(new ForbiddenException('Vous êtes pas autoriser !'));
     });
   });
   describe('Update post', () => {
@@ -135,14 +135,14 @@ describe('PostService', () => {
       jest.spyOn(postPrismaMock.post, 'update').mockResolvedValue(postMock);
       await expect(
         service.update(postId, postDTOMock, userMock),
-      ).resolves.toEqual({ message: 'Post updated !' });
+      ).resolves.toEqual({ message: 'Post modifier !' });
       expect(postPrismaMock.post.update).toHaveBeenCalled();
     });
     it('Should return a Forbidden Exception Post not found !', async () => {
       jest.spyOn(postPrismaMock.post, 'findUnique').mockResolvedValue(null);
       await expect(
         service.update(postId, postDTOMock, userMock),
-      ).rejects.toEqual(new NotFoundException('Post not found !'));
+      ).rejects.toEqual(new NotFoundException('Post introuvable !'));
       expect(postPrismaMock.post.update).not.toHaveBeenCalled();
     });
     it('Should return a Forbidden Exception You are unauthorized !', async () => {
@@ -151,7 +151,7 @@ describe('PostService', () => {
         .mockResolvedValue({ userId: 'otherUserId', id: postId });
       await expect(
         service.update(postId, postDTOMock, userMock),
-      ).rejects.toEqual(new ForbiddenException('You are unauthorized !'));
+      ).rejects.toEqual(new ForbiddenException('Vous êtes pas autoriser !'));
       expect(postPrismaMock.post.update).not.toHaveBeenCalled();
     });
   });
@@ -205,7 +205,7 @@ describe('PostService', () => {
       jest.spyOn(postPrismaMock.post, 'update').mockResolvedValue(null);
       await expect(
         service.transfert(postId, 'otherSectionId', userWithRoleMock),
-      ).resolves.toEqual({ message: 'Section of post changed !' });
+      ).resolves.toEqual({ message: 'La section des posts à été modifier !' });
       expect(postPrismaMock.post.update).toHaveBeenCalled();
     });
     it('Should return a message Section of post changed with Moderator account !', async () => {
@@ -224,7 +224,7 @@ describe('PostService', () => {
       jest.spyOn(postPrismaMock.post, 'update').mockResolvedValue(null);
       await expect(
         service.transfert(postId, 'otherSectionId', userWithRoleMock),
-      ).resolves.toEqual({ message: 'Section of post changed !' });
+      ).resolves.toEqual({ message: 'La section des posts à été modifier !' });
       expect(postPrismaMock.post.update).toHaveBeenCalled();
     });
     it('Should return a message Section of post changed with Admin account !', async () => {
@@ -240,7 +240,7 @@ describe('PostService', () => {
       jest.spyOn(postPrismaMock.post, 'update').mockResolvedValue(null);
       await expect(
         service.transfert(postId, 'otherSectionId', adminWithRoleMock),
-      ).resolves.toEqual({ message: 'Section of post changed !' });
+      ).resolves.toEqual({ message: 'La section des posts à été modifier !' });
       expect(postPrismaMock.post.update).toHaveBeenCalled();
       expect(postPrismaMock.user_Has_Project.findFirst).not.toHaveBeenCalled();
     });
@@ -248,7 +248,7 @@ describe('PostService', () => {
       jest.spyOn(postPrismaMock.post, 'findUnique').mockResolvedValue(null);
       await expect(
         service.transfert(postId, sectionId, userWithRoleMock),
-      ).rejects.toEqual(new NotFoundException('Post not found !'));
+      ).rejects.toEqual(new NotFoundException('Post introuvable !'));
       expect(postPrismaMock.post.update).not.toHaveBeenCalled();
     });
     it('Should return a Bad Request Exception, Post already in section', async () => {
@@ -260,7 +260,7 @@ describe('PostService', () => {
       });
       await expect(
         service.transfert(postId, sectionId, userWithRoleMock),
-      ).rejects.toEqual(new BadRequestException('Post already in section'));
+      ).rejects.toEqual(new BadRequestException('Post déjà dans la section'));
       expect(postPrismaMock.post.update).not.toHaveBeenCalled();
     });
     it('Should return a Not Found Exception, Section not found !', async () => {
@@ -273,7 +273,7 @@ describe('PostService', () => {
       jest.spyOn(postPrismaMock.section, 'findUnique').mockResolvedValue(null);
       await expect(
         service.transfert(postId, 'otherSectionId', userWithRoleMock),
-      ).rejects.toEqual(new NotFoundException('Section not found !'));
+      ).rejects.toEqual(new NotFoundException('Section introuvable !'));
       expect(postPrismaMock.post.update).not.toHaveBeenCalled();
     });
     it('Should return a ForbiddenException, Project is not the same project of section', async () => {
@@ -290,7 +290,9 @@ describe('PostService', () => {
       await expect(
         service.transfert(postId, 'otherSectionId', userWithRoleMock),
       ).rejects.toEqual(
-        new ForbiddenException('Project is not the same project of section'),
+        new ForbiddenException(
+          "Le projet n'est pas le même que celui de la section.",
+        ),
       );
       expect(postPrismaMock.post.update).not.toHaveBeenCalled();
     });
@@ -309,7 +311,7 @@ describe('PostService', () => {
         .mockResolvedValue(null);
       await expect(
         service.transfert(postId, 'otherSectionId', userWithRoleMock),
-      ).rejects.toEqual(new ForbiddenException('You are not authorized'));
+      ).rejects.toEqual(new ForbiddenException('Vous êtes pas autorisé(e)'));
       expect(postPrismaMock.post.update).not.toHaveBeenCalled();
     });
   });
@@ -327,7 +329,7 @@ describe('PostService', () => {
       jest.spyOn(postPrismaMock.post, 'updateMany').mockResolvedValue(null);
       await expect(
         service.transfertAll(sectionId, otherSectionId, userWithRoleMock),
-      ).resolves.toEqual({ message: 'Posts changed section !' });
+      ).resolves.toEqual({ message: 'Les posts ont changées de section !' });
       expect(postPrismaMock.post.updateMany).toHaveBeenCalled();
     });
     it('Should change section of posts, Admin account', async () => {
@@ -338,13 +340,15 @@ describe('PostService', () => {
       jest.spyOn(postPrismaMock.post, 'updateMany').mockResolvedValue(null);
       await expect(
         service.transfertAll(sectionId, otherSectionId, adminWithRoleMock),
-      ).resolves.toEqual({ message: 'Posts changed section !' });
+      ).resolves.toEqual({ message: 'Les posts ont changées de section !' });
       expect(postPrismaMock.post.updateMany).toHaveBeenCalled();
     });
     it('Should return Bad Request Exception, Need to other section !', async () => {
       await expect(
         service.transfertAll(sectionId, sectionId, userWithRoleMock),
-      ).rejects.toEqual(new BadRequestException('Need to other section !'));
+      ).rejects.toEqual(
+        new BadRequestException('Une autre section est nécessaire !'),
+      );
       expect(postPrismaMock.post.updateMany).not.toHaveBeenCalled();
     });
     it('Should return Not Found Exception, Section not found ! ', async () => {
@@ -353,7 +357,7 @@ describe('PostService', () => {
         .mockResolvedValueOnce(null);
       await expect(
         service.transfertAll(sectionId, otherSectionId, userWithRoleMock),
-      ).rejects.toEqual(new NotFoundException('Section not found !'));
+      ).rejects.toEqual(new NotFoundException('Section introuvable !'));
       expect(postPrismaMock.post.updateMany).not.toHaveBeenCalled();
     });
     it('Should return Not Found Exception, Section to move not found ! ', async () => {
@@ -363,7 +367,9 @@ describe('PostService', () => {
         .mockResolvedValueOnce(null);
       await expect(
         service.transfertAll(sectionId, otherSectionId, userWithRoleMock),
-      ).rejects.toEqual(new NotFoundException('Section to move not found !'));
+      ).rejects.toEqual(
+        new NotFoundException('La section pour le transfert est introuvable !'),
+      );
       expect(postPrismaMock.post.updateMany).not.toHaveBeenCalled();
     });
     it('Should return Forbidden Exception, Section do not have the same project', async () => {
@@ -377,7 +383,7 @@ describe('PostService', () => {
       await expect(
         service.transfertAll(sectionId, otherSectionId, userWithRoleMock),
       ).rejects.toEqual(
-        new ForbiddenException('Sections do not have the same project'),
+        new ForbiddenException('Les sections ne sont pas dans le même projet'),
       );
       expect(postPrismaMock.post.updateMany).not.toHaveBeenCalled();
     });
@@ -392,7 +398,7 @@ describe('PostService', () => {
       jest.spyOn(postPrismaMock.post, 'updateMany').mockResolvedValue(null);
       await expect(
         service.transfertAll(sectionId, otherSectionId, userWithRoleMock),
-      ).rejects.toEqual(new ForbiddenException('You are unauthorized !'));
+      ).rejects.toEqual(new ForbiddenException('Vous êtes pas autorisé(e) !'));
       expect(postPrismaMock.post.updateMany).not.toHaveBeenCalled();
     });
   });
@@ -577,7 +583,7 @@ describe('PostService', () => {
     it('Should return a Not Found Exception, Post not found !', async () => {
       jest.spyOn(postPrismaMock.post, 'findUnique').mockResolvedValue(null);
       await expect(service.vote(postId, voteDownDTO, userMock)).rejects.toEqual(
-        new NotFoundException('Post not found !'),
+        new NotFoundException('Post introuvable !'),
       );
     });
     it('Should return a Forbidden Exception, You are unauthorized !', async () => {
@@ -588,7 +594,7 @@ describe('PostService', () => {
         .spyOn(postPrismaMock.user_Has_Project, 'findFirst')
         .mockResolvedValue(null);
       await expect(service.vote(postId, voteDownDTO, userMock)).rejects.toEqual(
-        new ForbiddenException('You are unauthorized !'),
+        new ForbiddenException('Vous êtes pas autorisé(e) !'),
       );
     });
     it('Should fail, newScore  post not found', async () => {
@@ -618,7 +624,7 @@ describe('PostService', () => {
       });
       jest.spyOn(postPrismaMock.post, 'update').mockResolvedValue(null);
       await expect(service.remove(postId, userWithRoleMock)).resolves.toEqual({
-        message: 'Post deleted !',
+        message: 'Post supprimer !',
       });
       expect(postPrismaMock.user_Has_Project.findFirst).not.toHaveBeenCalled();
     });
@@ -633,7 +639,7 @@ describe('PostService', () => {
         .mockResolvedValue({ id: 'userProjectId' });
       jest.spyOn(postPrismaMock.post, 'update').mockResolvedValue(null);
       await expect(service.remove(postId, userWithRoleMock)).resolves.toEqual({
-        message: 'Post deleted !',
+        message: 'Post supprimer !',
       });
       expect(postPrismaMock.user_Has_Project.findFirst).toHaveBeenCalledWith({
         where: {
@@ -652,7 +658,7 @@ describe('PostService', () => {
       });
       jest.spyOn(postPrismaMock.post, 'update').mockResolvedValue(null);
       await expect(service.remove(postId, adminWithRoleMock)).resolves.toEqual({
-        message: 'Post deleted !',
+        message: 'Post supprimer !',
       });
       expect(postPrismaMock.user_Has_Project.findFirst).not.toHaveBeenCalled();
     });
@@ -660,7 +666,7 @@ describe('PostService', () => {
       jest.spyOn(postPrismaMock.post, 'findUnique').mockResolvedValue(null);
 
       await expect(service.remove(postId, userWithRoleMock)).rejects.toEqual(
-        new NotFoundException('Post not found !'),
+        new NotFoundException('Post introuvable !'),
       );
       expect(postPrismaMock.post.update).not.toHaveBeenCalled();
     });
@@ -674,7 +680,7 @@ describe('PostService', () => {
         .spyOn(postPrismaMock.user_Has_Project, 'findFirst')
         .mockResolvedValue(null);
       await expect(service.remove(postId, userWithRoleMock)).rejects.toEqual(
-        new ForbiddenException('You are unauthorized !'),
+        new ForbiddenException('Vous êtes pas autorisé(e)!'),
       );
       expect(postPrismaMock.post.update).not.toHaveBeenCalled();
     });
@@ -690,7 +696,7 @@ describe('PostService', () => {
         .mockResolvedValue({ id: 'userProjectId' });
       await expect(
         service.removeAll(sectionId, userWithRoleMock),
-      ).resolves.toEqual({ message: 'All post have been deleted !' });
+      ).resolves.toEqual({ message: 'Tout les posts on été supprimer !' });
       expect(postPrismaMock.post.updateMany).toHaveBeenCalled();
     });
     it('Should delete all post, Admin account', async () => {
@@ -700,14 +706,14 @@ describe('PostService', () => {
       });
       await expect(
         service.removeAll(sectionId, adminWithRoleMock),
-      ).resolves.toEqual({ message: 'All post have been deleted !' });
+      ).resolves.toEqual({ message: 'Tout les posts on été supprimer !' });
       expect(postPrismaMock.post.updateMany).toHaveBeenCalled();
     });
     it('Should return Not Found Exception, Section not found ! ', async () => {
       jest.spyOn(postPrismaMock.section, 'findUnique').mockResolvedValue(null);
       await expect(
         service.removeAll(sectionId, userWithRoleMock),
-      ).rejects.toEqual(new NotFoundException('Section not found !'));
+      ).rejects.toEqual(new NotFoundException('Section introuvable !'));
       expect(postPrismaMock.post.updateMany).not.toHaveBeenCalled();
     });
     it('Should return Forbidden Exception, You are unauthorized ! ', async () => {
@@ -720,7 +726,7 @@ describe('PostService', () => {
         .mockResolvedValue(null);
       await expect(
         service.removeAll(sectionId, userWithRoleMock),
-      ).rejects.toEqual(new ForbiddenException('You are unauthorized !'));
+      ).rejects.toEqual(new ForbiddenException('Vous êtes pas autorisé(e) !'));
       expect(postPrismaMock.post.updateMany).not.toHaveBeenCalled();
     });
   });
@@ -731,7 +737,7 @@ describe('PostService', () => {
         .mockReturnValue(null);
       await expect(
         service.joinRoomPost(socketMock, projectId, userMock),
-      ).rejects.toEqual(new WsException("You aren't a member !"));
+      ).rejects.toEqual(new WsException('Vous êtes pas membre !'));
     });
     it('Should succes, join room post', async () => {
       jest
