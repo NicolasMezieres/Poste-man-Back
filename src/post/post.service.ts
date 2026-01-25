@@ -60,7 +60,7 @@ export class PostService {
       select: { role: { select: { name: true } } },
     });
     if (!isAdmin && !isUserInProject) {
-      throw new ForbiddenException('Vous êtes pas autoriser !');
+      throw new ForbiddenException("Vous n'êtes pas autoriser !");
     }
     const isModerator: boolean =
       isUserInProject?.role.name === roleProject.MODERATOR;
@@ -92,7 +92,7 @@ export class PostService {
       select: { id: true },
     });
     if (!didUserInProject) {
-      throw new ForbiddenException('Vous êtes pas autoriser !');
+      throw new ForbiddenException("Vous n'êtes pas autoriser !");
     }
     const newPost = await this.prisma.post.create({
       data: { ...dto, userId: user.id, sectionId: existingSection.id },
@@ -118,7 +118,7 @@ export class PostService {
       throw new NotFoundException('Post introuvable !');
     }
     if (existingPost.userId !== user.id) {
-      throw new ForbiddenException('Vous êtes pas autoriser !');
+      throw new ForbiddenException("Vous n'êtes pas autoriser !");
     }
     const updatePost = await this.prisma.post.update({
       where: { id: existingPost.id },
@@ -202,7 +202,7 @@ export class PostService {
         select: { id: true },
       });
       if (!isModerator) {
-        throw new ForbiddenException('Vous êtes pas autorisé(e)');
+        throw new ForbiddenException("Vous n'êtes pas autorisé(e)");
       }
     }
     await this.prisma.post.update({
@@ -213,7 +213,7 @@ export class PostService {
       existingPost.id,
       existingPost.section.projectId,
     );
-    return { message: 'La section des posts à été modifier ! !' };
+    return { message: 'La section des posts à été modifier !' };
   }
   async transfertAll(
     sectionId: string,
@@ -256,7 +256,7 @@ export class PostService {
         select: { id: true },
       });
       if (!isModerator) {
-        throw new ForbiddenException('Vous êtes pas autorisé(e) !');
+        throw new ForbiddenException("Vous n'êtes pas autorisé(e) !");
       }
     }
     await this.prisma.post.updateMany({
@@ -288,7 +288,7 @@ export class PostService {
       select: { id: true },
     });
     if (!didUserInProject) {
-      throw new ForbiddenException('Vous êtes pas autorisé(e) !');
+      throw new ForbiddenException("Vous n'êtes pas autorisé(e) !");
     }
     const existingVote = await this.prisma.vote.findFirst({
       where: { postId, userId: user.id },
@@ -408,7 +408,7 @@ export class PostService {
         select: { id: true },
       });
       if (!isModerator) {
-        throw new ForbiddenException('Vous êtes pas autorisé(e)!');
+        throw new ForbiddenException("Vous n'êtes pas autorisé(e)!");
       }
     }
 
@@ -441,7 +441,7 @@ export class PostService {
         select: { id: true },
       });
       if (!isModerator) {
-        throw new ForbiddenException('Vous êtes pas autorisé(e) !');
+        throw new ForbiddenException("Vous n'êtes pas autorisé(e) !");
       }
     }
     await this.prisma.post.updateMany({
@@ -457,7 +457,7 @@ export class PostService {
       select: { id: true },
     });
     if (!existingUserProject) {
-      throw new WsException('Vous êtes pas membre !');
+      throw new WsException("Vous n'êtes pas membre !");
     }
     await client.join(`post/${projectId}`);
     return;

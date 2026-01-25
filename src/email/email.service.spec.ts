@@ -79,7 +79,7 @@ describe('EmailService', () => {
       expect(sendMailMock).toHaveBeenCalledWith({
         from: 'test@example.com',
         to: 'user@example.com',
-        subject: 'Validation account',
+        subject: 'Validation de compte',
         html: '<p>Welcome</p>',
       });
     });
@@ -107,7 +107,7 @@ describe('EmailService', () => {
       expect(sendMailMock).toHaveBeenCalledWith({
         from: 'test@example.com',
         to: 'user@example.com',
-        subject: 'Reset your password',
+        subject: 'Réinitialisation de vôtre mot de passe',
         html: '<p>Reset Password</p>',
       });
     });

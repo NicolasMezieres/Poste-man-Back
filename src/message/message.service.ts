@@ -78,7 +78,7 @@ export class MessageService {
         select: { id: true },
       });
       if (!didUserInProject) {
-        throw new ForbiddenException('Vous êtes pas autorisé(e) !');
+        throw new ForbiddenException("Vous n'êtes pas autorisé(e) !");
       }
     }
     const take = 10;
@@ -171,11 +171,11 @@ export class MessageService {
         },
       });
       if (!didUserInProject) {
-        throw new ForbiddenException('Vous êtes pas autoriser !');
+        throw new ForbiddenException("Vous n'êtes pas autoriser !");
       }
       const isModerator = didUserInProject.role.name === roleProject.MODERATOR;
       if (!isModerator && existingMessage.authorId !== user.id) {
-        throw new ForbiddenException('Vous êtes pas autoriser !');
+        throw new ForbiddenException("Vous n'êtes pas autoriser !");
       }
     }
     await this.prisma.message.update({
@@ -211,7 +211,7 @@ export class MessageService {
         select: { id: true },
       });
       if (!isModerator) {
-        throw new ForbiddenException('Vous êtes pas autoriser !');
+        throw new ForbiddenException("Vous n'êtes pas autoriser !");
       }
     }
     await this.prisma.message.updateMany({
@@ -229,7 +229,7 @@ export class MessageService {
       select: { id: true },
     });
     if (!existingUserProject) {
-      throw new WsException('Vous êtes pas membre !');
+      throw new WsException("Vous n'êtes pas membre !");
     }
     await client.join(`message/${projectId}`);
     return;

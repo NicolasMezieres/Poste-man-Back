@@ -101,7 +101,9 @@ describe('MessageService', () => {
         .mockResolvedValue(null);
       await expect(
         service.projectMessages(projectId, userWithRoleMock, query),
-      ).rejects.toEqual(new ForbiddenException('You are unauthorized !'));
+      ).rejects.toEqual(
+        new ForbiddenException("Vous n'êtes pas autorisé(e) !"),
+      );
     });
     it('should fail project not found', async () => {
       jest
@@ -109,7 +111,7 @@ describe('MessageService', () => {
         .mockResolvedValue(null);
       await expect(
         service.projectMessages(projectId, userWithRoleMock, query),
-      ).rejects.toEqual(new NotFoundException('Project not found !'));
+      ).rejects.toEqual(new NotFoundException('Projet introuvable !'));
     });
   });
   describe('Project Name', () => {
@@ -194,7 +196,7 @@ describe('MessageService', () => {
       const newMessage = await expect(
         service.createMessage(messageDTO, projectId, userMock),
       ).resolves.toEqual({
-        message: 'Message created !',
+        message: 'Message créer !',
       });
       expect(messagePrismaMock.message.create).toHaveBeenCalledWith({
         data: {
@@ -228,7 +230,7 @@ describe('MessageService', () => {
         .mockResolvedValue(undefined);
       await expect(
         service.createMessage(messageDTO, projectId, userMock),
-      ).rejects.toEqual(new NotFoundException('Project not found !'));
+      ).rejects.toEqual(new NotFoundException('Projet introuvable !'));
     });
   });
   describe('Delete Message', () => {
@@ -253,7 +255,7 @@ describe('MessageService', () => {
       await expect(
         service.deleteMessage(messageId, userWithRoleMock),
       ).resolves.toEqual({
-        message: 'Message deleted !',
+        message: 'Message supprimer !',
       });
       expect(messagePrismaMock.message.update).toHaveBeenCalledWith({
         where: {
@@ -273,7 +275,7 @@ describe('MessageService', () => {
       await expect(
         service.deleteMessage(messageId, adminWithRoleMock),
       ).resolves.toEqual({
-        message: 'Message deleted !',
+        message: 'Message supprimer !',
       });
       expect(messagePrismaMock.message.update).toHaveBeenCalledWith({
         where: {
@@ -299,7 +301,7 @@ describe('MessageService', () => {
       await expect(
         service.deleteMessage(messageId, userWithRoleMock),
       ).resolves.toEqual({
-        message: 'Message deleted !',
+        message: 'Message supprimer !',
       });
       expect(messagePrismaMock.message.update).toHaveBeenCalledWith({
         where: {
@@ -318,7 +320,7 @@ describe('MessageService', () => {
         .mockResolvedValue(undefined);
       await expect(
         service.deleteMessage(messageId, userWithRoleMock),
-      ).rejects.toEqual(new NotFoundException('Message not found !'));
+      ).rejects.toEqual(new NotFoundException('Message introuvable !'));
       expect(messageGatewayMock.emitDeleteMessage).not.toHaveBeenCalled();
     });
     it('should return You are unauthorized ! User is not in the project', async () => {
@@ -330,7 +332,7 @@ describe('MessageService', () => {
         .mockResolvedValue(null);
       await expect(
         service.deleteMessage(messageId, userWithRoleMock),
-      ).rejects.toEqual(new ForbiddenException('You are unauthorized !'));
+      ).rejects.toEqual(new ForbiddenException("Vous n'êtes pas autoriser !"));
       expect(messageGatewayMock.emitDeleteMessage).not.toHaveBeenCalled();
     });
     it('should return You are unauthorized ! Member and is not her message', async () => {
@@ -345,7 +347,7 @@ describe('MessageService', () => {
         });
       await expect(
         service.deleteMessage(messageId, userWithRoleMock),
-      ).rejects.toEqual(new ForbiddenException('You are unauthorized !'));
+      ).rejects.toEqual(new ForbiddenException("Vous n'êtes pas autoriser !"));
       expect(messageGatewayMock.emitDeleteMessage).not.toHaveBeenCalled();
     });
   });
@@ -360,7 +362,7 @@ describe('MessageService', () => {
       await expect(
         service.deleteAllMessage(projectId, userWithRoleMock),
       ).resolves.toEqual({
-        message: 'Messages deleted !',
+        message: 'Messages supprimer !',
       });
       expect(messagePrismaMock.message.updateMany).toHaveBeenCalledWith({
         where: {
@@ -379,7 +381,7 @@ describe('MessageService', () => {
       await expect(
         service.deleteAllMessage(projectId, adminWithRoleMock),
       ).resolves.toEqual({
-        message: 'Messages deleted !',
+        message: 'Messages supprimer !',
       });
       expect(messagePrismaMock.message.updateMany).toHaveBeenCalledWith({
         where: {
@@ -397,7 +399,7 @@ describe('MessageService', () => {
         .mockResolvedValue(null);
       await expect(
         service.deleteAllMessage(projectId, userWithRoleMock),
-      ).rejects.toEqual(new NotFoundException('Project not found !'));
+      ).rejects.toEqual(new NotFoundException('Projet introuvable !'));
       expect(messagePrismaMock.message.updateMany).not.toHaveBeenCalled();
       expect(messageGatewayMock.emitResetMessage).not.toHaveBeenCalled();
     });
@@ -410,7 +412,7 @@ describe('MessageService', () => {
         .mockResolvedValue(null);
       await expect(
         service.deleteAllMessage(projectId, userWithRoleMock),
-      ).rejects.toEqual(new ForbiddenException('You are unauthorized !'));
+      ).rejects.toEqual(new ForbiddenException("Vous n'êtes pas autoriser !"));
       expect(messagePrismaMock.message.updateMany).not.toHaveBeenCalled();
       expect(messageGatewayMock.emitResetMessage).not.toHaveBeenCalled();
     });
@@ -431,7 +433,7 @@ describe('MessageService', () => {
         .mockResolvedValue(undefined);
       await expect(
         service.joinRoomMessage(socketMock, projectId, userMock),
-      ).rejects.toEqual(new WsException("You aren't a member !"));
+      ).rejects.toEqual(new WsException("Vous n'êtes pas membre !"));
     });
   });
 });
