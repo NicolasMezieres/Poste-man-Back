@@ -101,7 +101,9 @@ describe('MessageService', () => {
         .mockResolvedValue(null);
       await expect(
         service.projectMessages(projectId, userWithRoleMock, query),
-      ).rejects.toEqual(new ForbiddenException('Vous êtes pas autorisé(e) !'));
+      ).rejects.toEqual(
+        new ForbiddenException("Vous n'êtes pas autorisé(e) !"),
+      );
     });
     it('should fail project not found', async () => {
       jest
@@ -330,7 +332,7 @@ describe('MessageService', () => {
         .mockResolvedValue(null);
       await expect(
         service.deleteMessage(messageId, userWithRoleMock),
-      ).rejects.toEqual(new ForbiddenException('Vous êtes pas autoriser !'));
+      ).rejects.toEqual(new ForbiddenException("Vous n'êtes pas autoriser !"));
       expect(messageGatewayMock.emitDeleteMessage).not.toHaveBeenCalled();
     });
     it('should return You are unauthorized ! Member and is not her message', async () => {
@@ -345,7 +347,7 @@ describe('MessageService', () => {
         });
       await expect(
         service.deleteMessage(messageId, userWithRoleMock),
-      ).rejects.toEqual(new ForbiddenException('Vous êtes pas autoriser !'));
+      ).rejects.toEqual(new ForbiddenException("Vous n'êtes pas autoriser !"));
       expect(messageGatewayMock.emitDeleteMessage).not.toHaveBeenCalled();
     });
   });
@@ -410,7 +412,7 @@ describe('MessageService', () => {
         .mockResolvedValue(null);
       await expect(
         service.deleteAllMessage(projectId, userWithRoleMock),
-      ).rejects.toEqual(new ForbiddenException('Vous êtes pas autoriser !'));
+      ).rejects.toEqual(new ForbiddenException("Vous n'êtes pas autoriser !"));
       expect(messagePrismaMock.message.updateMany).not.toHaveBeenCalled();
       expect(messageGatewayMock.emitResetMessage).not.toHaveBeenCalled();
     });
@@ -431,7 +433,7 @@ describe('MessageService', () => {
         .mockResolvedValue(undefined);
       await expect(
         service.joinRoomMessage(socketMock, projectId, userMock),
-      ).rejects.toEqual(new WsException('Vous êtes pas membre !'));
+      ).rejects.toEqual(new WsException("Vous n'êtes pas membre !"));
     });
   });
 });

@@ -32,7 +32,7 @@ describe('AuthController (e2e)', () => {
         .send(signupDTO)
         .expect(201)
         .then((res: resMessageType) => {
-          expect(res.body.message).toEqual('Your account as been create !');
+          expect(res.body.message).toEqual('Votre compte à été créer !');
         });
     });
     it('Should return an Unauthorized Exception, Username already taken', async () => {
@@ -41,7 +41,7 @@ describe('AuthController (e2e)', () => {
         .send(signupDTO)
         .expect(401)
         .then((res: resMessageType) => {
-          expect(res.body.message).toEqual('Username already taken 😱');
+          expect(res.body.message).toEqual('Pseudo déjà utilisé 😱');
         });
     });
     it('Should return an Unauthorized Exception, Email already taken', async () => {
@@ -51,7 +51,7 @@ describe('AuthController (e2e)', () => {
         .send(newDTO)
         .expect(401)
         .then((res: resMessageType) => {
-          expect(res.body.message).toEqual('Email already taken 😱');
+          expect(res.body.message).toEqual('Email déjà utilisé 😱');
         });
     });
     it('Should return a Bad Request Exception, firstName', async () => {
@@ -111,7 +111,7 @@ describe('AuthController (e2e)', () => {
         .patch('/auth/activationAccount/token')
         .expect(404)
         .then((res: resMessageType) => {
-          expect(res.body.message).toEqual('Account not found');
+          expect(res.body.message).toEqual('Compte introuvable');
         });
     });
     it('Should active account', async () => {
@@ -141,7 +141,9 @@ describe('AuthController (e2e)', () => {
         .send(newDTO)
         .expect(401)
         .then((res: { body: { message: string } }) => {
-          expect(res.body.message).toEqual('Invalid credential');
+          expect(res.body.message).toEqual(
+            'Identifiant ou mot de passe incorrecte',
+          );
         });
     });
     it('Should fail Unauthorized Exception, invalid Password', async () => {
@@ -151,7 +153,9 @@ describe('AuthController (e2e)', () => {
         .send(newDTO)
         .expect(401)
         .then((res: { body: { message: string } }) => {
-          expect(res.body.message).toEqual('Invalid credential');
+          expect(res.body.message).toEqual(
+            'Identifiant ou mot de passe incorrecte',
+          );
         });
     });
     it('Should fail Unauthorized Exception, account is not active', async () => {
@@ -164,7 +168,7 @@ describe('AuthController (e2e)', () => {
         .send(signinDTO)
         .expect(401)
         .then((res: resMessageType) => {
-          expect(res.body.message).toEqual('Your account is not activate');
+          expect(res.body.message).toEqual("Vôtre compte n'est pas activer");
         });
     });
     it('Should fail Bad Request Exception, identifier', async () => {
@@ -210,7 +214,7 @@ describe('AuthController (e2e)', () => {
         .send(forgetPasswordDTO)
         .expect(201)
         .then((res: resMessageType) => {
-          expect(res.body.message).toEqual('A mail was send.');
+          expect(res.body.message).toEqual('Un email a été envoyé');
         });
     });
     it('Should send a mail', async () => {
@@ -244,7 +248,7 @@ describe('AuthController (e2e)', () => {
         .set('Cookie', cookie)
         .expect(200)
         .then((res: resMessageType) => {
-          expect(res.body.message).toEqual('Your password has been change');
+          expect(res.body.message).toEqual('Vôtre mot de passe à été modifier');
         });
     });
     it('Should fail Bad Request Exception, password', async () => {

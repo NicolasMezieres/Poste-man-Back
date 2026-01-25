@@ -46,7 +46,7 @@ describe('Message (e2e)', () => {
         .set('Cookie', cookie)
         .expect(404)
         .expect((res: resMessageType) =>
-          expect(res.body.message).toContain('Project'),
+          expect(res.body.message).toContain('Projet introuvable !'),
         );
     });
     it('Should fail Forbidden Exception, Not a Member or an Admin', async () => {
@@ -60,7 +60,7 @@ describe('Message (e2e)', () => {
         .set('Cookie', cookieOtherUser)
         .expect(403)
         .expect((res: resMessageType) =>
-          expect(res.body.message).toContain('unauthorized'),
+          expect(res.body.message).toContain("Vous n'êtes pas autorisé(e) !"),
         );
     });
     it('Should fail Forbidden Exception, Not a Member or an Admin', async () => {
@@ -135,7 +135,7 @@ describe('Message (e2e)', () => {
         .send(messageDTO)
         .expect(404)
         .expect((err: resMessageType) =>
-          expect(err.body.message).toContain('Project not found !'),
+          expect(err.body.message).toContain('Projet introuvable !'),
         );
     });
     it('Should Create Message', async () => {
@@ -179,7 +179,7 @@ describe('Message (e2e)', () => {
         .set('Cookie', cookieOtherUser)
         .expect(403)
         .expect((err: resMessageType) =>
-          expect(err.body.message).toContain('unauthorized'),
+          expect(err.body.message).toContain("Vous n'êtes pas autoriser !"),
         );
     });
 
@@ -199,7 +199,7 @@ describe('Message (e2e)', () => {
         .set('Cookie', cookieOtherUser)
         .expect(403)
         .expect((err: resMessageType) =>
-          expect(err.body.message).toContain('unauthorized'),
+          expect(err.body.message).toContain("Vous n'êtes pas autoriser !"),
         );
     });
     it('Should Message Deleted by Moderator', async () => {
@@ -243,7 +243,7 @@ describe('Message (e2e)', () => {
         .set('Cookie', cookie)
         .expect(404)
         .expect((err: resMessageType) =>
-          expect(err.body.message).toContain('Project'),
+          expect(err.body.message).toContain('Projet introuvable !'),
         );
     });
     it('Should fail Forbidden Exception, Not a Moderator or Admin', async () => {
@@ -252,7 +252,7 @@ describe('Message (e2e)', () => {
         .set('Cookie', cookieOtherUser)
         .expect(403)
         .expect((err: resMessageType) =>
-          expect(err.body.message).toContain('unauthorized'),
+          expect(err.body.message).toContain("Vous n'êtes pas autoriser !"),
         );
     });
     it('Should Messages Deleted by Moderator', () => {

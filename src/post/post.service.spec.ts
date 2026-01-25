@@ -90,7 +90,7 @@ describe('PostService', () => {
         .spyOn(postPrismaMock.user_Has_Project, 'findFirst')
         .mockResolvedValue(null);
       await expect(service.posts(sectionId, userWithRoleMock)).rejects.toEqual(
-        new ForbiddenException('Vous êtes pas autoriser !'),
+        new ForbiddenException("Vous n'êtes pas autoriser !"),
       );
     });
   });
@@ -122,7 +122,7 @@ describe('PostService', () => {
         .mockResolvedValue(null);
       await expect(
         service.create(sectionId, postDTOMock, userMock),
-      ).rejects.toEqual(new ForbiddenException('Vous êtes pas autoriser !'));
+      ).rejects.toEqual(new ForbiddenException("Vous n'êtes pas autoriser !"));
     });
   });
   describe('Update post', () => {
@@ -151,7 +151,7 @@ describe('PostService', () => {
         .mockResolvedValue({ userId: 'otherUserId', id: postId });
       await expect(
         service.update(postId, postDTOMock, userMock),
-      ).rejects.toEqual(new ForbiddenException('Vous êtes pas autoriser !'));
+      ).rejects.toEqual(new ForbiddenException("Vous n'êtes pas autoriser !"));
       expect(postPrismaMock.post.update).not.toHaveBeenCalled();
     });
   });
@@ -311,7 +311,7 @@ describe('PostService', () => {
         .mockResolvedValue(null);
       await expect(
         service.transfert(postId, 'otherSectionId', userWithRoleMock),
-      ).rejects.toEqual(new ForbiddenException('Vous êtes pas autorisé(e)'));
+      ).rejects.toEqual(new ForbiddenException("Vous n'êtes pas autorisé(e)"));
       expect(postPrismaMock.post.update).not.toHaveBeenCalled();
     });
   });
@@ -398,7 +398,9 @@ describe('PostService', () => {
       jest.spyOn(postPrismaMock.post, 'updateMany').mockResolvedValue(null);
       await expect(
         service.transfertAll(sectionId, otherSectionId, userWithRoleMock),
-      ).rejects.toEqual(new ForbiddenException('Vous êtes pas autorisé(e) !'));
+      ).rejects.toEqual(
+        new ForbiddenException("Vous n'êtes pas autorisé(e) !"),
+      );
       expect(postPrismaMock.post.updateMany).not.toHaveBeenCalled();
     });
   });
@@ -594,7 +596,7 @@ describe('PostService', () => {
         .spyOn(postPrismaMock.user_Has_Project, 'findFirst')
         .mockResolvedValue(null);
       await expect(service.vote(postId, voteDownDTO, userMock)).rejects.toEqual(
-        new ForbiddenException('Vous êtes pas autorisé(e) !'),
+        new ForbiddenException("Vous n'êtes pas autorisé(e) !"),
       );
     });
     it('Should fail, newScore  post not found', async () => {
@@ -680,7 +682,7 @@ describe('PostService', () => {
         .spyOn(postPrismaMock.user_Has_Project, 'findFirst')
         .mockResolvedValue(null);
       await expect(service.remove(postId, userWithRoleMock)).rejects.toEqual(
-        new ForbiddenException('Vous êtes pas autorisé(e)!'),
+        new ForbiddenException("Vous n'êtes pas autorisé(e)!"),
       );
       expect(postPrismaMock.post.update).not.toHaveBeenCalled();
     });
@@ -726,7 +728,9 @@ describe('PostService', () => {
         .mockResolvedValue(null);
       await expect(
         service.removeAll(sectionId, userWithRoleMock),
-      ).rejects.toEqual(new ForbiddenException('Vous êtes pas autorisé(e) !'));
+      ).rejects.toEqual(
+        new ForbiddenException("Vous n'êtes pas autorisé(e) !"),
+      );
       expect(postPrismaMock.post.updateMany).not.toHaveBeenCalled();
     });
   });
@@ -737,7 +741,7 @@ describe('PostService', () => {
         .mockReturnValue(null);
       await expect(
         service.joinRoomPost(socketMock, projectId, userMock),
-      ).rejects.toEqual(new WsException('Vous êtes pas membre !'));
+      ).rejects.toEqual(new WsException("Vous n'êtes pas membre !"));
     });
     it('Should succes, join room post', async () => {
       jest

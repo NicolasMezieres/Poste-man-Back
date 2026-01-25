@@ -122,7 +122,7 @@ describe('Post (e2e)', () => {
         .set('Cookie', cookieOtherUser)
         .expect(403)
         .expect((err: resMessageType) =>
-          expect(err.body.message).toContain('unauthorized'),
+          expect(err.body.message).toContain("Vous n'êtes pas autoriser !"),
         );
     });
   });
@@ -173,7 +173,7 @@ describe('Post (e2e)', () => {
         .send(postDTO)
         .expect(403)
         .expect((err: resMessageType) =>
-          expect(err.body.message).toContain('unauthorized'),
+          expect(err.body.message).toContain("Vous n'êtes pas autoriser !"),
         );
     });
     it('Should Create Post', async () => {
@@ -229,7 +229,7 @@ describe('Post (e2e)', () => {
         .send(postDTO)
         .expect(403)
         .expect((err: resMessageType) =>
-          expect(err.body.message).toContain('unauthorized'),
+          expect(err.body.message).toContain("Vous n'êtes pas autoriser !"),
         );
     });
     it('Should Post Updated', async () => {
@@ -310,7 +310,7 @@ describe('Post (e2e)', () => {
         .set('Cookie', cookie)
         .expect(400)
         .expect((err: resMessageType) =>
-          expect(err.body.message).toEqual('Post already in section'),
+          expect(err.body.message).toEqual('Post déjà dans la section'),
         );
     });
     it('Should fail Not Found Exception, Section not found', async () => {
@@ -329,7 +329,7 @@ describe('Post (e2e)', () => {
         .expect(403)
         .expect((err: resMessageType) =>
           expect(err.body.message).toEqual(
-            'Project is not the same project of section',
+            "Le projet n'est pas le même que celui de la section.",
           ),
         );
     });
@@ -339,7 +339,7 @@ describe('Post (e2e)', () => {
         .set('Cookie', cookieOtherUser)
         .expect(403)
         .expect((err: resMessageType) =>
-          expect(err.body.message).toContain('not authorized'),
+          expect(err.body.message).toContain("Vous n'êtes pas autorisé(e)"),
         );
     });
     it('Should Section of Post Changed', async () => {
@@ -365,7 +365,9 @@ describe('Post (e2e)', () => {
         .set('Cookie', cookie)
         .expect(400)
         .expect((err: resMessageType) =>
-          expect(err.body.message).toContain('other section'),
+          expect(err.body.message).toContain(
+            'Une autre section est nécessaire !',
+          ),
         );
     });
     it('Should Not Found Exception, Section not found !', async () => {
@@ -374,7 +376,7 @@ describe('Post (e2e)', () => {
         .set('Cookie', cookie)
         .expect(404)
         .expect((err: resMessageType) => {
-          expect(err.body.message).toContain('Section not found !');
+          expect(err.body.message).toContain('Section introuvable !');
         });
     });
     it('Should Not Found Exception, Section to move not found !', async () => {
@@ -383,7 +385,9 @@ describe('Post (e2e)', () => {
         .set('Cookie', cookie)
         .expect(404)
         .expect((err: resMessageType) =>
-          expect(err.body.message).toContain('Section to move'),
+          expect(err.body.message).toContain(
+            'La section pour le transfert est introuvable !',
+          ),
         );
     });
     it('Should Forbidden Exception, Sections do not have the same Project', async () => {
@@ -393,7 +397,7 @@ describe('Post (e2e)', () => {
         .expect(403)
         .expect((err: resMessageType) =>
           expect(err.body.message).toEqual(
-            'Sections do not have the same project',
+            'Les sections ne sont pas dans le même projet',
           ),
         );
     });
@@ -403,7 +407,7 @@ describe('Post (e2e)', () => {
         .set('Cookie', cookieOtherUser)
         .expect(403)
         .expect((err: resMessageType) =>
-          expect(err.body.message).toContain('unauthorized'),
+          expect(err.body.message).toContain("Vous n'êtes pas autorisé(e) !"),
         );
     });
     it('Should Move all Post', async () => {
@@ -450,7 +454,7 @@ describe('Post (e2e)', () => {
         .set('Cookie', cookieOtherUser)
         .expect(403)
         .expect((err: resMessageType) =>
-          expect(err.body.message).toContain('unauthorized'),
+          expect(err.body.message).toContain("Vous n'êtes pas autorisé(e) !"),
         );
     });
     it('Should Voted !', async () => {
@@ -486,7 +490,7 @@ describe('Post (e2e)', () => {
         .set('Cookie', cookieOtherUser)
         .expect(403)
         .expect((err: resMessageType) =>
-          expect(err.body.message).toContain('unauthorized'),
+          expect(err.body.message).toContain("Vous n'êtes pas autorisé(e)!"),
         );
     });
     it('Should Post Deleted', async () => {
@@ -521,7 +525,7 @@ describe('Post (e2e)', () => {
         .set('Cookie', cookieOtherUser)
         .expect(403)
         .expect((err: resMessageType) =>
-          expect(err.body.message).toContain('unauthorized'),
+          expect(err.body.message).toContain("Vous n'êtes pas autorisé(e) !"),
         );
     });
     it('Should Posts of Section Deleted', async () => {
