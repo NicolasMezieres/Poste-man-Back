@@ -9,11 +9,11 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { MessageService } from './message.service';
-import { JwtGuard } from 'src/auth/Guards';
+import { AdminGuard, JwtGuard } from 'src/auth/Guards';
 import { GetUser } from 'src/auth/decorator';
 import { User } from 'src/prisma/generated';
 import { messageDTO } from './dto';
-import { queryMessage, UserWithRole } from 'src/utils/type';
+import { queryMessage, queryPage, UserWithRole } from 'src/utils/type';
 import {
   ApiCreatedResponse,
   ApiForbiddenResponse,
@@ -44,6 +44,15 @@ export class MessageController {
     @GetUser() user: UserWithRole,
   ) {
     return this.messageService.projectName(projectId, user);
+  }
+
+  @UseGuards(AdminGuard)
+  @Get('/user/:userId')
+  getListMessageByUser(
+    @Param('userId') userId: string,
+    @Query() query: queryPage,
+  ) {
+    return this.messageService.getListMessageByUser(userId, query);
   }
 
   @ApiCreatedResponse({

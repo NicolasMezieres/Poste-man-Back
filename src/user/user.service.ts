@@ -117,26 +117,40 @@ export class UserService {
         },
         data: { isArchive: true },
       }),
+      this.prisma.user.update({
+        where: { id: user.id },
+        data: {
+          isActive: false,
+          isArchive: true,
+        },
+      }),
     ]);
-    await this.prisma.user.update({
-      where: { id: user.id },
-      data: {
-        isActive: false,
-        isArchive: true,
-      },
-    });
     return { message: 'Your account gonna be deleted !' };
   }
 
   async listUser(query: queryUserList) {
     const take = 10;
-    const skip = pagination(query.page, take);
+    const skip =
+      Number(query.page) - 1 <= 0 || isNaN(Number(query.page))
+        ? 0
+        : (Number(query.page) - 1) * take;
     const search = query.search ?? '';
+    const isActive =
+      query.isActive === 'true'
+        ? true
+        : query.isActive === 'false'
+          ? false
+          : null;
     const countUser = await this.prisma.user.count({
       where: {
-        OR: [
-          { email: { contains: search } },
-          { username: { contains: search } },
+        AND: [
+          isActive !== null ? { isActive } : {},
+          {
+            OR: [
+              { email: { contains: search } },
+              { username: { contains: search } },
+            ],
+          },
         ],
       },
     });
@@ -152,18 +166,26 @@ export class UserService {
           createdAt: 'desc',
         },
         where: {
-          OR: [
-            { email: { contains: search } },
-            { username: { contains: search } },
+          AND: [
+            isActive !== null ? { isActive } : {},
+            {
+              OR: [
+                { email: { contains: search } },
+                { username: { contains: search } },
+              ],
+            },
           ],
         },
-        omit: {
-          roleId: true,
-          isArchive: true,
-          activateToken: true,
-          password: true,
+        select: {
+          id: true,
+          email: true,
+          username: true,
+          isActive: true,
+          createdAt: true,
+          updatedAt: true,
         },
       }),
+      totalUser: countUser,
       isNextPage: nextPage,
     };
   }
@@ -173,7 +195,7 @@ export class UserService {
       where: {
         id: id,
       },
-      select: { id: true },
+      select: { id: true, isActive: true },
     });
     if (!existingUser) {
       throw new NotFoundException('User not found');
@@ -183,11 +205,14 @@ export class UserService {
         id: existingUser.id,
       },
       data: {
-        isActive: false,
-        isArchive: true,
+        isActive: !existingUser.isActive,
       },
     });
-    return { message: 'User has been banned' };
+    return {
+      message: existingUser.isActive
+        ? "L'utilisateur à été banni"
+        : "L'utilisateur à été débanni",
+    };
   }
 
   async deleteUser(user: User, id: string) {
@@ -199,12 +224,61 @@ export class UserService {
     if (!existingUser) {
       throw new NotFoundException('User not found');
     }
-    await this.prisma.user.update({
-      where: {
-        id: existingUser.id,
-      },
-      data: { isActive: false, isArchive: true },
-    });
+    await this.prisma.$transaction([
+      this.prisma.post.updateMany({
+        where: { userId: existingUser.id },
+        data: { isArchive: true },
+      }),
+      this.prisma.section.updateMany({
+        where: {
+          project: {
+            users: {
+              some: {
+                userId: existingUser.id,
+                role: { name: roleProject.MODERATOR },
+              },
+            },
+          },
+        },
+        data: { isArchive: true },
+      }),
+      this.prisma.message.updateMany({
+        where: {
+          OR: [
+            { user: { id: existingUser.id } },
+            {
+              project: {
+                users: {
+                  some: {
+                    userId: existingUser.id,
+                    role: { name: roleProject.MODERATOR },
+                  },
+                },
+              },
+            },
+          ],
+        },
+        data: { isArchive: true },
+      }),
+      this.prisma.project.updateMany({
+        where: {
+          users: {
+            some: {
+              userId: existingUser.id,
+              role: { name: roleProject.MODERATOR },
+            },
+          },
+        },
+        data: { isArchive: true },
+      }),
+      this.prisma.user.update({
+        where: { id: existingUser.id },
+        data: {
+          isActive: false,
+          isArchive: true,
+        },
+      }),
+    ]);
     return { message: 'User has been deleted' };
   }
   async changeAvatar(user: User, dto: changeAvatarDTO) {
@@ -213,5 +287,24 @@ export class UserService {
       data: { icon: dto.icon },
     });
     return { message: 'Avatar modifié' };
+  }
+  async detailUser(userId: string) {
+    const existingUser = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        email: true,
+        firstName: true,
+        lastName: true,
+        isActive: true,
+        gdpr: true,
+        createdAt: true,
+        updatedAt: true,
+        username: true,
+      },
+    });
+    if (!existingUser) {
+      throw new NotFoundException('Utilisateur introuvable');
+    }
+    return { data: existingUser };
   }
 }

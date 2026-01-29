@@ -11,9 +11,10 @@ import { NotificationService } from 'src/notification/notification.service';
 import { User } from 'src/prisma/generated';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { role, roleProject } from 'src/utils/enum';
-import { queryMessage, UserWithRole } from 'src/utils/type';
+import { queryMessage, queryPage, UserWithRole } from 'src/utils/type';
 import { messageDTO } from './dto';
 import { MessageGateway } from './message.gateway';
+import { isEndList } from 'src/utils/function';
 
 @Injectable()
 export class MessageService {
@@ -233,5 +234,41 @@ export class MessageService {
     }
     await client.join(`message/${projectId}`);
     return;
+  }
+  async getListMessageByUser(userId: string, query: queryPage) {
+    const take = 10;
+    const skip =
+      Number(query.page) - 1 <= 0 || isNaN(Number(query.page))
+        ? 0
+        : (Number(query.page) - 1) * take;
+    const existingUser = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true },
+    });
+    if (!existingUser) {
+      throw new NotFoundException('Utilisateur introuvable !');
+    }
+    const totalMessage = await this.prisma.message.count({
+      where: { authorId: existingUser.id },
+    });
+    if (totalMessage === 0) {
+      return { data: [], totalMessage: 0, isEndList: true };
+    }
+    const listMessage = await this.prisma.message.findMany({
+      take,
+      skip,
+      where: { authorId: existingUser.id },
+      select: {
+        id: true,
+        message: true,
+        updatedAt: true,
+        project: { select: { name: true } },
+      },
+    });
+    return {
+      data: listMessage,
+      isEndList: isEndList(skip, take, totalMessage),
+      totalMessage: totalMessage,
+    };
   }
 }
