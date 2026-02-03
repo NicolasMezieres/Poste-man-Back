@@ -131,6 +131,7 @@ describe('UserService', () => {
       expect(result).toEqual({
         data: [{ username: 'Plopiplop' }],
         isNextPage: false,
+        totalUser: 5,
       });
       expect(mockPrisma.user.count).toHaveBeenCalled();
       expect(mockPrisma.user.findMany).toHaveBeenCalled();
@@ -142,10 +143,10 @@ describe('UserService', () => {
       mockPrisma.user.findUnique.mockResolvedValue(mockUser);
       mockPrisma.user.update.mockResolvedValue(undefined);
       const result = await service.banUser(mockUser, '1');
-      expect(result).toEqual({ message: 'User has been banned' });
+      expect(result).toEqual({ message: "L'utilisateur à été banni" });
       expect(mockPrisma.user.update).toHaveBeenCalledWith({
         where: { id: '1' },
-        data: { isActive: false, isArchive: true },
+        data: { isActive: false },
       });
     });
 
