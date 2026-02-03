@@ -1,4 +1,14 @@
 services:
+  api:
+    build: .
+    depends_on:
+      - postgres_db
+    ports:
+      - 3000:3000
+    networks:
+      - poste_man
+    command: npm run start:dev
+
   postgres_db:
     image: postgres:17.6
     restart: always
