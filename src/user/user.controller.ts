@@ -59,7 +59,11 @@ export class UserController {
   searchUser(@Query() query: queryUserList) {
     return this.userService.listUser(query);
   }
-
+  @UseGuards(AdminGuard)
+  @Get('/:userId/detail')
+  detailUser(@Param('userId') userId: string) {
+    return this.userService.detailUser(userId);
+  }
   @UseGuards(AdminGuard)
   @Patch(':id/ban')
   banUser(@GetUser() user: User, @Param('id') id: string) {
