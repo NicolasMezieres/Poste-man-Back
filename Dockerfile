@@ -8,9 +8,7 @@ RUN npm i
 
 COPY . .
 
-COPY .env ./
-
-RUN npm run build
+RUN npm run build && npx prisma generate
 
 EXPOSE 3000
 
