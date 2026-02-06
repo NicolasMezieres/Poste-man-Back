@@ -8,7 +8,7 @@ RUN npm i
 
 COPY . .
 
-RUN npm run build && npx prisma generate
+RUN npx prisma generate && npm run build 
 
 EXPOSE 3000
 
