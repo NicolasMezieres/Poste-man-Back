@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   Param,
   Patch,
   Post,
@@ -25,6 +26,8 @@ import {
   SignUpDTO,
 } from './dto';
 import { JwtGuard, ResetPasswordGuard } from './Guards';
+import { UserWithRole } from 'src/utils/type';
+import { role } from 'src/utils/enum';
 
 @Controller('auth')
 export class AuthController {
@@ -89,5 +92,10 @@ export class AuthController {
       sameSite: 'strict',
     });
     return { message: 'Deconnection Success' };
+  }
+  @UseGuards(JwtGuard)
+  @Get('log')
+  log(@GetUser() user: UserWithRole) {
+    return { message: 'connecté', isAdmin: user.role.name === role.ADMIN };
   }
 }
