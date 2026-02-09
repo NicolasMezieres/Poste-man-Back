@@ -33,7 +33,7 @@ services:
       - PORT_GATEWAY=${PORT_GATEWAY}
 
   postgres_db:
-    image: postgres:17.6
+    image: postgres:17.7-alpine
     restart: always
     volumes:
       - ./postgres-data:/var/lib/postgresql/data
@@ -47,7 +47,7 @@ services:
       - poste_man
 
   test_db:
-    image: postgres:17.6
+    image: postgres:17.7-alpine
     restart: always
     environment:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD_TEST}
