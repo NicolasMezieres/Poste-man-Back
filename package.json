@@ -23,6 +23,8 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --selectProjects integration",
     "test:e2e:watch": "jest --selectProjects integration --watch",
+    "docker:migrate": "npx prisma generate && docker compose run api npx prisma migrate dev",
+    "docker:seed": "docker compose run api npx prisma db seed",
     "test:e2e:cov": "jest --selectProjects integration --coverage"
   },
   "dependencies": {
