@@ -12,7 +12,7 @@ import { getClient } from 'src/auth/decorator/get-client.decorator';
 import { User } from 'src/prisma/generated';
 import { WsJwtGuard } from 'src/auth/Guards/ws.jwt.guard';
 import { PostService } from './post.service';
-@WebSocketGateway(Number(process.env.PORT_GATEWAY) || 3001, {
+@WebSocketGateway({
   cors: { origin: [`${process.env.FRONT_URL}`], credentials: true },
 })
 @UseGuards(WsJwtGuard)
