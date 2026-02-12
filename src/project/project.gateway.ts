@@ -21,7 +21,7 @@ import {
 } from '@nestjs/swagger';
 
 @UseGuards(WsJwtGuard)
-@WebSocketGateway(Number(process.env.PORT_GATEWAY) || 3001, {
+@WebSocketGateway({
   cors: { origin: ['http://localhost:4200'], credentials: true },
 })
 export class ProjectGateway implements OnGatewayDisconnect {
