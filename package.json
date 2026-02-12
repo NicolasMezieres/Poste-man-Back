@@ -27,6 +27,7 @@
     "docker:migrate": "npx prisma generate && docker compose run --rm api npx prisma migrate dev",
     "docker:seed": "docker compose run --rm api npx prisma db seed",
     "docker:init": "docker compose up -d && npm run docker:migrate && npm run docker:seed",
+    "prisma:studio": "npx prisma studio --url=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@localhost:5434/${POSTGRES_DB}",
     "test:e2e:cov": "jest --selectProjects integration --coverage"
   },
   "dependencies": {
