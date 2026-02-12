@@ -13,9 +13,10 @@
     "format": "prettier --write \"src/**/*.ts\" ",
     "format:check": "prettier --check \"src/**/*.ts\" ",
     "start": "nest start",
-    "start:dev": "docker compose up -d && docker compose logs -f api",
+    "start:dev": "nest start --watch",
+    "start:docker": "docker compose up --watch",
     "start:debug": "nest start --debug --watch",
-    "start:prod": "node dist/main",
+    "start:prod": "node dist/src/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "jest --selectProjects unit",
     "test:watch": "jest --selectProjects unit --watch",
@@ -25,6 +26,7 @@
     "test:e2e:watch": "jest --selectProjects integration --watch",
     "docker:migrate": "npx prisma generate && docker compose run api npx prisma migrate dev",
     "docker:seed": "docker compose run api npx prisma db seed",
+    "docker:init": "npm run docker:migrate && npm run docker:seed",
     "test:e2e:cov": "jest --selectProjects integration --coverage"
   },
   "dependencies": {

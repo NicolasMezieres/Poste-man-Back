@@ -1,11 +1,21 @@
 services:
   api:
     build: .
-    restart: always
+    # restart: always
     depends_on:
       - postgres_db
     ports:
       - 3000:3000
+    command: npm run start:dev
+    develop:
+      watch:
+        - action: sync
+          path: ./src
+          target: /usr/src/app/src
+          ignore:
+            - node_modules/
+        - action: rebuild
+          path: package.json
     networks:
       - poste_man
     environment:
