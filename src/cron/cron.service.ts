@@ -9,7 +9,7 @@ export class CronService {
     private readonly logger: Logger,
   ) {}
 
-  @Cron(CronExpression.EVERY_10_MINUTES)
+  @Cron(CronExpression.EVERY_WEEKEND)
   async clearArchive() {
     const countPostDeleted = await this.prisma.post.deleteMany({
       where: { OR: [{ isArchive: true }, { section: { isArchive: true } }] },
@@ -33,7 +33,8 @@ export class CronService {
     this.logger.log(`${countAccountDelete.count} compte supprimer`);
   }
 
-  @Cron(CronExpression.EVERY_10_MINUTES)
+
+  @Cron(CronExpression.EVERY_WEEKEND)
   async handleLinkProject() {
     const now = new Date();
     const result = await this.prisma.link_Project.deleteMany({
