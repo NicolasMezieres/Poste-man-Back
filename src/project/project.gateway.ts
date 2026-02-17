@@ -22,7 +22,7 @@ import {
 
 @UseGuards(WsJwtGuard)
 @WebSocketGateway({
-  cors: { origin: ['http://localhost:4200'], credentials: true },
+  cors: { origin: [`${process.env.FRONT_URL}`], credentials: true },
 })
 export class ProjectGateway implements OnGatewayDisconnect {
   constructor(
