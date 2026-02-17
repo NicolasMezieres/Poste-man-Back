@@ -8,7 +8,7 @@ export class CleangdprService {
   private readonly logger = new Logger(CleangdprService.name);
   constructor(private readonly prisma: PrismaService) {}
 
-  @Cron(CronExpression.EVERY_10_MINUTES)
+  @Cron(CronExpression.EVERY_WEEKEND)
   async handleGdprUpdate() {
     const cutoffDate = subYears(new Date(), 1);
     this.logger.log('Checking gdpr users');
