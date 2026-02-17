@@ -27,7 +27,7 @@ export class EmailService {
     await this.transporter.sendMail({
       from: this.config.get('SMTP_EMAIL'),
       to: user.email,
-      subject: 'Validation account',
+      subject: 'Validation de compte',
       html: inscriptionEmailTemplate(url, user.username),
     });
   }
@@ -37,7 +37,7 @@ export class EmailService {
     await this.transporter.sendMail({
       from: this.config.get('SMTP_EMAIL'),
       to: user.email,
-      subject: 'Reset your password',
+      subject: 'Réinitialisation de vôtre mot de passe',
       html: sendPasswordResetTemplate(user.username, url),
     });
   }

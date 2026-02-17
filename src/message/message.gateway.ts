@@ -12,7 +12,7 @@ import { getClient } from 'src/auth/decorator/get-client.decorator';
 import { User } from 'src/prisma/generated';
 import { WsJwtGuard } from 'src/auth/Guards/ws.jwt.guard';
 import { MessageService } from './message.service';
-@WebSocketGateway(Number(process.env.PORT_GATEWAY) || 3001, {
+@WebSocketGateway({
   cors: { origin: [`${process.env.FRONT_URL}`], credentials: true },
 })
 @UseGuards(WsJwtGuard)
@@ -46,5 +46,15 @@ export class MessageGateway {
   }
   emitResetMessage(projectId: string) {
     this.server.to(`message/${projectId}`).emit('message', { action: 'reset' });
+  }
+  emitMessageBan(userId: string, projectId: string, isBanned: boolean) {
+    this.server
+      .to(`message/${projectId}`)
+      .emit('message', { action: 'ban', userId, isBanned });
+  }
+  emitMessageKick(userId: string, projectId: string) {
+    this.server
+      .to(`message/${projectId}`)
+      .emit('message', { action: 'kickUser', userId });
   }
 }

@@ -11,7 +11,6 @@ datasource db {
 model User {
   id String @id @default(uuid())
   roleId String
-  iconId Int? 
   firstName String @db.VarChar(35)
   lastName String @db.VarChar(35) 
   email String @db.VarChar(320) @unique
@@ -23,7 +22,7 @@ model User {
   gdpr Boolean @default(true)
   createdAt DateTime @db.Timestamp() @default(now())
   updatedAt DateTime @db.Timestamp() @default(now())
-  icon Icon? @relation(fields: [iconId], references: [id])
+  icon String? @db.VarChar(50)
   role Role @relation(fields: [roleId], references: [id])
   participationProject User_Has_Project[]
   message Message[]
@@ -41,12 +40,6 @@ model Notification {
   createdAt DateTime @db.Timestamp() @default(now())
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   @@unique([userId,projectId,theme])
-}
-
-model Icon {
-  id Int @id @default(autoincrement())
-  image String @db.VarChar(255)
-  user User[]
 }
 model Role {
   id String @id @default(uuid())

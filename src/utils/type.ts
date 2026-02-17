@@ -51,12 +51,11 @@ export type userGateway = {
   userId: string;
   projectMemberIds: string[];
   projectId?: string;
+  icon: string | null;
 };
 export type userDataGateway = {
   username: string;
-  icon: {
-    image: string;
-  } | null;
+  icon: string | null;
 };
 export type memberGateway = {
   user: userDataGateway;
@@ -67,13 +66,20 @@ export type memberGateway = {
 
 export type resMessageType = { body: { message: string } };
 
-export type queryUserList = { page: number; search: string };
-
+export type queryUserList = {
+  page: number;
+  search: string;
+  isActive?: string;
+};
+export type queryPage = {
+  page: number;
+};
 export type postType = {
   user: userType;
   vote: voteType[];
   text: string;
   id: string;
+  isVisible: boolean;
   isArchive: boolean;
   createdAt: Date;
   updatedAt: Date;
