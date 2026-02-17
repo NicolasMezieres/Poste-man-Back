@@ -6,16 +6,16 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { WsException } from '@nestjs/websockets';
+import { Socket } from 'socket.io';
 import { User } from 'src/prisma/generated';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { roleProject } from 'src/section/mock/section.mock';
 import { role } from 'src/utils/enum';
 import { UserWithRole } from 'src/utils/type';
 import { postDTO, voteDTO } from './dto';
-import { WsException } from '@nestjs/websockets';
-import { PostGateway } from './post.gateway';
-import { Socket } from 'socket.io';
 import { movePostDTO } from './dto/move.post.dto';
+import { PostGateway } from './post.gateway';
 
 @Injectable()
 export class PostService {
@@ -40,7 +40,7 @@ export class PostService {
             },
             vote: { select: { isUp: true }, where: { userId: user.id } },
           },
-          omit: { isVisible: true, sectionId: true, userId: true },
+          omit: { sectionId: true, userId: true },
         },
         id: true,
         projectId: true,
@@ -48,15 +48,19 @@ export class PostService {
       },
     });
     if (!existingSection) {
-      throw new NotFoundException('Section not found !');
+      throw new NotFoundException('Section introuvable !');
     }
     const isAdmin = user.role.name === role.ADMIN;
     const isUserInProject = await this.prisma.user_Has_Project.findFirst({
-      where: { userId: user.id, projectId: existingSection.projectId },
+      where: {
+        userId: user.id,
+        projectId: existingSection.projectId,
+        isBanned: false,
+      },
       select: { role: { select: { name: true } } },
     });
     if (!isAdmin && !isUserInProject) {
-      throw new ForbiddenException('You are unauthorized !');
+      throw new ForbiddenException("Vous n'êtes pas autoriser !");
     }
     const isModerator: boolean =
       isUserInProject?.role.name === roleProject.MODERATOR;
@@ -77,7 +81,7 @@ export class PostService {
       select: { id: true, projectId: true },
     });
     if (!existingSection) {
-      throw new NotFoundException('Section not found');
+      throw new NotFoundException('Section introuvable');
     }
     const didUserInProject = await this.prisma.user_Has_Project.findFirst({
       where: {
@@ -88,7 +92,7 @@ export class PostService {
       select: { id: true },
     });
     if (!didUserInProject) {
-      throw new ForbiddenException('You are unauthorized !');
+      throw new ForbiddenException("Vous n'êtes pas autoriser !");
     }
     const newPost = await this.prisma.post.create({
       data: { ...dto, userId: user.id, sectionId: existingSection.id },
@@ -96,10 +100,10 @@ export class PostService {
         user: { select: { id: true, username: true } },
         vote: { select: { isUp: true }, where: { userId: user.id } },
       },
-      omit: { userId: true, isVisible: true, sectionId: true },
+      omit: { userId: true, sectionId: true },
     });
     this.socket.emitNewPost(newPost, existingSection.projectId);
-    return { message: 'Post created !' };
+    return { message: 'Post créer !' };
   }
   async update(postId: string, dto: postDTO, user: User) {
     const existingPost = await this.prisma.post.findUnique({
@@ -111,10 +115,10 @@ export class PostService {
       },
     });
     if (!existingPost) {
-      throw new NotFoundException('Post not found !');
+      throw new NotFoundException('Post introuvable !');
     }
     if (existingPost.userId !== user.id) {
-      throw new ForbiddenException('You are unauthorized !');
+      throw new ForbiddenException("Vous n'êtes pas autoriser !");
     }
     const updatePost = await this.prisma.post.update({
       where: { id: existingPost.id },
@@ -123,10 +127,10 @@ export class PostService {
         user: { select: { id: true, username: true } },
         vote: { select: { isUp: true }, where: { userId: user.id } },
       },
-      omit: { userId: true, isVisible: true, sectionId: true },
+      omit: { userId: true, sectionId: true },
     });
     this.socket.emitUpdatePost(updatePost, existingPost.section.projectId);
-    return { message: 'Post updated !' };
+    return { message: 'Post modifier !' };
   }
   async movePost(postId: string, dto: movePostDTO, user: User) {
     const existingPost = await this.prisma.post.findUnique({
@@ -154,7 +158,7 @@ export class PostService {
         user: { select: { id: true, username: true } },
         vote: { select: { isUp: true }, where: { userId: user.id } },
       },
-      omit: { userId: true, isVisible: true, sectionId: true },
+      omit: { userId: true, sectionId: true },
     });
     this.socket.emitUpdatePost(updatePost, existingPost.section.projectId);
     return { message: 'Post mis à jour' };
@@ -171,21 +175,21 @@ export class PostService {
       },
     });
     if (!existingPost) {
-      throw new NotFoundException('Post not found !');
+      throw new NotFoundException('Post introuvable !');
     }
     if (existingPost.sectionId === sectionId) {
-      throw new BadRequestException('Post already in section');
+      throw new BadRequestException('Post déjà dans la section');
     }
     const existingSection = await this.prisma.section.findUnique({
       where: { id: sectionId },
       select: { projectId: true, id: true },
     });
     if (!existingSection) {
-      throw new NotFoundException('Section not found !');
+      throw new NotFoundException('Section introuvable !');
     }
     if (existingSection.projectId !== existingPost.section.projectId) {
       throw new ForbiddenException(
-        'Project is not the same project of section',
+        `Le projet n'est pas le même que celui de la section.`,
       );
     }
     if (!isAdmin && existingPost.userId !== user.id) {
@@ -198,7 +202,7 @@ export class PostService {
         select: { id: true },
       });
       if (!isModerator) {
-        throw new ForbiddenException('You are not authorized');
+        throw new ForbiddenException("Vous n'êtes pas autorisé(e)");
       }
     }
     await this.prisma.post.update({
@@ -209,7 +213,7 @@ export class PostService {
       existingPost.id,
       existingPost.section.projectId,
     );
-    return { message: 'Section of post changed !' };
+    return { message: 'La section des posts à été modifier !' };
   }
   async transfertAll(
     sectionId: string,
@@ -217,24 +221,28 @@ export class PostService {
     user: UserWithRole,
   ) {
     if (sectionId === moveSectionId) {
-      throw new BadRequestException('Need to other section !');
+      throw new BadRequestException('Une autre section est nécessaire !');
     }
     const existingSection = await this.prisma.section.findUnique({
       where: { id: sectionId },
       select: { id: true, projectId: true },
     });
     if (!existingSection) {
-      throw new NotFoundException('Section not found !');
+      throw new NotFoundException('Section introuvable !');
     }
     const existingMoveSection = await this.prisma.section.findUnique({
       where: { id: moveSectionId },
       select: { id: true, projectId: true },
     });
     if (!existingMoveSection) {
-      throw new NotFoundException('Section to move not found !');
+      throw new NotFoundException(
+        'La section pour le transfert est introuvable !',
+      );
     }
     if (existingSection.projectId !== existingMoveSection.projectId) {
-      throw new ForbiddenException('Sections do not have the same project');
+      throw new ForbiddenException(
+        'Les sections ne sont pas dans le même projet',
+      );
     }
     const isAdmin = user.role.name === role.ADMIN;
     if (!isAdmin) {
@@ -248,7 +256,7 @@ export class PostService {
         select: { id: true },
       });
       if (!isModerator) {
-        throw new ForbiddenException('You are unauthorized !');
+        throw new ForbiddenException("Vous n'êtes pas autorisé(e) !");
       }
     }
     await this.prisma.post.updateMany({
@@ -256,7 +264,7 @@ export class PostService {
       data: { sectionId: moveSectionId },
     });
     this.socket.emitResetPost(existingSection.projectId);
-    return { message: 'Posts changed section !' };
+    return { message: 'Les posts ont changées de section !' };
   }
 
   async vote(postId: string, dto: voteDTO, user: User) {
@@ -269,7 +277,7 @@ export class PostService {
       },
     });
     if (!existingPost) {
-      throw new NotFoundException('Post not found !');
+      throw new NotFoundException('Post introuvable !');
     }
     const didUserInProject = await this.prisma.user_Has_Project.findFirst({
       where: {
@@ -280,7 +288,7 @@ export class PostService {
       select: { id: true },
     });
     if (!didUserInProject) {
-      throw new ForbiddenException('You are unauthorized !');
+      throw new ForbiddenException("Vous n'êtes pas autorisé(e) !");
     }
     const existingVote = await this.prisma.vote.findFirst({
       where: { postId, userId: user.id },
@@ -387,7 +395,7 @@ export class PostService {
       },
     });
     if (!existingPost) {
-      throw new NotFoundException('Post not found !');
+      throw new NotFoundException('Post introuvable !');
     }
     const isAdmin = user.role.name === role.ADMIN;
     if (!isAdmin && existingPost.userId !== user.id) {
@@ -400,7 +408,7 @@ export class PostService {
         select: { id: true },
       });
       if (!isModerator) {
-        throw new ForbiddenException('You are unauthorized !');
+        throw new ForbiddenException("Vous n'êtes pas autorisé(e)!");
       }
     }
 
@@ -410,7 +418,7 @@ export class PostService {
     });
     this.socket.emitDeletePost(existingPost.id, existingPost.section.projectId);
     return {
-      message: 'Post deleted !',
+      message: 'Post supprimer !',
     };
   }
   async removeAll(sectionId: string, user: UserWithRole) {
@@ -420,7 +428,7 @@ export class PostService {
       select: { id: true, projectId: true },
     });
     if (!existingSection) {
-      throw new NotFoundException('Section not found !');
+      throw new NotFoundException('Section introuvable !');
     }
     if (!isAdmin) {
       const isModerator = await this.prisma.user_Has_Project.findFirst({
@@ -433,7 +441,7 @@ export class PostService {
         select: { id: true },
       });
       if (!isModerator) {
-        throw new ForbiddenException('You are unauthorized !');
+        throw new ForbiddenException("Vous n'êtes pas autorisé(e) !");
       }
     }
     await this.prisma.post.updateMany({
@@ -441,7 +449,7 @@ export class PostService {
       data: { isVisible: false, updatedAt: new Date(), isArchive: true },
     });
     this.socket.emitResetPost(existingSection.projectId);
-    return { message: 'All post have been deleted !' };
+    return { message: 'Tout les posts on été supprimer !' };
   }
   async joinRoomPost(client: Socket, projectId: string, user: User) {
     const existingUserProject = await this.prisma.user_Has_Project.findFirst({
@@ -449,7 +457,7 @@ export class PostService {
       select: { id: true },
     });
     if (!existingUserProject) {
-      throw new WsException("You aren't a member !");
+      throw new WsException("Vous n'êtes pas membre !");
     }
     await client.join(`post/${projectId}`);
     return;

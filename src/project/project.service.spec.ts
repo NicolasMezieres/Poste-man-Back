@@ -16,13 +16,18 @@ import {
 import { ProjectGateway } from './project.gateway';
 import { projectGatewayMock } from './mock/project.gateway.mock';
 import { roleProject } from 'src/utils/enum';
+import { PostGateway } from 'src/post/post.gateway';
+import { postGatewayMock } from 'src/post/mock/post.gateway.mock';
+import { MessageGateway } from 'src/message/message.gateway';
+import { messageGatewayMock } from 'src/message/mock/message.gateway.mock';
 describe('ProjectService', () => {
   let service: ProjectService;
-
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ProjectService,
+        { provide: MessageGateway, useValue: messageGatewayMock },
+        { provide: PostGateway, useValue: postGatewayMock },
         { provide: PrismaService, useValue: projectPrismaMock },
         { provide: ProjectGateway, useValue: projectGatewayMock },
       ],
@@ -149,9 +154,10 @@ describe('ProjectService', () => {
         .mockResolvedValue(projectId);
       jest
         .spyOn(projectPrismaMock.user_Has_Project, 'create')
-        .mockResolvedValue(null);
+        .mockResolvedValue({ projectId: 'projectId' });
       await expect(service.create(dto, userMock)).resolves.toEqual({
         message: 'Project successfully create !',
+        data: { projectId: 'projectId' },
       });
     });
     it('should return an Internal Server Error Exception', async () => {

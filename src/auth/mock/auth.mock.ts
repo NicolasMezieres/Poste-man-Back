@@ -3,10 +3,10 @@ import { role } from 'src/utils/enum';
 
 export const messageMock = { message: 'message' };
 export const signupMessageMock = {
-  message: 'Your account as been create !',
+  message: 'Votre compte à été créer !',
 };
 export const signinResponseMock = {
-  message: 'Connexion succesfully',
+  message: 'Connexion réussi',
   role: 'role',
 };
 
@@ -27,7 +27,7 @@ export const roleMock = {
 export const userMock = {
   id: '1',
   roleId: '1',
-  iconId: null,
+  icon: null,
   firstName: 'Unit',
   lastName: 'TestUnit',
   username: 'UnitTest',

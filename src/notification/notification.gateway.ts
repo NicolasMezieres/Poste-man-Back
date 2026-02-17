@@ -3,7 +3,7 @@ import { WebSocketGateway } from '@nestjs/websockets';
 import { WsJwtGuard } from 'src/auth/Guards/ws.jwt.guard';
 import { NotificationService } from './notification.service';
 
-@WebSocketGateway(Number(process.env.PORT_GATEWAY) || 3001, {
+@WebSocketGateway({
   cors: { origin: ['http://localhost:4200'], credentials: true },
 })
 @UseGuards(WsJwtGuard)

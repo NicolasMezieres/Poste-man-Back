@@ -1,8 +1,4 @@
-import {
-  ForbiddenException,
-  InternalServerErrorException,
-  NotFoundException,
-} from '@nestjs/common';
+import { ForbiddenException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { mockPrisma } from './mock/prisma.mock';
@@ -72,12 +68,6 @@ describe('UserService', () => {
 
   describe('changePassword', () => {
     const dto = { oldPassword: 'oldPassword', password: 'password' };
-    it('Should fail, not found account', async () => {
-      jest.spyOn(mockPrisma.user, 'findUnique').mockReturnValue(undefined);
-      await expect(service.changePassword(userMock, dto)).rejects.toEqual(
-        new NotFoundException('Compte introuvable'),
-      );
-    });
     it('Should fail, password incorrect', async () => {
       jest
         .spyOn(mockPrisma.user, 'findUnique')
@@ -107,6 +97,7 @@ describe('UserService', () => {
         firstName: userMock.firstName,
         lastName: userMock.lastName,
         username: userMock.username,
+        icon: null,
       };
       const result = service.myAccount(userMock);
       expect(result).toEqual({ data });
@@ -115,7 +106,6 @@ describe('UserService', () => {
 
   describe('deleteAccount', () => {
     it('should desactivate and archive account', async () => {
-      mockPrisma.user.findUnique.mockResolvedValue(mockUser);
       mockPrisma.user.update.mockResolvedValue(undefined);
       mockPrisma.post.updateMany.mockResolvedValue(undefined);
       mockPrisma.section.updateMany.mockResolvedValue(undefined);
@@ -129,12 +119,6 @@ describe('UserService', () => {
         data: { isActive: false, isArchive: true },
       });
     });
-    it('should throw InternalServerErrorException if user not found', async () => {
-      mockPrisma.user.findUnique.mockResolvedValue(null);
-      await expect(service.deleteAccount(mockUser)).rejects.toThrow(
-        InternalServerErrorException,
-      );
-    });
   });
 
   describe('listUser', () => {
@@ -147,6 +131,7 @@ describe('UserService', () => {
       expect(result).toEqual({
         data: [{ username: 'Plopiplop' }],
         isNextPage: false,
+        totalUser: 5,
       });
       expect(mockPrisma.user.count).toHaveBeenCalled();
       expect(mockPrisma.user.findMany).toHaveBeenCalled();
@@ -158,10 +143,10 @@ describe('UserService', () => {
       mockPrisma.user.findUnique.mockResolvedValue(mockUser);
       mockPrisma.user.update.mockResolvedValue(undefined);
       const result = await service.banUser(mockUser, '1');
-      expect(result).toEqual({ message: 'User has been banned' });
+      expect(result).toEqual({ message: "L'utilisateur à été banni" });
       expect(mockPrisma.user.update).toHaveBeenCalledWith({
         where: { id: '1' },
-        data: { isActive: false, isArchive: true },
+        data: { isActive: false },
       });
     });
 
@@ -180,10 +165,11 @@ describe('UserService', () => {
 
       const result = await service.deleteUser(mockUser, '1');
       expect(result).toEqual({ message: 'User has been deleted' });
-      expect(mockPrisma.user.delete).toHaveBeenCalledWith({
+      expect(mockPrisma.user.update).toHaveBeenCalledWith({
         where: {
           id: '1',
         },
+        data: { isActive: false, isArchive: true },
       });
     });
     it('should throw NotFoundException if user not found', async () => {
@@ -196,5 +182,13 @@ describe('UserService', () => {
 
   it('should be defined', () => {
     expect(service).toBeDefined();
+  });
+  describe('changeAvatar', () => {
+    it('Should change avatar', async () => {
+      mockPrisma.user.update.mockResolvedValue(null);
+      await expect(
+        service.changeAvatar(mockUser, { icon: 'cat' }),
+      ).resolves.toEqual({ message: 'Avatar modifié' });
+    });
   });
 });

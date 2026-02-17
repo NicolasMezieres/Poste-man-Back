@@ -9,16 +9,6 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { AdminGuard, JwtGuard } from 'src/auth/Guards';
-import { GetUser } from 'src/auth/decorator';
-import { User } from 'src/prisma/generated';
-import { projectDTO } from './dto';
-import { ProjectService } from './project.service';
-import {
-  querySearchAdminProject,
-  querySearchProject,
-  UserWithRole,
-} from 'src/utils/type';
 import {
   ApiCreatedResponse,
   ApiForbiddenResponse,
@@ -27,6 +17,17 @@ import {
   ApiNotFoundResponse,
   ApiOkResponse,
 } from '@nestjs/swagger';
+import { AdminGuard, JwtGuard } from 'src/auth/Guards';
+import { GetUser } from 'src/auth/decorator';
+import { User } from 'src/prisma/generated';
+import {
+  queryPage,
+  querySearchAdminProject,
+  querySearchProject,
+  UserWithRole,
+} from 'src/utils/type';
+import { projectDTO } from './dto';
+import { ProjectService } from './project.service';
 
 @UseGuards(JwtGuard)
 @Controller('project')
@@ -52,6 +53,29 @@ export class ProjectController {
     @GetUser() user: UserWithRole,
   ) {
     return this.projectService.getProject(projectId, user);
+  }
+  @UseGuards(AdminGuard)
+  @Get('/:projectId/detail')
+  getDetail(@Param('projectId') projectId: string) {
+    return this.projectService.getDetail(projectId);
+  }
+
+  @UseGuards(AdminGuard)
+  @Get('/:projectId/listMember')
+  getListMember(
+    @Param('projectId') projectId: string,
+    @GetUser() user: UserWithRole,
+  ) {
+    return this.projectService.listMember(projectId, user);
+  }
+
+  @UseGuards(AdminGuard)
+  @Get('projectListByUser/:userId')
+  getProjectListByUser(
+    @Param('userId') userId: string,
+    @Query() query: queryPage,
+  ) {
+    return this.projectService.getProjectListByUser(userId, query);
   }
 
   @ApiCreatedResponse({ description: 'Project successfully create !' })

@@ -97,7 +97,7 @@ describe('UserController', () => {
   });
 
   describe('deleteUser', () => {
-    it('should call deelteUser with user and id', async () => {
+    it('should call deleteUser with user and id', async () => {
       const id = mockUser.id;
       const excepted = { message: 'User has been deleted' };
       mockUserService.deleteUser.mockResolvedValue(excepted);
@@ -109,5 +109,18 @@ describe('UserController', () => {
   });
   it('should be defined', () => {
     expect(controller).toBeDefined();
+  });
+  describe('changeAvatar', () => {
+    it('Should call changeAvatar in service', async () => {
+      jest
+        .spyOn(service, 'changeAvatar')
+        .mockResolvedValue({ message: 'Avatar modifié' });
+      await expect(
+        controller.changeAvatar({ icon: 'cat' }, mockUser),
+      ).resolves.toEqual({
+        message: 'Avatar modifié',
+      });
+      expect(service.changeAvatar).toHaveBeenCalled();
+    });
   });
 });

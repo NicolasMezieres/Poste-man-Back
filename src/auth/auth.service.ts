@@ -5,11 +5,11 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import type { StringValue } from 'ms';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as argon from 'argon2';
 import { Response } from 'express';
+import type { StringValue } from 'ms';
 import { EmailService } from 'src/email/email.service';
 import { User } from 'src/prisma/generated';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -47,13 +47,13 @@ export class AuthService {
       where: { username: dto.username },
     });
     if (existingUsername) {
-      throw new UnauthorizedException('Username already taken 😱');
+      throw new UnauthorizedException('Pseudo déjà utilisé 😱');
     }
     const existingEmail = await this.prisma.user.findUnique({
       where: { email: dto.email },
     });
     if (existingEmail) {
-      throw new UnauthorizedException('Email already taken 😱');
+      throw new UnauthorizedException('Email déjà utilisé 😱');
     }
     const existingRole = await this.prisma.role.findUnique({
       where: { name: role.USER },
@@ -76,14 +76,14 @@ export class AuthService {
       },
     });
     await this.email.accountConfirmation(newUser, newToken);
-    return { message: 'Your account as been create !' };
+    return { message: 'Votre compte à été créer !' };
   }
   async activationAccount(token: string) {
     const existingUser = await this.prisma.user.findFirst({
       where: { activateToken: token },
     });
     if (!existingUser) {
-      throw new NotFoundException('Account not found');
+      throw new NotFoundException('Compte introuvable');
     }
     await this.prisma.user.update({
       where: { id: existingUser.id },
@@ -93,7 +93,7 @@ export class AuthService {
       },
     });
     return {
-      message: 'Your account has been created !',
+      message: 'Vôtre compte à été créer !',
     };
   }
   async signin(dto: SignInDTO, res: Response) {
@@ -104,9 +104,9 @@ export class AuthService {
       include: { role: true },
     });
     if (!existingUser) {
-      throw new UnauthorizedException('Invalid credential');
+      throw new UnauthorizedException('Identifiant ou mot de passe incorrecte');
     } else if (existingUser.isActive === false) {
-      throw new UnauthorizedException('Your account is not activate');
+      throw new UnauthorizedException(`Vôtre compte n'est pas activer`);
     }
 
     const isSamePassword = await argon.verify(
@@ -115,7 +115,7 @@ export class AuthService {
     );
 
     if (!isSamePassword) {
-      throw new UnauthorizedException('Invalid credential');
+      throw new UnauthorizedException('Identifiant ou mot de passe incorrecte');
     }
     const token = await this.signToken(existingUser, '1d');
     res.cookie('access_token', token.connexion_token, {
@@ -124,7 +124,7 @@ export class AuthService {
       maxAge: 1000 * 60 * 60 * 24 * 7,
       secure: process.env.IS_PRODUCTION === 'true' ? true : false,
     });
-    return { message: 'Connexion succesfully', role: existingUser.role.name };
+    return { message: 'Connexion réussi', role: existingUser.role.name };
   }
   async forgetPassword(dto: ForgetPasswordDTO) {
     const existingEmail = await this.prisma.user.findUnique({
@@ -137,7 +137,7 @@ export class AuthService {
       throw new ForbiddenException('Your account is not activate');
     }
     return {
-      message: 'A mail was send.',
+      message: 'Un email a été envoyé',
     };
   }
   async resetPassword(user: User, dto: ResetPasswordDTO) {
@@ -146,6 +146,6 @@ export class AuthService {
       where: { id: user.id },
       data: { password: hash },
     });
-    return { message: 'Your password has been change' };
+    return { message: 'Vôtre mot de passe à été modifier' };
   }
 }

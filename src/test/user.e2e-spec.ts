@@ -1,5 +1,5 @@
 import { NotFoundException } from '@nestjs/common';
-import { app, cookie, prisma } from './setup.e2e';
+import { app, cookie, cookieAdmin, prisma } from './setup.e2e';
 import * as req from 'supertest';
 import { resMessageType } from 'src/utils/type';
 describe('Section (e2e)', () => {
@@ -128,8 +128,8 @@ describe('Section (e2e)', () => {
         .expect(200);
     });
     it('Should update with username and email not used', async () => {
-      updateAccountDTO.email = 'userE2E2@email.com';
-      updateAccountDTO.username = 'usernameE2E2';
+      updateAccountDTO.email = 'userE2E3@email.com';
+      updateAccountDTO.username = 'usernameE2E3';
 
       return req(app.getHttpServer())
         .patch(path)
@@ -205,7 +205,144 @@ describe('Section (e2e)', () => {
         .expect(200);
     });
   });
-  describe('/ (PATCH or DELETE) MyAccount', () => {});
-  describe('/ (PATCH) MyAccount', () => {});
-  describe('/ (PATCH) MyAccount', () => {});
+  describe('changeAvatar', () => {
+    const path = '/user/changeAvatar';
+    it('Should fail, Need a cookie (401)', async () => {
+      return req(app.getHttpServer())
+        .patch(path)
+        .expect(401)
+        .expect((err: resMessageType) =>
+          expect(err.body.message).toContain('Unauthorized'),
+        );
+    });
+    it('Should fail invalid dto (400)', async () => {
+      return req(app.getHttpServer())
+        .patch(path)
+        .set('Cookie', cookie)
+        .expect(400)
+        .expect((err: resMessageType) =>
+          expect(err.body.message[0]).toContain('icon'),
+        );
+    });
+    it('Should succes avatar changed (200)', async () => {
+      return req(app.getHttpServer())
+        .patch(path)
+        .set('Cookie', cookie)
+        .send({ icon: 'cat' })
+        .expect(200);
+    });
+  });
+  describe('deleteAccount', () => {
+    const path = '/user/account/desactivate';
+    it('Should succes', async () => {
+      return req(app.getHttpServer())
+        .delete(path)
+        .set('Cookie', cookieUserE2E)
+        .expect(200);
+    });
+    it('Should fail, need a cookie (401)', async () => {
+      return req(app.getHttpServer())
+        .delete(path)
+        .expect(401)
+        .expect((err: resMessageType) =>
+          expect(err.body.message).toContain('Unauthorized'),
+        );
+    });
+  });
+  describe('searchUser (admin)', () => {
+    const path = '/user/userList';
+    it('Should fail, need a cookie (401)', async () => {
+      return req(app.getHttpServer())
+        .get(path)
+        .expect(401)
+        .expect((err: resMessageType) =>
+          expect(err.body.message).toContain('Unauthorized'),
+        );
+    });
+    it('Should fail, not an admin (401)', async () => {
+      return req(app.getHttpServer())
+        .get(path)
+        .set('Cookie', cookie)
+        .expect(401)
+        .expect((err: resMessageType) =>
+          expect(err.body.message).toContain('not authorized'),
+        );
+    });
+    it('Should succes', async () => {
+      return req(app.getHttpServer())
+        .get(path)
+        .set('Cookie', cookieAdmin)
+        .expect(200);
+    });
+  });
+  describe('banUser (admin)', () => {
+    const path = '/user/';
+    it('Should fail, need a cookie (401)', async () => {
+      return req(app.getHttpServer())
+        .patch(path + 'id/ban')
+        .expect(401)
+        .expect((err: resMessageType) =>
+          expect(err.body.message).toContain('Unauthorized'),
+        );
+    });
+    it('Should fail, not an admin (401)', async () => {
+      return req(app.getHttpServer())
+        .patch(path + 'id/ban')
+        .set('Cookie', cookie)
+        .expect(401)
+        .expect((err: resMessageType) =>
+          expect(err.body.message).toContain('not authorized'),
+        );
+    });
+    it('Should fail, user not found (404)', async () => {
+      return req(app.getHttpServer())
+        .patch(path + 'id/ban')
+        .set('Cookie', cookieAdmin)
+        .expect(404)
+        .expect((err: resMessageType) =>
+          expect(err.body.message).toContain('User'),
+        );
+    });
+    it('Should succes', async () => {
+      return req(app.getHttpServer())
+        .patch(path + `${userId}/ban`)
+        .set('Cookie', cookieAdmin)
+        .expect(200);
+    });
+  });
+  describe('deleteUser (admin)', () => {
+    const path = '/user/';
+    it('Should fail, need a cookie (401)', async () => {
+      return req(app.getHttpServer())
+        .delete(path + 'id/delete')
+        .expect(401)
+        .expect((res: resMessageType) =>
+          expect(res.body.message).toContain('Unauthorized'),
+        );
+    });
+    it('Should fail, not an admin (401)', async () => {
+      return req(app.getHttpServer())
+        .delete(path + 'id/delete')
+        .expect(401)
+        .set('Cookie', cookie)
+        .expect((err: resMessageType) =>
+          expect(err.body.message).toContain('not authorized'),
+        );
+    });
+    it('Should fail, user not found (404)', async () => {
+      return req(app.getHttpServer())
+        .delete(path + 'id/delete')
+        .set('Cookie', cookieAdmin)
+        .expect(404)
+        .expect((err: resMessageType) =>
+          expect(err.body.message).toContain('User'),
+        );
+    });
+    it('Should succes', async () => {
+      return req(app.getHttpServer())
+        .delete(path + `${userId}/delete`)
+        .set('Cookie', cookieAdmin)
+        .expect(200);
+    });
+  });
 });
