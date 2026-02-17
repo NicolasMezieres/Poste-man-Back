@@ -1,0 +1,332 @@
+import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { Test } from '@nestjs/testing';
+import { Server } from 'http';
+import { AuthModule } from 'src/auth/auth.module';
+import { AuthEmailMock } from 'src/auth/mock/auth.email.mock';
+import { AuthPrismaMock } from 'src/auth/mock/auth.prisma.mock';
+import { EmailService } from 'src/email/email.service';
+import { PrismaService } from 'src/prisma/prisma.service';
+import { resMessageType } from 'src/utils/type';
+import * as request from 'supertest';
+import { app, bearerToken, prisma } from './setup.e2e';
+
+const signupDTO = {
+  firstName: 'firstName',
+  lastName: 'lastName',
+  email: 'email@email.com',
+  username: 'username',
+  password: 'strongP@ssword73',
+};
+
+describe('AuthController (e2e)', () => {
+  afterAll(async () => {
+    await prisma.user.delete({
+      where: { username: 'username' },
+    });
+    await app.close();
+  });
+  describe('/ (POST) Signup', () => {
+    it('Signup successfully', async () => {
+      return request(app.getHttpServer())
+        .post('/auth/signup')
+        .send(signupDTO)
+        .expect(201)
+        .then((res: resMessageType) => {
+          expect(res.body.message).toEqual('Votre compte à été créer !');
+        });
+    });
+    it('Should return an Unauthorized Exception, Username already taken', async () => {
+      return request(app.getHttpServer())
+        .post('/auth/signup')
+        .send(signupDTO)
+        .expect(401)
+        .then((res: resMessageType) => {
+          expect(res.body.message).toEqual('Pseudo déjà utilisé 😱');
+        });
+    });
+    it('Should return an Unauthorized Exception, Email already taken', async () => {
+      const newDTO = { ...signupDTO, username: 'otherUsername' };
+      return request(app.getHttpServer())
+        .post('/auth/signup')
+        .send(newDTO)
+        .expect(401)
+        .then((res: resMessageType) => {
+          expect(res.body.message).toEqual('Email déjà utilisé 😱');
+        });
+    });
+    it('Should return a Bad Request Exception, firstName', async () => {
+      const newDTO = { ...signupDTO, firstName: '' };
+      return request(app.getHttpServer())
+        .post('/auth/signup')
+        .send(newDTO)
+        .expect(400)
+        .then((res: resMessageType) => {
+          expect(res.body.message[0]).toContain('firstName');
+        });
+    });
+    it('Should return a Bad Request Exception, lastName', async () => {
+      const newDTO = { ...signupDTO, lastName: '' };
+      return request(app.getHttpServer())
+        .post('/auth/signup')
+        .send(newDTO)
+        .expect(400)
+        .then((res: resMessageType) => {
+          expect(res.body.message[0]).toContain('lastName');
+        });
+    });
+    it('Should return a Bad Request Exception, email', async () => {
+      const newDTO = { ...signupDTO, email: '' };
+      return request(app.getHttpServer())
+        .post('/auth/signup')
+        .send(newDTO)
+        .expect(400)
+        .then((res: resMessageType) => {
+          expect(res.body.message[0]).toContain('email');
+        });
+    });
+    it('Should return a Bad Request Exception, username', async () => {
+      const newDTO = { ...signupDTO, username: '' };
+      return request(app.getHttpServer())
+        .post('/auth/signup')
+        .send(newDTO)
+        .expect(400)
+        .then((res: resMessageType) => {
+          expect(res.body.message[0]).toContain('username');
+        });
+    });
+    it('Should return a Bad Request Exception, password', async () => {
+      const newDTO = { ...signupDTO, password: '' };
+      return request(app.getHttpServer())
+        .post('/auth/signup')
+        .send(newDTO)
+        .expect(400)
+        .then((res: resMessageType) => {
+          expect(res.body.message[0]).toContain('password');
+        });
+    });
+  });
+  describe('/ (PATCH) activationAccount', () => {
+    it('Should fail Not Found Exception, Account not found', async () => {
+      return request(app.getHttpServer())
+        .patch('/auth/activationAccount/token')
+        .expect(404)
+        .then((res: resMessageType) => {
+          expect(res.body.message).toEqual('Compte introuvable');
+        });
+    });
+    it('Should active account', async () => {
+      const token = await prisma.user.findUnique({
+        where: { username: 'username' },
+        select: { activateToken: true },
+      });
+      if (token) {
+        return request(app.getHttpServer())
+          .patch(`/auth/activationAccount/${token.activateToken}`)
+          .expect(200);
+      }
+    });
+  });
+  describe('/ (POST) signin', () => {
+    const signinDTO = { identifier: 'username', password: 'strongP@ssword73' };
+    it('Should return a message and a name role', async () => {
+      return request(app.getHttpServer())
+        .post('/auth/signin')
+        .send(signinDTO)
+        .expect(201);
+    });
+    it('Should fail Unauthorized Exception, invalid identifier', async () => {
+      const newDTO = { ...signinDTO, identifier: 'otherUsername' };
+      return request(app.getHttpServer())
+        .post('/auth/signin')
+        .send(newDTO)
+        .expect(401)
+        .then((res: { body: { message: string } }) => {
+          expect(res.body.message).toEqual(
+            'Identifiant ou mot de passe incorrecte',
+          );
+        });
+    });
+    it('Should fail Unauthorized Exception, invalid Password', async () => {
+      const newDTO = { ...signinDTO, password: 'otherStrongP@ssword73' };
+      return request(app.getHttpServer())
+        .post('/auth/signin')
+        .send(newDTO)
+        .expect(401)
+        .then((res: { body: { message: string } }) => {
+          expect(res.body.message).toEqual(
+            'Identifiant ou mot de passe incorrecte',
+          );
+        });
+    });
+    it('Should fail Unauthorized Exception, account is not active', async () => {
+      await prisma.user.update({
+        where: { username: 'username' },
+        data: { isActive: false },
+      });
+      return request(app.getHttpServer())
+        .post('/auth/signin')
+        .send(signinDTO)
+        .expect(401)
+        .then((res: resMessageType) => {
+          expect(res.body.message).toEqual("Vôtre compte n'est pas activer");
+        });
+    });
+    it('Should fail Bad Request Exception, identifier', async () => {
+      const newDTO = { ...signinDTO, identifier: '' };
+      return request(app.getHttpServer())
+        .post('/auth/signin')
+        .send(newDTO)
+        .expect(400)
+        .then((res: { body: { message: string } }) => {
+          expect(res.body.message[0]).toContain('identifier');
+        });
+    });
+    it('Should fail Bad Request Exception, password', async () => {
+      const newDTO = { ...signinDTO, password: '' };
+      return request(app.getHttpServer())
+        .post('/auth/signin')
+        .send(newDTO)
+        .expect(400)
+        .then((res: { body: { message: string } }) => {
+          expect(res.body.message[0]).toContain('password');
+        });
+    });
+  });
+  describe('/ (POST) forgetpassword', () => {
+    const path = '/auth/forgetPassword';
+    const forgetPasswordDTO = { email: 'email@email.com' };
+    it('Should fail send a mail', async () => {
+      return request(app.getHttpServer())
+        .post(path)
+        .send(forgetPasswordDTO)
+        .expect(403)
+        .then((res: resMessageType) => {
+          expect(res.body.message).toEqual('Your account is not activate');
+        });
+    });
+    it('Should send a mail', async () => {
+      await prisma.user.update({
+        where: { email: forgetPasswordDTO.email },
+        data: { isActive: true },
+      });
+      return request(app.getHttpServer())
+        .post(path)
+        .send(forgetPasswordDTO)
+        .expect(201)
+        .then((res: resMessageType) => {
+          expect(res.body.message).toEqual('Un email a été envoyé');
+        });
+    });
+    it('Should send a mail', async () => {
+      const newDTO = { email: '' };
+      return request(app.getHttpServer())
+        .post(path)
+        .send(newDTO)
+        .expect(400)
+        .then((res: resMessageType) => {
+          expect(res.body.message[0]).toContain('email');
+        });
+    });
+  });
+  describe('/ (PATCH) resetPassword', () => {
+    const path = '/auth/resetPassword';
+    const resetPasswordDTO = {
+      password: 'strongP@ssword73',
+    };
+    let cookie: string;
+    beforeAll(async () => {
+      const resCookie = await request(app.getHttpServer())
+        .post('/auth/signin')
+        .send({ identifier: 'username', password: 'strongP@ssword73' })
+        .expect(201);
+      cookie = resCookie.headers['set-cookie'];
+    });
+    it('Should send a mail', async () => {
+      return request(app.getHttpServer())
+        .patch(path)
+        .send(resetPasswordDTO)
+        .set('Cookie', cookie)
+        .expect(200)
+        .then((res: resMessageType) => {
+          expect(res.body.message).toEqual('Vôtre mot de passe à été modifier');
+        });
+    });
+    it('Should fail Bad Request Exception, password', async () => {
+      return request(app.getHttpServer())
+        .patch(path)
+        .set('Cookie', cookie)
+        .expect(400)
+        .then((res: resMessageType) => {
+          expect(res.body.message[0]).toContain('password');
+        });
+    });
+    it('Should fail unauthorized, need a cookie', async () => {
+      return request(app.getHttpServer())
+        .patch(path)
+        .expect(401)
+        .then((res: resMessageType) => {
+          expect(res.body.message).toContain('Unauthorized');
+        });
+    });
+  });
+  describe('/ (DELETE) logout', () => {
+    const path = '/auth/logout';
+    it('Should clear cookie', async () => {
+      return request(app.getHttpServer())
+        .delete(path)
+        .expect(200)
+        .then((res: resMessageType) => {
+          expect(res.body.message).toEqual('Deconnection Success');
+        });
+    });
+  });
+  describe('/(PATCH) reset Password with token', () => {
+    const path = '/auth/resetPasswordWithToken';
+    it('Should fail need a token (401)', () => {
+      return request(app.getHttpServer()).patch(path).expect(401);
+    });
+    it('Should fail missing dto (400)', () => {
+      return request(app.getHttpServer())
+        .patch(path)
+        .set('Authorization', `Bearer ${bearerToken.connexion_token}`)
+        .expect(400);
+    });
+    it('Should Success', async () => {
+      return request(app.getHttpServer())
+        .patch(path)
+        .set('Authorization', `Bearer ${bearerToken.connexion_token}`)
+        .send({ password: 'StrongP@ssword73' })
+        .expect(200);
+    });
+  });
+});
+
+describe('AuthController Mock', () => {
+  let appMock: INestApplication<Server>;
+  beforeAll(async () => {
+    process.env.DATABASE_URL = process.env.DATABASE_URL_TEST;
+    const moduleRef = await Test.createTestingModule({
+      imports: [AuthModule],
+    })
+      .overrideProvider(PrismaService)
+      .useValue(AuthPrismaMock)
+      .overrideProvider(EmailService)
+      .useValue(AuthEmailMock)
+      .compile();
+    appMock = moduleRef.createNestApplication();
+    appMock.useGlobalPipes(new ValidationPipe());
+
+    await appMock.init();
+  });
+  afterAll(async () => {
+    await appMock.close();
+  });
+  describe('/ (POST) Signup mock', () => {
+    it('Should return an Unauthorized Exception, Username already taken', async () => {
+      return request(appMock.getHttpServer())
+        .post('/auth/signup')
+        .send(signupDTO)
+        .expect(500);
+    });
+  });
+});

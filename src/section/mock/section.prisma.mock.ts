@@ -1,0 +1,16 @@
+export const sectionPrismaMock = {
+  user_Has_Project: {
+    findFirst: jest.fn(),
+  },
+  section: {
+    findFirst: jest.fn(),
+    create: jest.fn(),
+    update: jest.fn(),
+    findUnique: jest.fn(),
+    updateMany: jest.fn(),
+  },
+  project: {
+    findUnique: jest.fn(),
+  },
+  post: { updateMany: jest.fn() },
+};

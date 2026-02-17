@@ -1,0 +1,134 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/prisma/generated"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id String @id @default(uuid())
+  roleId String
+  firstName String @db.VarChar(35)
+  lastName String @db.VarChar(35) 
+  email String @db.VarChar(320) @unique
+  username String @db.VarChar(16) @unique
+  password String @db.VarChar(255)
+  isArchive Boolean @default(false)
+  isActive Boolean @default(false)
+  activateToken String? @db.VarChar(255)
+  gdpr Boolean @default(true)
+  createdAt DateTime @db.Timestamp() @default(now())
+  updatedAt DateTime @db.Timestamp() @default(now())
+  icon String? @db.VarChar(50)
+  role Role @relation(fields: [roleId], references: [id])
+  participationProject User_Has_Project[]
+  message Message[]
+  post Post[]
+  notif Notification[]
+  vote Vote[]
+}
+
+model Notification {
+  id Int @id @default(autoincrement())
+  text String @db.VarChar(255)
+  userId String
+  projectId String
+  theme String @db.VarChar(30)
+  createdAt DateTime @db.Timestamp() @default(now())
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@unique([userId,projectId,theme])
+}
+model Role {
+  id String @id @default(uuid())
+  name String @db.VarChar(32) @unique
+  user User[]
+}
+model User_Has_Project{
+  id String @id @default(uuid())
+  userId String 
+  projectId String
+  roleProjectId String
+  isBanned Boolean @default(false)
+  createdAt DateTime @db.Timestamp() @default(now())
+  user User @relation(fields: [userId],references: [id], onDelete: Cascade)
+  role Role_Project @relation(fields: [roleProjectId], references: [id])
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+model Project {
+  id String @id @default(uuid())
+  name String @db.VarChar(16)
+  isArchive Boolean @default(false)
+  createdAt DateTime @db.Timestamp() @default(now())
+  updatedAt DateTime @db.Timestamp() @default(now())
+  link Link_Project[]
+  section Section[]
+  message Message[]
+  users User_Has_Project[]
+}
+model Section {
+  id String @id @default(uuid())
+  name String @db.VarChar(16)
+  projectId String
+  isArchive Boolean @default(false)
+  post Post[] 
+  project Project @relation(fields: [projectId], references: [id])
+}
+
+model Post {
+  id String @id @default(uuid())
+  userId String  
+  sectionId String 
+  text String @db.VarChar(255) 
+  poseX Int? @db.Integer()
+  poseY Int? @db.Integer()
+  score Int @db.Integer() @default(0)
+  isVisible Boolean @default(true)
+  isArchive Boolean @default(false)
+  createdAt DateTime @db.Timestamp() @default(now())
+  updatedAt DateTime @db.Timestamp() @default(now())
+  user User @relation(fields: [userId] , references: [id])
+  section Section @relation(fields: [sectionId], references: [id])
+  vote Vote[]
+  }
+
+model Message{
+  id String @id @default(uuid())
+  projectId String 
+  authorId String 
+  message String @db.VarChar(255) 
+  isArchive Boolean @default(false)
+  isVisible Boolean @default(true)
+  createdAt DateTime @db.Timestamp() @default(now())
+  updatedAt DateTime @db.Timestamp() @default(now())
+  user User @relation(fields: [authorId], references: [id])
+  project Project @relation(fields: [projectId], references: [id])
+}
+
+model Link_Project { 
+  id String @id @default(uuid())
+  projectId String  
+  numberUsage Int @db.SmallInt() @default(10)
+  createdAt DateTime @db.Timestamp() @default(now())
+  outdatedAt DateTime
+  projet Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+model Role_Project{
+  id String @id @default(uuid())
+  name String @db.VarChar(50)  @unique
+  users User_Has_Project[]
+}
+
+model Vote{
+  id Int @id @default(autoincrement())
+  userId String 
+  postId String
+  isUp Boolean?
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  @@unique([userId,postId])
+}
