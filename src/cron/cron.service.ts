@@ -33,7 +33,6 @@ export class CronService {
     this.logger.log(`${countAccountDelete.count} compte supprimer`);
   }
 
-
   @Cron(CronExpression.EVERY_WEEKEND)
   async handleLinkProject() {
     const now = new Date();
