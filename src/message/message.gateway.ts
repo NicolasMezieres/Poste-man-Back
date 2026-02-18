@@ -13,7 +13,11 @@ import { User } from 'src/prisma/generated';
 import { WsJwtGuard } from 'src/auth/Guards/ws.jwt.guard';
 import { MessageService } from './message.service';
 @WebSocketGateway({
-  cors: { origin: [`${process.env.FRONT_URL}`], credentials: true },
+  cors: {
+    origin: [`${process.env.FRONT_URL}`],
+    credentials: true,
+    transport: ['websocket'],
+  },
 })
 @UseGuards(WsJwtGuard)
 export class MessageGateway {
