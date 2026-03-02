@@ -23,7 +23,7 @@ export class SectionService {
       },
     });
     if (!existingProject) {
-      throw new NotFoundException('Project not found !');
+      throw new NotFoundException('Projet introuvable !');
     }
     const didUserInProject = await this.prisma.user_Has_Project.findFirst({
       where: {
@@ -36,7 +36,7 @@ export class SectionService {
     const isAdmin = user.role.name === role.ADMIN;
 
     if (!didUserInProject && !isAdmin) {
-      throw new ForbiddenException('You are unauthorized !');
+      throw new ForbiddenException("Vous n'êtes pas autorisé");
     }
     const isModerator: boolean =
       didUserInProject?.role.name === roleProject.MODERATOR;
@@ -58,14 +58,14 @@ export class SectionService {
       select: { id: true },
     });
     if (!existingUserProject) {
-      throw new ForbiddenException('Project doenst exist');
+      throw new NotFoundException('Projet introuvable');
     }
     const existingSection = await this.prisma.section.findFirst({
       where: { name: dto.name, project: { id: projectId } },
       select: { id: true },
     });
     if (existingSection) {
-      throw new BadRequestException('This name is already used');
+      throw new BadRequestException('Ce nom de section est déjà utilisé');
     }
     const newSection = await this.prisma.section.create({
       data: {
@@ -73,7 +73,7 @@ export class SectionService {
         projectId: projectId,
       },
     });
-    return { message: 'Section create', data: newSection };
+    return { message: 'Section créé', data: newSection };
   }
 
   async updateSection(
@@ -95,14 +95,14 @@ export class SectionService {
       select: { id: true, projectId: true },
     });
     if (!existingSection) {
-      throw new BadRequestException('Not found section');
+      throw new NotFoundException('Section introuvable');
     }
     const isSameNameSection = await this.prisma.section.findFirst({
       where: { projectId: existingSection.projectId, name: dto.name },
       select: { id: true },
     });
     if (isSameNameSection) {
-      throw new ForbiddenException('This name is already used');
+      throw new ForbiddenException('Ce nom de section est déjà utilisé');
     }
     const sectionUpdated = await this.prisma.section.update({
       where: { id: existingSection.id },
@@ -110,7 +110,7 @@ export class SectionService {
         name: dto.name,
       },
     });
-    return { message: 'Section Update', data: sectionUpdated };
+    return { message: 'Section modifié', data: sectionUpdated };
   }
 
   async removeSection(sectionId: string, user: UserWithRole) {
@@ -119,7 +119,7 @@ export class SectionService {
       select: { id: true, projectId: true },
     });
     if (!existingSection) {
-      throw new NotFoundException('Section not found !');
+      throw new NotFoundException('Section introuvable !');
     }
     const isAdmin = user.role.name === role.ADMIN;
     if (!isAdmin) {
@@ -132,7 +132,7 @@ export class SectionService {
         select: { id: true },
       });
       if (!isModerator) {
-        throw new ForbiddenException('You are unauthorized !');
+        throw new ForbiddenException("Vous n'êtes pas autorisé");
       }
     }
     await this.prisma.post.updateMany({
@@ -146,7 +146,7 @@ export class SectionService {
       },
       select: null,
     });
-    return { message: 'Section has been deleted' };
+    return { message: 'Section supprimé' };
   }
   async removeAllSection(projectId: string, user: UserWithRole) {
     const existingProject = await this.prisma.project.findUnique({

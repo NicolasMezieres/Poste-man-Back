@@ -45,7 +45,7 @@ describe('Section (e2e)', () => {
         .set('Cookie', cookie)
         .expect(404)
         .expect((res: resMessageType) =>
-          expect(res.body.message).toContain('Project'),
+          expect(res.body.message).toContain('Projet introuvable'),
         );
     });
     it('Should fail Forbidden Exception, Not member and admin', async () => {
@@ -59,7 +59,7 @@ describe('Section (e2e)', () => {
         .set('Cookie', cookieOtherUser)
         .expect(403)
         .expect((res: resMessageType) =>
-          expect(res.body.message).toContain('unauthorized'),
+          expect(res.body.message).toContain('pas autorisé'),
         );
     });
     it('Should return Sections of project, Member', async () => {
@@ -94,14 +94,14 @@ describe('Section (e2e)', () => {
           expect(res.body.message[0]).toContain('name'),
         );
     });
-    it('Should fail Forbidden Exception, Project not exist', async () => {
+    it('Should fail Not Found exception, Project not found', async () => {
       return request(app.getHttpServer())
         .post(path + 'projectId/create')
         .set('Cookie', cookie)
         .send({ name: 'sectionName' })
-        .expect(403)
+        .expect(404)
         .expect((res: resMessageType) =>
-          expect(res.body.message).toContain('Project'),
+          expect(res.body.message).toContain('Projet'),
         );
     });
     it('Should Section Created', async () => {
@@ -118,7 +118,9 @@ describe('Section (e2e)', () => {
         .send({ name: 'sectionName' })
         .expect(400)
         .expect((res: resMessageType) =>
-          expect(res.body.message).toEqual('This name is already used'),
+          expect(res.body.message).toEqual(
+            'Ce nom de section est déjà utilisé',
+          ),
         );
     });
   });
@@ -142,14 +144,14 @@ describe('Section (e2e)', () => {
           expect(res.body.message[0]).toContain('name'),
         );
     });
-    it('Should fail Bad Request Exception, Not found section', async () => {
+    it('Should fail Not Found Exception, Not found section', async () => {
       return request(app.getHttpServer())
         .patch('/section/sectionId/project/projectId')
-        .expect(400)
+        .expect(404)
         .set('Cookie', cookie)
         .send(sectionDTO)
         .expect((res: resMessageType) =>
-          expect(res.body.message).toContain('section'),
+          expect(res.body.message).toContain('Section introuvable'),
         );
     });
     it('Should fail Forbidden Exception, name already used', async () => {
@@ -167,7 +169,9 @@ describe('Section (e2e)', () => {
         .set('Cookie', cookie)
         .send({ name: 'sectionName' })
         .expect((res: resMessageType) =>
-          expect(res.body.message).toEqual('This name is already used'),
+          expect(res.body.message).toEqual(
+            'Ce nom de section est déjà utilisé',
+          ),
         );
     });
     it('Should Section Update', async () => {
@@ -177,7 +181,7 @@ describe('Section (e2e)', () => {
         .set('Cookie', cookie)
         .send({ name: 'sectionSpec' })
         .expect((res: resMessageType) =>
-          expect(res.body.message).toEqual('Section Update'),
+          expect(res.body.message).toEqual('Section modifié'),
         );
     });
   });
@@ -207,7 +211,7 @@ describe('Section (e2e)', () => {
         .set('Cookie', cookieOtherUser)
         .expect(403)
         .expect((res: resMessageType) =>
-          expect(res.body.message).toContain('unauthorized'),
+          expect(res.body.message).toContain('pas autorisé'),
         );
     });
     it('Should Section deleted, Admin', async () => {
@@ -219,7 +223,7 @@ describe('Section (e2e)', () => {
         .set('Cookie', cookieAdmin)
         .expect(200)
         .expect((res: resMessageType) =>
-          expect(res.body.message).toContain('deleted'),
+          expect(res.body.message).toContain('supprimé'),
         );
     });
     it('Should fail Not Found Exception, Section not found', async () => {
@@ -249,7 +253,7 @@ describe('Section (e2e)', () => {
         .set('Cookie', cookie)
         .expect(200)
         .expect((res: resMessageType) =>
-          expect(res.body.message).toContain('deleted'),
+          expect(res.body.message).toContain('supprimé'),
         );
     });
   });
