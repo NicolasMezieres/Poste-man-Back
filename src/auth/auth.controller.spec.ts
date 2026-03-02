@@ -8,6 +8,7 @@ import {
   signinResponseMock,
   signupMessageMock,
   userMock,
+  userWithRoleMock,
 } from './mock/auth.mock';
 import { AuthServiceMock } from './mock/auth.service.mock';
 
@@ -97,6 +98,11 @@ describe('AuthController', () => {
       await expect(
         authController.resetPasswordWithToken(userMock, dto),
       ).resolves.toEqual(messageMock);
+    });
+  });
+  describe('Log', () => {
+    it('Should return a message', () => {
+      expect(authController.log(userWithRoleMock)).toBeDefined();
     });
   });
 });
