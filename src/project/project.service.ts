@@ -3,9 +3,7 @@ import {
   forwardRef,
   Inject,
   Injectable,
-  InternalServerErrorException,
   NotFoundException,
-  UnauthorizedException,
 } from '@nestjs/common';
 import { User } from 'src/prisma/generated';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -207,7 +205,7 @@ export class ProjectService {
       select: { id: true },
     });
     if (!existingProject) {
-      throw new NotFoundException('Project not found !');
+      throw new NotFoundException('Projet introuvable !');
     }
     const listMember = await this.prisma.user_Has_Project.findMany({
       where: {
@@ -226,7 +224,7 @@ export class ProjectService {
     );
     const isAdmin = user.role.name === role.ADMIN;
     if (!didUserInProject && !isAdmin) {
-      throw new ForbiddenException('You are unauthorized !');
+      throw new ForbiddenException("Vous n'êtes pas autorisé !");
     }
     return { data: listMember, projectId };
   }
@@ -237,7 +235,7 @@ export class ProjectService {
       select: { id: true },
     });
     if (!moderatorRole) {
-      throw new InternalServerErrorException('Role project not found');
+      throw new NotFoundException('Rôle du projet introuvable !');
     }
     const newProject = await this.prisma.project.create({
       data: { name: dto.name },
@@ -252,7 +250,7 @@ export class ProjectService {
       },
       select: { projectId: true },
     });
-    return { message: 'Project successfully create !', data: idProject };
+    return { message: 'Projet créé !', data: idProject };
   }
 
   async createInvitationLink(projectId: string, user: User) {
@@ -265,7 +263,7 @@ export class ProjectService {
       select: { project: { select: { id: true } } },
     });
     if (!existingProject) {
-      throw new NotFoundException('Project not found !');
+      throw new NotFoundException('Projet introuvable !');
     }
     const link = await this.prisma.link_Project.create({
       data: {
@@ -276,7 +274,7 @@ export class ProjectService {
       },
       select: { id: true, outdatedAt: true },
     });
-    return { message: 'Link created !', data: link };
+    return { message: 'Lien créé !', data: link };
   }
 
   async joinProject(linkId: string, user: User) {
@@ -293,22 +291,22 @@ export class ProjectService {
       },
     });
     if (!existingLink || existingLink.numberUsage <= 0) {
-      throw new NotFoundException('Link invalid !');
+      throw new NotFoundException('Lien invalide !');
     } else if (existingLink.outdatedAt < new Date()) {
-      throw new ForbiddenException('Link expired !');
+      throw new ForbiddenException('Lien expiré !');
     } else if (
       existingLink.projet.users.some(
         (userProject) => userProject.userId === user.id,
       )
     ) {
-      throw new ForbiddenException('You are already in the project !');
+      throw new ForbiddenException('Vous êtes déjà dans le projet !');
     }
     const memberRole = await this.prisma.role_Project.findUnique({
       where: { name: roleProject.MEMBER },
       select: { id: true },
     });
     if (!memberRole) {
-      throw new InternalServerErrorException('Role not found !');
+      throw new NotFoundException('Rôle introuvable !');
     }
     const [userMember] = await this.prisma.$transaction([
       this.prisma.user_Has_Project.create({
@@ -331,14 +329,10 @@ export class ProjectService {
         select: null,
       }),
     ]);
-    if (!userMember) {
-      throw new InternalServerErrorException(
-        'Failed to create user project member',
-      );
-    }
+
     this.socket.emitUserUpdateProject(userMember, existingLink.projet.id, true);
     return {
-      message: `Welcome to ${existingLink.projet.name} !`,
+      message: `Bienvenue à ${existingLink.projet.name} !`,
       projectId: existingLink.projet.id,
     };
   }
@@ -352,7 +346,7 @@ export class ProjectService {
       select: { id: true, projectId: true },
     });
     if (!existingModerator) {
-      throw new ForbiddenException('You are unauthorized 😡 !');
+      throw new ForbiddenException("Vous n'êtes pas autorisé");
     }
     const existingMember = await this.prisma.user_Has_Project.findFirst({
       where: {
@@ -363,7 +357,7 @@ export class ProjectService {
       select: { id: true, isBanned: true, userId: true, projectId: true },
     });
     if (!existingMember) {
-      throw new NotFoundException('Not found member !');
+      throw new NotFoundException('Membre introuvable !');
     }
     await this.prisma.$transaction([
       this.prisma.user_Has_Project.update({
@@ -400,7 +394,7 @@ export class ProjectService {
       existingMember.projectId,
       existingMember.isBanned,
     );
-    return { message: 'Ban status updated' };
+    return { message: 'Status mis à jour !' };
   }
   async rename(dto: projectDTO, projectId: string, user: User) {
     const existingModerator = await this.prisma.user_Has_Project.findFirst({
@@ -412,14 +406,14 @@ export class ProjectService {
       select: { projectId: true },
     });
     if (!existingModerator) {
-      throw new NotFoundException('Project not found !');
+      throw new NotFoundException('Projet introuvable !');
     }
     await this.prisma.project.update({
       where: { id: existingModerator.projectId },
       data: { ...dto },
       select: null,
     });
-    return { message: 'Project modified !' };
+    return { message: 'Project modifié !' };
   }
 
   async remove(projectId: string, user: UserWithRole) {
@@ -428,7 +422,7 @@ export class ProjectService {
       select: { id: true },
     });
     if (!existingProject) {
-      throw new NotFoundException('Project not found !');
+      throw new NotFoundException('Projet introuvable !');
     }
     const didUserInProject = await this.prisma.user_Has_Project.findFirst({
       where: {
@@ -440,7 +434,7 @@ export class ProjectService {
     });
     const isAdmin = user.role.name === role.ADMIN;
     if (!isAdmin && !didUserInProject) {
-      throw new UnauthorizedException('You are unauthorized !');
+      throw new ForbiddenException("Vous n'êtes pas autorisé !");
     }
     const isModerator = didUserInProject?.role.name === roleProject.MODERATOR;
     if (isModerator || isAdmin) {
@@ -464,12 +458,12 @@ export class ProjectService {
           },
         });
       });
-      return { message: 'Project deleted !' };
+      return { message: 'Projet supprimé !' };
     } else {
       await this.prisma.user_Has_Project.delete({
         where: { id: didUserInProject?.id },
       });
-      return { message: 'Project leaved !' };
+      return { message: 'Projet quitté !' };
     }
   }
 
@@ -508,7 +502,7 @@ export class ProjectService {
       },
     });
     if (!existingProject) {
-      throw new ForbiddenException('User not found');
+      throw new ForbiddenException('Utilisateur introuvable');
     }
     await this.prisma.user_Has_Project.delete({
       where: { id: existingProject.users[0].id },
@@ -520,7 +514,7 @@ export class ProjectService {
       projectId,
       false,
     );
-    return { message: 'User kick' };
+    return { message: 'Utilisateur exclu' };
   }
   async getProjectListByUser(userId: string, query: queryPage) {
     const existingUser = await this.prisma.user.findUnique({

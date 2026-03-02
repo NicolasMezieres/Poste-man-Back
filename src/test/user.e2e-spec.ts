@@ -300,7 +300,7 @@ describe('Section (e2e)', () => {
         .set('Cookie', cookieAdmin)
         .expect(404)
         .expect((err: resMessageType) =>
-          expect(err.body.message).toContain('User'),
+          expect(err.body.message).toContain('Utilisateur introuvable'),
         );
     });
     it('Should succes', async () => {
@@ -335,7 +335,7 @@ describe('Section (e2e)', () => {
         .set('Cookie', cookieAdmin)
         .expect(404)
         .expect((err: resMessageType) =>
-          expect(err.body.message).toContain('User'),
+          expect(err.body.message).toContain('Utilisateur introuvable'),
         );
     });
     it('Should succes', async () => {

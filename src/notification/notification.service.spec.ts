@@ -58,12 +58,12 @@ describe('NotificationService', () => {
         .spyOn(notificationPrismaMock.notification, 'delete')
         .mockResolvedValue(null);
       await expect(service.remove('1', userMock)).resolves.toEqual({
-        message: 'Notification deleted !',
+        message: 'Notification supprimer !',
       });
     });
     it('Should return Forbidden Exception, Notification is not a valid id', async () => {
       await expect(service.remove('test', userMock)).rejects.toEqual(
-        new ForbiddenException('Notification is not a valid id'),
+        new ForbiddenException('Notification invalide'),
       );
       expect(notificationPrismaMock.notification.delete).not.toHaveBeenCalled();
     });
@@ -72,7 +72,7 @@ describe('NotificationService', () => {
         .spyOn(notificationPrismaMock.notification, 'findFirst')
         .mockResolvedValue(null);
       await expect(service.remove('1', userMock)).rejects.toEqual(
-        new NotFoundException('Notification not found !'),
+        new NotFoundException('Notification introuvable !'),
       );
       expect(notificationPrismaMock.notification.delete).not.toHaveBeenCalled();
     });
@@ -83,7 +83,7 @@ describe('NotificationService', () => {
         .spyOn(notificationPrismaMock.notification, 'deleteMany')
         .mockResolvedValue(null);
       await expect(service.removeAll(userMock)).resolves.toEqual({
-        message: 'Notifications deleted !',
+        message: 'Notifications supprimer !',
       });
       expect(
         notificationPrismaMock.notification.deleteMany,

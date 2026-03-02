@@ -168,7 +168,7 @@ describe('AuthController (e2e)', () => {
         .send(signinDTO)
         .expect(401)
         .then((res: resMessageType) => {
-          expect(res.body.message).toEqual("Vôtre compte n'est pas activer");
+          expect(res.body.message).toEqual("Votre compte n'est pas activé");
         });
     });
     it('Should fail Bad Request Exception, identifier', async () => {
@@ -201,7 +201,7 @@ describe('AuthController (e2e)', () => {
         .send(forgetPasswordDTO)
         .expect(403)
         .then((res: resMessageType) => {
-          expect(res.body.message).toEqual('Your account is not activate');
+          expect(res.body.message).toEqual("Votre compte n'est pas activé");
         });
     });
     it('Should send a mail', async () => {
@@ -248,7 +248,7 @@ describe('AuthController (e2e)', () => {
         .set('Cookie', cookie)
         .expect(200)
         .then((res: resMessageType) => {
-          expect(res.body.message).toEqual('Vôtre mot de passe à été modifier');
+          expect(res.body.message).toEqual('Votre mot de passe a été modifié');
         });
     });
     it('Should fail Bad Request Exception, password', async () => {
@@ -276,7 +276,7 @@ describe('AuthController (e2e)', () => {
         .delete(path)
         .expect(200)
         .then((res: resMessageType) => {
-          expect(res.body.message).toEqual('Deconnection Success');
+          expect(res.body.message).toEqual('Deconnection réussi');
         });
     });
   });

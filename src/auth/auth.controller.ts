@@ -33,41 +33,40 @@ import { role } from 'src/utils/enum';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @ApiResponse({ status: 201, description: 'Your account as been create !' })
-  @ApiResponse({ status: 401, description: 'Username or Email already taken' })
+  @ApiResponse({ status: 201, description: 'Votre compte à été créer !' })
+  @ApiResponse({ status: 401, description: 'Pseudo ou Email déjà utilisé' })
   @ApiInternalServerErrorResponse()
   @Post('signup')
   signup(@Body() dto: SignUpDTO) {
     return this.authService.signup(dto);
   }
 
-  @ApiResponse({ status: 201, description: 'Your account is active !' })
-  @ApiResponse({ status: 404, description: 'Account not found' })
+  @ApiResponse({ status: 201, description: 'Votre compte a été activé !' })
+  @ApiResponse({ status: 404, description: 'Compte introuvable' })
   @Patch('activationAccount/:token')
   activationAccount(@Param('token') token: string) {
     return this.authService.activationAccount(token);
   }
 
-  @ApiResponse({ status: 201, description: 'Connexion succesfully' })
+  @ApiResponse({ status: 201, description: 'Connexion réussi' })
   @ApiResponse({
     status: 401,
-    description: 'Invalid credential or Account not active !',
+    description: 'Compte inactif ou Identifiant ou mot de passe incorrecte',
   })
   @Post('signin')
   signin(@Body() dto: SignInDTO, @Res({ passthrough: true }) res: Response) {
     return this.authService.signin(dto, res);
   }
 
-  @ApiResponse({ status: 201, description: 'A mail was send.' })
-  @ApiResponse({ status: 403, description: 'Account not active' })
+  @ApiResponse({ status: 201, description: 'Un email a été envoyé' })
+  @ApiResponse({ status: 403, description: "Votre compte n'est pas activé" })
   @Post('forgetPassword')
   forgetPassword(@Body() dto: ForgetPasswordDTO) {
     return this.authService.forgetPassword(dto);
   }
 
   @ApiCookieAuth()
-  @ApiResponse({ status: 200, description: 'Your password has been change' })
-  @ApiResponse({ status: 401, description: 'UnAuthorized' })
+  @ApiResponse({ status: 200, description: 'Votre mot de passe a été modifié' })
   @UseGuards(JwtGuard)
   @Patch('resetPassword')
   resetPassword(@GetUser() user: User, @Body() dto: ResetPasswordDTO) {
@@ -75,24 +74,24 @@ export class AuthController {
   }
 
   @ApiBearerAuth()
-  @ApiResponse({ status: 200, description: 'Your password has been change' })
-  @ApiResponse({ status: 401, description: 'UnAuthorized' })
+  @ApiResponse({ status: 200, description: 'Votre mot de passe a été modifié' })
   @UseGuards(ResetPasswordGuard)
   @Patch('resetPasswordWithToken')
   resetPasswordWithToken(@GetUser() user: User, @Body() dto: ResetPasswordDTO) {
     return this.authService.resetPassword(user, dto);
   }
 
-  @ApiResponse({ status: 201, description: 'Deconnection Success' })
+  @ApiResponse({ status: 201, description: 'Deconnection réussi' })
   @Delete('logout')
   logout(@Res({ passthrough: true }) res: Response) {
     res.clearCookie('access_token', {
       httpOnly: true,
       secure: true,
-      sameSite: 'strict',
+      sameSite: 'none',
     });
-    return { message: 'Deconnection Success' };
+    return { message: 'Deconnection réussi' };
   }
+  @ApiResponse({ status: 200, description: 'Utilisateur connecté' })
   @UseGuards(JwtGuard)
   @Get('log')
   log(@GetUser() user: UserWithRole) {

@@ -5,7 +5,6 @@ import { GetUser } from 'src/auth/decorator';
 import { User } from 'src/prisma/generated';
 import {
   ApiForbiddenResponse,
-  ApiNoContentResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
 } from '@nestjs/swagger';
@@ -13,21 +12,21 @@ import {
 @Controller('notification')
 export class NotificationController {
   constructor(private readonly notificationService: NotificationService) {}
-  @ApiOkResponse({ description: 'My notifications' })
+  @ApiOkResponse({ description: "Notifications de l'utilisateur" })
   @Get()
   notifications(@GetUser() user: User) {
     return this.notificationService.notifications(user);
   }
 
-  @ApiNoContentResponse({ description: 'My notifications deleted' })
+  @ApiOkResponse({ description: 'Notification supprimer !' })
   @Delete('/all')
   removeAll(@GetUser() user: User) {
     return this.notificationService.removeAll(user);
   }
 
-  @ApiForbiddenResponse({ description: 'Notification is not a valid id' })
-  @ApiNotFoundResponse({ description: 'Notification not found !' })
-  @ApiNoContentResponse({ description: 'Notification deleted !' })
+  @ApiForbiddenResponse({ description: 'Notification invalide' })
+  @ApiNotFoundResponse({ description: 'Notification introuvable !' })
+  @ApiOkResponse({ description: 'Notifications supprimer !' })
   @Delete('/:id')
   remove(@Param('id') id: string, @GetUser() user: User) {
     return this.notificationService.remove(id, user);

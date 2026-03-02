@@ -59,7 +59,7 @@ describe('Notification (e2e)', () => {
         .set('Cookie', cookie)
         .expect(403)
         .expect((err: resMessageType) =>
-          expect(err.body.message).toEqual('Notification is not a valid id'),
+          expect(err.body.message).toEqual('Notification invalide'),
         );
     });
     it('Should fail Not Found Exception, Notification not found', async () => {
