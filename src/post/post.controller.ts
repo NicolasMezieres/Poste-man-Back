@@ -19,7 +19,6 @@ import {
   ApiBadRequestResponse,
   ApiCreatedResponse,
   ApiForbiddenResponse,
-  ApiNoContentResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
 } from '@nestjs/swagger';
@@ -29,17 +28,18 @@ import { movePostDTO } from './dto/move.post.dto';
 @Controller('post')
 export class PostController {
   constructor(private readonly postService: PostService) {}
-  @ApiOkResponse({ description: 'Show all post of the section' })
-  @ApiNotFoundResponse({ description: 'Section not found !' })
-  @ApiForbiddenResponse({ description: 'You are unauthorized !' })
+
+  @ApiOkResponse({ description: 'Tous les postes de la section' })
+  @ApiNotFoundResponse({ description: 'Section introuvable !' })
+  @ApiForbiddenResponse({ description: "Vous n'êtes pas autoriser !" })
   @Get('/section/:sectionId')
   posts(@Param('sectionId') sectionId: string, @GetUser() user: UserWithRole) {
     return this.postService.posts(sectionId, user);
   }
 
-  @ApiCreatedResponse({ description: 'Post created !' })
-  @ApiNotFoundResponse({ description: 'Section not found !' })
-  @ApiForbiddenResponse({ description: 'You are unauthorized !' })
+  @ApiCreatedResponse({ description: 'Post créer !' })
+  @ApiNotFoundResponse({ description: 'Section introuvable' })
+  @ApiForbiddenResponse({ description: "Vous n'êtes pas autoriser !" })
   @Post('/section/:sectionId')
   create(
     @Param('sectionId') sectionId: string,
@@ -49,10 +49,10 @@ export class PostController {
     return this.postService.create(sectionId, dto, user);
   }
 
-  @ApiNoContentResponse({ description: 'Post updated !' })
-  @ApiNotFoundResponse({ description: 'Post not found !' })
+  @ApiOkResponse({ description: 'Post modifier !' })
+  @ApiNotFoundResponse({ description: 'Post introuvable !' })
   @ApiForbiddenResponse({
-    description: 'You are not the author of this post !',
+    description: "Vous n'êtes pas autoriser !",
   })
   @Patch('/:postId')
   update(
@@ -62,6 +62,12 @@ export class PostController {
   ) {
     return this.postService.update(postId, dto, user);
   }
+
+  @ApiOkResponse({ description: 'Post mis à jour' })
+  @ApiNotFoundResponse({ description: 'Post introuvable !' })
+  @ApiForbiddenResponse({
+    description: "Vous n'êtes pas membre du projet !",
+  })
   @Patch('/:postId/move')
   move(
     @Param('postId') postId: string,
@@ -70,14 +76,15 @@ export class PostController {
   ) {
     return this.postService.movePost(postId, dto, user);
   }
-  @ApiNoContentResponse({ description: 'Section of post changed !' })
+
+  @ApiOkResponse({ description: 'Post transferer !' })
   @ApiNotFoundResponse({
-    description: 'Post or Section not found !',
+    description: 'Post ou Section introuvable !',
   })
-  @ApiBadRequestResponse({ description: 'Post already in section' })
+  @ApiBadRequestResponse({ description: 'Post déjà dans la section' })
   @ApiForbiddenResponse({
     description:
-      'Project is not the same project of section or you are unauthorized',
+      "Le projet n'est pas le même que celui de la section ou vous n'êtes pas autorisé(e)",
   })
   @Patch('/:postId/transfert/:sectionId')
   transfert(
@@ -88,11 +95,12 @@ export class PostController {
     return this.postService.transfert(postId, sectionId, user);
   }
 
-  @ApiNoContentResponse({ description: 'Posts changed section !' })
-  @ApiBadRequestResponse({ description: 'Need an other section !' })
-  @ApiNotFoundResponse({ description: 'Some section not found !' })
+  @ApiOkResponse({ description: 'Les posts ont changées de section !' })
+  @ApiBadRequestResponse({ description: 'Une autre section est nécessaire !' })
+  @ApiNotFoundResponse({ description: "Une section n'a pas été trouvé" })
   @ApiForbiddenResponse({
-    description: 'Sections not have the same project or you are unauthorized !',
+    description:
+      "Les sections ne sont pas dans le même projet ou Vous n'êtes pas autorisé(e) !",
   })
   @Patch('/section/:sectionId/transfert/:moveSectionId')
   transfertAll(
@@ -103,9 +111,9 @@ export class PostController {
     return this.postService.transfertAll(sectionId, moveSectionId, user);
   }
 
-  @ApiNoContentResponse({ description: 'Voted !' })
-  @ApiNotFoundResponse({ description: 'Post not found !' })
-  @ApiForbiddenResponse({ description: 'You are unauthorized !' })
+  @ApiOkResponse({ description: 'Voté !' })
+  @ApiNotFoundResponse({ description: 'Post introuvable!' })
+  @ApiForbiddenResponse({ description: "Vous n'êtes pas autorisé(e) !" })
   @Put('/:postId/vote')
   vote(
     @Param('postId') postId: string,
@@ -115,17 +123,17 @@ export class PostController {
     return this.postService.vote(postId, dto, user);
   }
 
-  @ApiNoContentResponse({ description: 'Post deleted !' })
-  @ApiNotFoundResponse({ description: 'Post not found !' })
-  @ApiForbiddenResponse({ description: 'You are unauthorized !' })
+  @ApiOkResponse({ description: 'Post supprimer !' })
+  @ApiNotFoundResponse({ description: 'Post introuvable !' })
+  @ApiForbiddenResponse({ description: "Vous n'êtes pas autorisé(e)!" })
   @Delete('/:postId')
   remove(@Param('postId') postId: string, @GetUser() user: UserWithRole) {
     return this.postService.remove(postId, user);
   }
 
-  @ApiNoContentResponse({ description: 'All post have been deleted !' })
-  @ApiNotFoundResponse({ description: 'Section not found !' })
-  @ApiForbiddenResponse({ description: 'You are unauthorized !' })
+  @ApiOkResponse({ description: 'Tout les posts on été supprimer !' })
+  @ApiNotFoundResponse({ description: 'Section introuvable !' })
+  @ApiForbiddenResponse({ description: "Vous n'êtes pas autorisé(e) !" })
   @Delete('/section/:sectionId')
   removeAll(
     @Param('sectionId') sectionId: string,

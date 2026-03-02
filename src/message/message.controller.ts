@@ -17,7 +17,6 @@ import { queryMessage, queryPage, UserWithRole } from 'src/utils/type';
 import {
   ApiCreatedResponse,
   ApiForbiddenResponse,
-  ApiNoContentResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
 } from '@nestjs/swagger';
@@ -74,7 +73,7 @@ export class MessageController {
     return this.messageService.createMessage(dto, projectId, user);
   }
 
-  @ApiNoContentResponse({ description: 'Message supprimer !' })
+  @ApiOkResponse({ description: 'Message supprimer !' })
   @ApiNotFoundResponse({ description: 'Message introuvable !' })
   @ApiForbiddenResponse({ description: "Vous n'êtes pas autoriser !" })
   @Delete('/:messageId')
@@ -87,7 +86,7 @@ export class MessageController {
 
   @ApiNotFoundResponse({ description: 'Projet introuvable !' })
   @ApiForbiddenResponse({ description: "Vous n'êtes pas autoriser !" })
-  @ApiNoContentResponse({ description: 'Messages supprimer !' })
+  @ApiOkResponse({ description: 'Messages supprimer !' })
   @Delete('/project/:projectId')
   deleteAllMessage(
     @Param('projectId') projectId: string,

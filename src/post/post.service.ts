@@ -213,7 +213,7 @@ export class PostService {
       existingPost.id,
       existingPost.section.projectId,
     );
-    return { message: 'La section des posts à été modifier !' };
+    return { message: 'Post transferer !' };
   }
   async transfertAll(
     sectionId: string,
@@ -382,7 +382,7 @@ export class PostService {
       newVote.score,
       existingPost.section.projectId,
     );
-    return { message: 'Voted !', score: newVote.score };
+    return { message: 'Voté !', score: newVote.score };
   }
 
   async remove(postId: string, user: UserWithRole) {
