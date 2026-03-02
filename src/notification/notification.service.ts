@@ -37,24 +37,24 @@ export class NotificationService {
   async remove(id: string, user: User) {
     const isValidId = !Number.isNaN(Number(id));
     if (!isValidId) {
-      throw new ForbiddenException('Notification is not a valid id');
+      throw new ForbiddenException('Notification invalide');
     }
     const existingNotification = await this.prisma.notification.findFirst({
       where: { id: Number(id), userId: user.id },
       select: { id: true },
     });
     if (!existingNotification) {
-      throw new NotFoundException('Notification not found !');
+      throw new NotFoundException('Notification introuvable !');
     }
     await this.prisma.notification.delete({
       where: { id: existingNotification.id },
     });
-    return { message: 'Notification deleted !' };
+    return { message: 'Notification supprimer !' };
   }
   async removeAll(user: User) {
     await this.prisma.notification.deleteMany({
       where: { userId: user.id },
     });
-    return { message: 'Notifications deleted !' };
+    return { message: 'Notifications supprimer !' };
   }
 }

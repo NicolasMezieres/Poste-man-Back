@@ -74,7 +74,7 @@ export class MessageController {
     return this.messageService.createMessage(dto, projectId, user);
   }
 
-  @ApiOkResponse({ description: 'Message supprimer !' })
+  @ApiNoContentResponse({ description: 'Message supprimer !' })
   @ApiNotFoundResponse({ description: 'Message introuvable !' })
   @ApiForbiddenResponse({ description: "Vous n'êtes pas autoriser !" })
   @Delete('/:messageId')
