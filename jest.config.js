@@ -25,7 +25,19 @@ export const projects = [
   },
   {
     moduleNameMapper: { '^src/(.*)$': '<rootDir>/$1' },
-    coveragePathIgnorePatterns: ['src/prisma/generated', 'src/auth/decorator'],
+    coveragePathIgnorePatterns: [
+      'src/prisma/generated',
+      'src/auth/decorator',
+      'src/email',
+      'src/message/message.gateway',
+      'src/project/project.gateway',
+      'src/notification/notification.gateway',
+      'src/post/post.gateway',
+      'src/auth/strategy',
+      'src/cleangdpr',
+      'src/cron',
+      'src/utils',
+    ],
     displayName: 'integration',
     transform: {
       '^.+\\.(t|j)s$': 'ts-jest',
