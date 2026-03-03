@@ -10,4 +10,7 @@ export const messageServiceMock = {
     .fn()
     .mockResolvedValue({ message: 'Messages deleted !' }),
   joinRoomMessage: jest.fn().mockResolvedValue(null),
+  getListMessageByUser: jest
+    .fn()
+    .mockResolvedValue({ data: [], isEndList: true, totalMessage: 0 }),
 };
