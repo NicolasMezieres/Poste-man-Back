@@ -1,3 +1,5 @@
+import { detailUserMock } from './user.mock';
+
 export const mockUserService = {
   myAccount: jest.fn(),
   updateAccount: jest.fn(),
@@ -7,4 +9,5 @@ export const mockUserService = {
   deleteUser: jest.fn(),
   changePassword: jest.fn(),
   changeAvatar: jest.fn(),
+  detailUser: jest.fn().mockResolvedValue({ data: detailUserMock }),
 };

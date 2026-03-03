@@ -1,3 +1,5 @@
+import { userMock } from 'src/auth/mock/auth.mock';
+
 export const mockUser = {
   id: '1',
   roleId: '1',
@@ -48,4 +50,15 @@ export const mockUserUpdate = {
   message: [],
   post: [],
   notif: [],
+};
+
+export const detailUserMock = {
+  email: userMock.email,
+  firstName: userMock.firstName,
+  lastName: userMock.lastName,
+  isActive: userMock.isActive,
+  gdpr: userMock.gdpr,
+  createdAt: userMock.createdAt,
+  updatedAt: userMock.updatedAt,
+  username: userMock.username,
 };
