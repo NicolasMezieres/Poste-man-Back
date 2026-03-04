@@ -345,4 +345,25 @@ describe('Section (e2e)', () => {
         .expect(200);
     });
   });
+  describe('/ (GET) detailUser', () => {
+    const path = '/user/userId/detail';
+    it('Should fail, need an cookie admin', async () => {
+      return req(app.getHttpServer())
+        .get(path)
+        .set('Cookie', cookie)
+        .expect(401);
+    });
+    it('Should fail, user not found', async () => {
+      return req(app.getHttpServer())
+        .get(path)
+        .set('Cookie', cookieAdmin)
+        .expect(404);
+    });
+    it('Should succes', async () => {
+      return req(app.getHttpServer())
+        .get(`/user/${userId}/detail`)
+        .set('Cookie', cookieAdmin)
+        .expect(200);
+    });
+  });
 });

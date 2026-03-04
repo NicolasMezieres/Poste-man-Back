@@ -37,6 +37,7 @@ export const projects = [
       'src/cleangdpr',
       'src/cron',
       'src/utils',
+      'src/test',
     ],
     displayName: 'integration',
     transform: {
