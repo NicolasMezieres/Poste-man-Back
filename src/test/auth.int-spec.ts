@@ -8,7 +8,7 @@ import { EmailService } from 'src/email/email.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { resMessageType } from 'src/utils/type';
 import * as request from 'supertest';
-import { app, bearerToken, cookie, prisma } from './setup.e2e';
+import { app, bearerToken, cookie, prisma } from './setup.int';
 
 const signupDTO = {
   firstName: 'firstName',

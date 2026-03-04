@@ -1,5 +1,5 @@
 import { NotFoundException } from '@nestjs/common';
-import { app, cookie, cookieAdmin, prisma } from './setup.e2e';
+import { app, cookie, cookieAdmin, prisma } from './setup.int';
 import * as req from 'supertest';
 import { resMessageType } from 'src/utils/type';
 describe('Section (e2e)', () => {

@@ -18,7 +18,7 @@ export const projects = [
     moduleNameMapper: { '^src/(.*)$': '<rootDir>/src/$1' },
     displayName: 'unit',
     coveragePathIgnorePatterns: ['src/prisma/generated', 'src/auth/decorator'],
-    testMatch: ['<rootDir>/**/*.spec.ts', '!<rootDir>/test/*.e2e-spec.ts'],
+    testMatch: ['<rootDir>/**/*.spec.ts', '!<rootDir>/test/*.int-spec.ts'],
     transform: {
       '^.+\\.(t|j)s$': 'ts-jest',
     },
@@ -43,7 +43,7 @@ export const projects = [
     transform: {
       '^.+\\.(t|j)s$': 'ts-jest',
     },
-    testMatch: ['<rootDir>/test/*.e2e-spec.ts'],
+    testMatch: ['<rootDir>/test/*.int-spec.ts'],
     rootDir: 'src',
   },
 ];

@@ -7,7 +7,7 @@ import {
   getLink,
   getProject,
   prisma,
-} from './setup.e2e';
+} from './setup.int';
 import { resMessageType } from 'src/utils/type';
 import { NotFoundException } from '@nestjs/common';
 describe('Project (e2e) ', () => {

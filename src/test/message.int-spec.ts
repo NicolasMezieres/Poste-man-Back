@@ -6,7 +6,7 @@ import {
   cookieOtherUser,
   getProject,
   prisma,
-} from './setup.e2e';
+} from './setup.int';
 import { resMessageType } from 'src/utils/type';
 import { NotFoundException } from '@nestjs/common';
 describe('Message (e2e)', () => {

@@ -89,13 +89,13 @@ $ npm run test
 
 # Tests d'intégration
 # vérifier que la bdd de test est bien configurée en amont
-$ npm run test:e2e
+$ npm run test:int
 
 # Couverture des tests unitaires
 $ npm run test:cov
 
 # Couverture des tests d'intégration
-$ npm run test:e2e:cov
+$ npm run test:int:cov
 ```
 
 ## Documentation
