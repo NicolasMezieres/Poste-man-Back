@@ -17,20 +17,33 @@ export const projects = [
   {
     moduleNameMapper: { '^src/(.*)$': '<rootDir>/src/$1' },
     displayName: 'unit',
-    coveragePathIgnorePatterns: ['src/prisma/generated'],
-    testMatch: ['<rootDir>/**/*.spec.ts', '!<rootDir>/test/*.e2e-spec.ts'],
+    coveragePathIgnorePatterns: ['src/prisma', 'src/auth/decorator'],
+    testMatch: ['<rootDir>/**/*.spec.ts', '!<rootDir>/test/*.int-spec.ts'],
     transform: {
       '^.+\\.(t|j)s$': 'ts-jest',
     },
   },
   {
     moduleNameMapper: { '^src/(.*)$': '<rootDir>/$1' },
-    coveragePathIgnorePatterns: ['src/prisma/generated'],
+    coveragePathIgnorePatterns: [
+      'src/prisma',
+      'src/auth/decorator',
+      'src/email',
+      'src/message/message.gateway',
+      'src/project/project.gateway',
+      'src/notification/notification.gateway',
+      'src/post/post.gateway',
+      'src/auth/strategy',
+      'src/cleangdpr',
+      'src/cron',
+      'src/utils',
+      'src/test',
+    ],
     displayName: 'integration',
     transform: {
       '^.+\\.(t|j)s$': 'ts-jest',
     },
-    testMatch: ['<rootDir>/test/*.e2e-spec.ts'],
+    testMatch: ['<rootDir>/test/*.int-spec.ts'],
     rootDir: 'src',
   },
 ];

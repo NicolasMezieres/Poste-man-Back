@@ -4,7 +4,9 @@ import { ProjectService } from './project.service';
 import { projectServiceMock } from './mock/project.service.mock';
 import {
   createLinkProjectMock,
+  dataMemberMock,
   messageProjectMock,
+  projectMock,
   searchAdminMock,
   searchMock,
 } from './mock/project.mock';
@@ -107,6 +109,27 @@ describe('ProjectController', () => {
       await expect(
         controller.remove(projectId, userWithRoleMock),
       ).resolves.toEqual(messageProjectMock);
+    });
+  });
+  describe('Get Detail', () => {
+    it('Should return detail project', async () => {
+      await expect(controller.getDetail(projectId)).resolves.toEqual({
+        data: projectMock,
+      });
+    });
+  });
+  describe('Get List Member', () => {
+    it('Should return list member', async () => {
+      await expect(
+        controller.getListMember(projectId, userWithRoleMock),
+      ).resolves.toEqual({ data: dataMemberMock.data });
+    });
+  });
+  describe('Get Project List By User', () => {
+    it('Should return list project', async () => {
+      await expect(
+        controller.getProjectListByUser('userId', { page: 0 }),
+      ).resolves.toEqual({ data: [] });
     });
   });
 });

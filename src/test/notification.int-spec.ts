@@ -1,6 +1,6 @@
 import { resMessageType } from 'src/utils/type';
 import * as req from 'supertest';
-import { app, cookie, prisma } from './setup.e2e';
+import { app, cookie, prisma } from './setup.int';
 import { NotFoundException } from '@nestjs/common';
 describe('Notification (e2e)', () => {
   let notificationId: number;
@@ -59,7 +59,7 @@ describe('Notification (e2e)', () => {
         .set('Cookie', cookie)
         .expect(403)
         .expect((err: resMessageType) =>
-          expect(err.body.message).toEqual('Notification is not a valid id'),
+          expect(err.body.message).toEqual('Notification invalide'),
         );
     });
     it('Should fail Not Found Exception, Notification not found', async () => {

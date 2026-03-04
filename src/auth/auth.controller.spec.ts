@@ -8,6 +8,7 @@ import {
   signinResponseMock,
   signupMessageMock,
   userMock,
+  userWithRoleMock,
 } from './mock/auth.mock';
 import { AuthServiceMock } from './mock/auth.service.mock';
 
@@ -78,7 +79,7 @@ describe('AuthController', () => {
   });
 
   describe('logout', () => {
-    it('should return a { message: "Deconnection Success"', () => {
+    it('should return a { message: "Deconnection réussi"', () => {
       const clearCookie = jest.fn();
       const res = { clearCookie } as unknown as Response;
       const result = authController.logout(res);
@@ -86,9 +87,9 @@ describe('AuthController', () => {
       expect(clearCookie).toHaveBeenCalledWith('access_token', {
         httpOnly: true,
         secure: true,
-        sameSite: 'strict',
+        sameSite: 'none',
       });
-      expect(result).toEqual({ message: 'Deconnection Success' });
+      expect(result).toEqual({ message: 'Deconnection réussi' });
     });
   });
   describe('resetPassword With Token', () => {
@@ -97,6 +98,11 @@ describe('AuthController', () => {
       await expect(
         authController.resetPasswordWithToken(userMock, dto),
       ).resolves.toEqual(messageMock);
+    });
+  });
+  describe('Log', () => {
+    it('Should return a message', () => {
+      expect(authController.log(userWithRoleMock)).toBeDefined();
     });
   });
 });

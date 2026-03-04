@@ -6,7 +6,7 @@ import {
   cookieOtherUser,
   getProject,
   prisma,
-} from './setup.e2e';
+} from './setup.int';
 import { resMessageType } from 'src/utils/type';
 import { NotFoundException } from '@nestjs/common';
 describe('Message (e2e)', () => {
@@ -104,6 +104,34 @@ describe('Message (e2e)', () => {
     it('Should succes Admin', async () => {
       return req(app.getHttpServer())
         .get(path + projectId + '/name')
+        .set('Cookie', cookieAdmin)
+        .expect(200);
+    });
+  });
+  describe('/ (GET) Get List Message By User', () => {
+    const path = '/message/user/';
+    it('Should fail, need an admin cookie', async () => {
+      return req(app.getHttpServer())
+        .get(path + 'userId')
+        .set('Cookie', cookie)
+        .expect(401);
+    });
+    it('Should fail, user not found', async () => {
+      return req(app.getHttpServer())
+        .get(path + 'userId')
+        .set('Cookie', cookieAdmin)
+        .expect(404);
+    });
+    it('Should return list message', async () => {
+      const existingUser = await prisma.user.findFirst({
+        where: { email: 'email2@email.com' },
+        select: { id: true },
+      });
+      if (!existingUser) {
+        throw new NotFoundException('user not found');
+      }
+      return req(app.getHttpServer())
+        .get(path + existingUser.id)
         .set('Cookie', cookieAdmin)
         .expect(200);
     });

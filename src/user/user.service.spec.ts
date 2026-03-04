@@ -38,7 +38,7 @@ describe('UserService', () => {
       jest.spyOn(mockPrisma.user, 'findUnique').mockResolvedValue(null);
       const result = await service.updateAccount(mockUser, mockUserUpdate);
 
-      expect(result).toEqual({ message: 'Your account has been updated.' });
+      expect(result).toEqual({ message: 'Compte modifié !' });
       expect(mockPrisma.user.update).toHaveBeenCalledWith({
         where: { id: mockUser.id },
         data: mockUserUpdate,
@@ -113,7 +113,7 @@ describe('UserService', () => {
       mockPrisma.project.updateMany.mockResolvedValue(undefined);
       mockPrisma.$transaction.mockResolvedValue(undefined);
       const result = await service.deleteAccount(mockUser);
-      expect(result).toEqual({ message: 'Your account gonna be deleted !' });
+      expect(result).toEqual({ message: 'Compte supprimé !' });
       expect(mockPrisma.user.update).toHaveBeenCalledWith({
         where: { id: mockUser.id },
         data: { isActive: false, isArchive: true },
@@ -164,7 +164,7 @@ describe('UserService', () => {
       mockPrisma.user.delete.mockResolvedValue(undefined);
 
       const result = await service.deleteUser(mockUser, '1');
-      expect(result).toEqual({ message: 'User has been deleted' });
+      expect(result).toEqual({ message: 'Utilisateur supprimé !' });
       expect(mockPrisma.user.update).toHaveBeenCalledWith({
         where: {
           id: '1',
@@ -189,6 +189,20 @@ describe('UserService', () => {
       await expect(
         service.changeAvatar(mockUser, { icon: 'cat' }),
       ).resolves.toEqual({ message: 'Avatar modifié' });
+    });
+  });
+  describe('Detail User', () => {
+    it('Should fail, user not found', async () => {
+      jest.spyOn(mockPrisma.user, 'findUnique').mockReturnValue(null);
+      await expect(service.detailUser('userId')).rejects.toEqual(
+        new NotFoundException('Utilisateur introuvable'),
+      );
+    });
+    it('Should return detail user', async () => {
+      jest.spyOn(mockPrisma.user, 'findUnique').mockReturnValue(userMock);
+      await expect(service.detailUser(userMock.id)).resolves.toEqual({
+        data: userMock,
+      });
     });
   });
 });

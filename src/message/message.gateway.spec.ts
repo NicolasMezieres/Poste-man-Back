@@ -70,4 +70,25 @@ describe('MessageGateway', () => {
       });
     });
   });
+  describe('Emit Message Ban', () => {
+    it('Should emit user banned', () => {
+      expect(gateway.emitMessageBan('userId', projectId, true));
+      expect(serverMock.to).toHaveBeenCalledWith(`message/${projectId}`);
+      expect(serverMock.emit).toHaveBeenCalledWith(`message`, {
+        action: 'ban',
+        userId: 'userId',
+        isBanned: true,
+      });
+    });
+  });
+  describe('Emit Message Kick', () => {
+    it('Should emit user kicked', () => {
+      expect(gateway.emitMessageKick('userId', projectId));
+      expect(serverMock.to).toHaveBeenCalledWith(`message/${projectId}`);
+      expect(serverMock.emit).toHaveBeenCalledWith(`message`, {
+        action: 'kickUser',
+        userId: 'userId',
+      });
+    });
+  });
 });

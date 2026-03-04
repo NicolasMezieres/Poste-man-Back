@@ -7,7 +7,7 @@ import {
   getLink,
   getProject,
   prisma,
-} from './setup.e2e';
+} from './setup.int';
 import { resMessageType } from 'src/utils/type';
 import { NotFoundException } from '@nestjs/common';
 describe('Project (e2e) ', () => {
@@ -158,7 +158,7 @@ describe('Project (e2e) ', () => {
         .set('Cookie', cookie)
         .expect(404)
         .expect((err: resMessageType) =>
-          expect(err.body.message).toContain('Project'),
+          expect(err.body.message).toContain('Projet'),
         );
     });
   });
@@ -178,7 +178,7 @@ describe('Project (e2e) ', () => {
         .set('Cookie', cookie)
         .expect(404)
         .expect((err: resMessageType) =>
-          expect(err.body.message).toContain('Link invalid'),
+          expect(err.body.message).toContain('Lien invalide'),
         );
     });
     it('Should user join', async () => {
@@ -188,7 +188,7 @@ describe('Project (e2e) ', () => {
         .set('Cookie', cookieAdmin)
         .expect(201)
         .expect((res: resMessageType) =>
-          expect(res.body.message).toContain('Welcome'),
+          expect(res.body.message).toContain('Bienvenue'),
         );
     });
     it('Should fail Forbidden Exception, user already in the project', async () => {
@@ -225,7 +225,7 @@ describe('Project (e2e) ', () => {
         .set('Cookie', cookieAdmin)
         .expect(403)
         .expect((res: resMessageType) =>
-          expect(res.body.message).toEqual('You are already in the project !'),
+          expect(res.body.message).toEqual('Vous êtes déjà dans le projet !'),
         );
     });
     it('Should fail Forbidden Exception, Link expired !', async () => {
@@ -239,7 +239,7 @@ describe('Project (e2e) ', () => {
         .set('Cookie', cookieAdmin)
         .expect(403)
         .expect((res: resMessageType) =>
-          expect(res.body.message).toEqual('Link expired !'),
+          expect(res.body.message).toEqual('Lien expiré !'),
         );
     });
     it('Should fail Forbidden Exception, Link invalid ! Number usage equal 0', async () => {
@@ -253,7 +253,7 @@ describe('Project (e2e) ', () => {
         .set('Cookie', cookieAdmin)
         .expect(404)
         .expect((res: resMessageType) =>
-          expect(res.body.message).toEqual('Link invalid !'),
+          expect(res.body.message).toEqual('Lien invalide !'),
         );
     });
   });
@@ -274,7 +274,7 @@ describe('Project (e2e) ', () => {
         .expect(403)
         .set('Cookie', cookieAdmin)
         .expect((err: resMessageType) => {
-          expect(err.body.message).toContain('unauthorized');
+          expect(err.body.message).toContain('autorisé');
         });
     });
     it('Should fail Not Found Exception, Member to ban not found', async () => {
@@ -283,7 +283,7 @@ describe('Project (e2e) ', () => {
         .expect(404)
         .set('Cookie', cookie)
         .expect((err: resMessageType) => {
-          expect(err.body.message).toEqual('Not found member !');
+          expect(err.body.message).toEqual('Membre introuvable !');
         });
     });
     it('Should fail Not Found Exception, Member to ban not found', async () => {
@@ -299,7 +299,7 @@ describe('Project (e2e) ', () => {
         .expect(200)
         .set('Cookie', cookie)
         .expect((err: resMessageType) => {
-          expect(err.body.message).toEqual('Ban status updated');
+          expect(err.body.message).toEqual('Status mis à jour !');
         });
     });
   });
@@ -330,7 +330,7 @@ describe('Project (e2e) ', () => {
         .send(projectDTO)
         .expect(404)
         .expect((err: resMessageType) =>
-          expect(err.body.message).toContain('Project'),
+          expect(err.body.message).toContain('Projet'),
         );
     });
     it('Should rename project', async () => {
@@ -357,7 +357,7 @@ describe('Project (e2e) ', () => {
         .expect(403)
         .set('Cookie', cookie)
         .expect((err: resMessageType) =>
-          expect(err.body.message).toContain('User not found'),
+          expect(err.body.message).toContain('Utilisateur introuvable'),
         );
     });
     it('Should kick user', async () => {
@@ -374,7 +374,7 @@ describe('Project (e2e) ', () => {
         .expect(200)
         .set('Cookie', cookie)
         .expect((err: resMessageType) =>
-          expect(err.body.message).toContain('User kick'),
+          expect(err.body.message).toContain('exclu'),
         );
     });
   });
@@ -394,16 +394,16 @@ describe('Project (e2e) ', () => {
         .set('Cookie', cookie)
         .expect(404)
         .expect((res: resMessageType) =>
-          expect(res.body.message).toContain('Project'),
+          expect(res.body.message).toContain('Projet'),
         );
     });
     it('Should fail Unauthorized Exception, is not a member and admin', async () => {
       return request(app.getHttpServer())
         .delete(path + projectId)
         .set('Cookie', cookieOtherUser)
-        .expect(401)
+        .expect(403)
         .expect((res: resMessageType) =>
-          expect(res.body.message).toContain('unauthorized'),
+          expect(res.body.message).toContain('autorisé'),
         );
     });
     it('Should leave the project', async () => {
@@ -424,7 +424,7 @@ describe('Project (e2e) ', () => {
         .set('Cookie', cookieOtherUser)
         .expect(200)
         .expect((res: resMessageType) =>
-          expect(res.body.message).toContain('leaved'),
+          expect(res.body.message).toContain('quitté'),
         );
     });
     it('Should deleted project, Admin', async () => {
@@ -433,7 +433,7 @@ describe('Project (e2e) ', () => {
         .set('Cookie', cookieAdmin)
         .expect(200)
         .expect((res: resMessageType) =>
-          expect(res.body.message).toContain('deleted'),
+          expect(res.body.message).toContain('supprimé'),
         );
     });
     it('Should deleted project, Moderator', async () => {
@@ -454,8 +454,78 @@ describe('Project (e2e) ', () => {
         .set('Cookie', cookie)
         .expect(200)
         .expect((res: resMessageType) =>
-          expect(res.body.message).toContain('deleted'),
+          expect(res.body.message).toContain('supprimé'),
         );
+    });
+  });
+  describe('/ (GET) Get Detail project', () => {
+    const path = '/project/projectId/detail';
+    it('Should fail, need an admin cookie', async () => {
+      return request(app.getHttpServer())
+        .get(path)
+        .set('Cookie', cookie)
+        .expect(401);
+    });
+    it('Should fail, project not found', async () => {
+      return request(app.getHttpServer())
+        .get(path)
+        .set('Cookie', cookieAdmin)
+        .expect(404);
+    });
+    it('Should succes', async () => {
+      return request(app.getHttpServer())
+        .get(`/project/${projectId}/detail`)
+        .set('Cookie', cookieAdmin)
+        .expect(200);
+    });
+  });
+  describe('/ (GET) Get List Member', () => {
+    const path = '/project/projectId/listMember';
+    it('Should fail, need an admin cookie', async () => {
+      return request(app.getHttpServer())
+        .get(path)
+        .set('Cookie', cookie)
+        .expect(401);
+    });
+    it('Should fail, project not found', async () => {
+      return request(app.getHttpServer())
+        .get(path)
+        .set('Cookie', cookieAdmin)
+        .expect(404);
+    });
+    it('Should succes', async () => {
+      return request(app.getHttpServer())
+        .get(`/project/${projectId}/listMember`)
+        .set('Cookie', cookieAdmin)
+        .expect(200);
+    });
+  });
+  describe('/ (GET) Get Project List By User', () => {
+    const path = '/project/projectListByUser/userId';
+    it('Should fail, need an admin cookie', async () => {
+      return request(app.getHttpServer())
+        .get(path)
+        .set('Cookie', cookie)
+        .expect(401);
+    });
+    it('Should fail, user not found', async () => {
+      return request(app.getHttpServer())
+        .get(path)
+        .set('Cookie', cookieAdmin)
+        .expect(404);
+    });
+    it('Should succes', async () => {
+      const existingUser = await prisma.user.findFirst({
+        where: { email: 'email2@email.com' },
+        select: { id: true },
+      });
+      if (!existingUser) {
+        throw new NotFoundException('user not found');
+      }
+      return request(app.getHttpServer())
+        .get(`/project/projectListByUser/${existingUser.id}`)
+        .set('Cookie', cookieAdmin)
+        .expect(200);
     });
   });
 });

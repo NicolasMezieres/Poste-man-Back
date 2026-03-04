@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { JwtGuard } from 'src/auth/Guards';
 import { mockUserService } from './mock/service.mock';
-import { mockUser, mockUserUpdate } from './mock/user.mock';
+import { detailUserMock, mockUser, mockUserUpdate } from './mock/user.mock';
 import { UserController } from './user.controller';
 import { UserService } from './user.service';
 import { userMock } from 'src/auth/mock/auth.mock';
@@ -33,8 +33,12 @@ describe('UserController', () => {
         lastName: userMock.lastName,
         username: userMock.username,
       };
-      jest.spyOn(service, 'myAccount').mockReturnValue({ data });
-      expect(controller.myAccount(userMock)).toEqual({ data });
+      jest
+        .spyOn(service, 'myAccount')
+        .mockReturnValue({ data: { ...data, icon: null } });
+      expect(controller.myAccount(userMock)).toEqual({
+        data: { ...data, icon: null },
+      });
       expect(service.myAccount).toHaveBeenCalled();
     });
   });
@@ -121,6 +125,13 @@ describe('UserController', () => {
         message: 'Avatar modifié',
       });
       expect(service.changeAvatar).toHaveBeenCalled();
+    });
+  });
+  describe('Detail User', () => {
+    it('Should return detail user', async () => {
+      await expect(controller.detailUser(userMock.id)).resolves.toEqual({
+        data: detailUserMock,
+      });
     });
   });
 });

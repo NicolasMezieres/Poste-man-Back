@@ -15,6 +15,7 @@ import { sectionPrismaMock } from './mock/section.prisma.mock';
 import { mockUser } from './mock/user.mock';
 import { SectionService } from './section.service';
 import { adminWithRoleMock, userWithRoleMock } from 'src/auth/mock/auth.mock';
+import { mockUserUpdate } from 'src/user/mock/user.mock';
 
 describe('SectionService', () => {
   let service: SectionService;
@@ -82,7 +83,7 @@ describe('SectionService', () => {
       jest.spyOn(prisma.project, 'findUnique').mockResolvedValue(null);
       await expect(
         service.sections('projectId', userWithRoleMock),
-      ).rejects.toEqual(new NotFoundException('Project not found !'));
+      ).rejects.toEqual(new NotFoundException('Projet introuvable !'));
     });
     it('Should return a Forbidden Exception', async () => {
       jest
@@ -91,7 +92,7 @@ describe('SectionService', () => {
       jest.spyOn(prisma.user_Has_Project, 'findFirst').mockResolvedValue(null);
       await expect(
         service.sections('projectId', userWithRoleMock),
-      ).rejects.toEqual(new ForbiddenException('You are unauthorized !'));
+      ).rejects.toEqual(new ForbiddenException("Vous n'êtes pas autorisé"));
     });
   });
   describe('createSection', () => {
@@ -109,7 +110,7 @@ describe('SectionService', () => {
       const result = await service.createSection(
         mockCreateDTO,
         'project-1',
-        mockUser,
+        mockUserUpdate,
       );
 
       expect(prisma.user_Has_Project.findFirst).toHaveBeenCalledWith({
@@ -130,15 +131,17 @@ describe('SectionService', () => {
         data: { name: mockCreateDTO.name, projectId: 'project-1' },
       });
 
-      expect(result).toEqual({ message: 'Section create', data: sectionMock });
+      expect(result).toEqual({ message: 'Section créé', data: sectionMock });
     });
 
     it('should throw ForbiddenException if user project not found', async () => {
       prisma.user_Has_Project.findFirst.mockResolvedValue(null);
 
       await expect(
-        service.createSection(mockCreateDTO, 'project-1', mockUser),
-      ).rejects.toThrow(ForbiddenException);
+        service.createSection(mockCreateDTO, 'project-1', mockUserUpdate),
+      ).rejects.toThrow(
+        new NotFoundException({ message: 'Projet introuvable' }),
+      );
     });
 
     it('should throw BadRequestException if section name exists', async () => {
@@ -146,7 +149,7 @@ describe('SectionService', () => {
       prisma.section.findFirst.mockResolvedValue({ id: 'section-1' });
 
       await expect(
-        service.createSection(mockCreateDTO, 'project-1', mockUser),
+        service.createSection(mockCreateDTO, 'project-1', mockUserUpdate),
       ).rejects.toThrow(BadRequestException);
     });
   });
@@ -168,7 +171,7 @@ describe('SectionService', () => {
         mockUpdateDTO,
         'project-1',
         'section-1',
-        mockUser,
+        mockUserUpdate,
       );
 
       expect(prisma.section.findFirst).toHaveBeenCalledTimes(2);
@@ -178,7 +181,7 @@ describe('SectionService', () => {
         data: { name: mockUpdateDTO.name },
       });
 
-      expect(result).toEqual({ message: 'Section Update', data: sectionMock });
+      expect(result).toEqual({ message: 'Section modifié', data: sectionMock });
     });
 
     it('should throw BadRequestException if section not found', async () => {
@@ -189,9 +192,11 @@ describe('SectionService', () => {
           mockUpdateDTO,
           'project-1',
           'section-1',
-          mockUser,
+          mockUserUpdate,
         ),
-      ).rejects.toThrow(BadRequestException);
+      ).rejects.toThrow(
+        new NotFoundException({ message: 'Section introuvable' }),
+      );
     });
 
     it('should throw ForbiddenException if new name is already used', async () => {
@@ -204,7 +209,7 @@ describe('SectionService', () => {
           mockUpdateDTO,
           'project-1',
           'section-1',
-          mockUser,
+          mockUserUpdate,
         ),
       ).rejects.toThrow(ForbiddenException);
     });
@@ -244,7 +249,7 @@ describe('SectionService', () => {
         select: null,
       });
 
-      expect(result).toEqual({ message: 'Section has been deleted' });
+      expect(result).toEqual({ message: 'Section supprimé' });
     });
     it('Should remove section with Admin account !', async () => {
       jest.spyOn(prisma.section, 'findUnique').mockResolvedValue({
@@ -255,7 +260,7 @@ describe('SectionService', () => {
       jest.spyOn(prisma.section, 'update').mockResolvedValue(null);
       await expect(
         service.removeSection('sectionId', adminWithRoleMock),
-      ).resolves.toEqual({ message: 'Section has been deleted' });
+      ).resolves.toEqual({ message: 'Section supprimé' });
       expect(prisma.section.update).toHaveBeenCalledWith({
         where: { id: 'sectionId' },
         data: {
@@ -280,7 +285,7 @@ describe('SectionService', () => {
       jest.spyOn(prisma.user_Has_Project, 'findFirst').mockResolvedValue(null);
       await expect(
         service.removeSection('sectionId', userWithRoleMock),
-      ).rejects.toEqual(new ForbiddenException('You are unauthorized !'));
+      ).rejects.toEqual(new ForbiddenException("Vous n'êtes pas autorisé"));
     });
   });
   describe('Remove All Section', () => {

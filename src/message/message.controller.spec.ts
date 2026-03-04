@@ -64,4 +64,11 @@ describe('MessageController', () => {
       });
     });
   });
+  describe('GetListMessageByUser', () => {
+    it('Should return list message', async () => {
+      await expect(
+        controller.getListMessageByUser('userId', { page: 1 }),
+      ).resolves.toEqual({ data: [], isEndList: true, totalMessage: 0 });
+    });
+  });
 });

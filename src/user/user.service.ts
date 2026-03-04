@@ -55,7 +55,7 @@ export class UserService {
       },
       select: null,
     });
-    return { message: 'Your account has been updated.' };
+    return { message: 'Compte modifié !' };
   }
 
   async changePassword(user: User, dto: changePasswordDTO) {
@@ -125,7 +125,7 @@ export class UserService {
         },
       }),
     ]);
-    return { message: 'Your account gonna be deleted !' };
+    return { message: 'Compte supprimé !' };
   }
 
   async listUser(query: queryUserList) {
@@ -198,7 +198,7 @@ export class UserService {
       select: { id: true, isActive: true },
     });
     if (!existingUser) {
-      throw new NotFoundException('User not found');
+      throw new NotFoundException('Utilisateur introuvable !');
     }
     await this.prisma.user.update({
       where: {
@@ -222,7 +222,7 @@ export class UserService {
       },
     });
     if (!existingUser) {
-      throw new NotFoundException('User not found');
+      throw new NotFoundException('Utilisateur introuvable !');
     }
     await this.prisma.$transaction([
       this.prisma.post.updateMany({
@@ -279,7 +279,7 @@ export class UserService {
         },
       }),
     ]);
-    return { message: 'User has been deleted' };
+    return { message: 'Utilisateur supprimé !' };
   }
   async changeAvatar(user: User, dto: changeAvatarDTO) {
     await this.prisma.user.update({

@@ -205,7 +205,7 @@ describe('PostService', () => {
       jest.spyOn(postPrismaMock.post, 'update').mockResolvedValue(null);
       await expect(
         service.transfert(postId, 'otherSectionId', userWithRoleMock),
-      ).resolves.toEqual({ message: 'La section des posts à été modifier !' });
+      ).resolves.toEqual({ message: 'Post transferer !' });
       expect(postPrismaMock.post.update).toHaveBeenCalled();
     });
     it('Should return a message Section of post changed with Moderator account !', async () => {
@@ -224,7 +224,7 @@ describe('PostService', () => {
       jest.spyOn(postPrismaMock.post, 'update').mockResolvedValue(null);
       await expect(
         service.transfert(postId, 'otherSectionId', userWithRoleMock),
-      ).resolves.toEqual({ message: 'La section des posts à été modifier !' });
+      ).resolves.toEqual({ message: 'Post transferer !' });
       expect(postPrismaMock.post.update).toHaveBeenCalled();
     });
     it('Should return a message Section of post changed with Admin account !', async () => {
@@ -240,7 +240,7 @@ describe('PostService', () => {
       jest.spyOn(postPrismaMock.post, 'update').mockResolvedValue(null);
       await expect(
         service.transfert(postId, 'otherSectionId', adminWithRoleMock),
-      ).resolves.toEqual({ message: 'La section des posts à été modifier !' });
+      ).resolves.toEqual({ message: 'Post transferer !' });
       expect(postPrismaMock.post.update).toHaveBeenCalled();
       expect(postPrismaMock.user_Has_Project.findFirst).not.toHaveBeenCalled();
     });
@@ -420,7 +420,7 @@ describe('PostService', () => {
       jest.spyOn(postPrismaMock.vote, 'create').mockResolvedValue(null);
       jest.spyOn(postPrismaMock.post, 'update').mockResolvedValue(null);
       await expect(service.vote(postId, voteUpDTO, userMock)).resolves.toEqual({
-        message: 'Voted !',
+        message: 'Voté !',
       });
       expect(postPrismaMock.vote.create).toHaveBeenCalledWith({
         data: { ...voteUpDTO, postId, userId: userMock.id },
@@ -444,7 +444,7 @@ describe('PostService', () => {
       await expect(
         service.vote(postId, voteDownDTO, userMock),
       ).resolves.toEqual({
-        message: 'Voted !',
+        message: 'Voté !',
       });
       expect(postPrismaMock.vote.create).toHaveBeenCalledWith({
         data: { ...voteDownDTO, postId, userId: userMock.id },
@@ -466,7 +466,7 @@ describe('PostService', () => {
         .mockResolvedValue({ id: postId, isUp: true });
       jest.spyOn(postPrismaMock.post, 'update').mockResolvedValue(null);
       await expect(service.vote(postId, voteUpDTO, userMock)).resolves.toEqual({
-        message: 'Voted !',
+        message: 'Voté !',
       });
       expect(postPrismaMock.vote.create).not.toHaveBeenCalled();
       expect(postPrismaMock.vote.update).toHaveBeenCalledWith({
@@ -488,7 +488,7 @@ describe('PostService', () => {
       await expect(
         service.vote(postId, voteDownDTO, userMock),
       ).resolves.toEqual({
-        message: 'Voted !',
+        message: 'Voté !',
       });
       expect(postPrismaMock.vote.create).not.toHaveBeenCalled();
       expect(postPrismaMock.vote.update).toHaveBeenCalledWith({
@@ -508,7 +508,7 @@ describe('PostService', () => {
         .mockResolvedValue({ id: postId, isUp: false });
       jest.spyOn(postPrismaMock.post, 'update').mockResolvedValue(null);
       await expect(service.vote(postId, voteUpDTO, userMock)).resolves.toEqual({
-        message: 'Voted !',
+        message: 'Voté !',
       });
       expect(postPrismaMock.vote.create).not.toHaveBeenCalled();
       expect(postPrismaMock.vote.update).toHaveBeenCalledWith({
@@ -530,7 +530,7 @@ describe('PostService', () => {
       await expect(
         service.vote(postId, voteDownDTO, userMock),
       ).resolves.toEqual({
-        message: 'Voted !',
+        message: 'Voté !',
       });
       expect(postPrismaMock.vote.create).not.toHaveBeenCalled();
       expect(postPrismaMock.vote.update).toHaveBeenCalledWith({
@@ -550,7 +550,7 @@ describe('PostService', () => {
         .mockResolvedValue({ id: postId, isUp: null });
       jest.spyOn(postPrismaMock.post, 'update').mockResolvedValue(null);
       await expect(service.vote(postId, voteUpDTO, userMock)).resolves.toEqual({
-        message: 'Voted !',
+        message: 'Voté !',
       });
       expect(postPrismaMock.vote.create).not.toHaveBeenCalled();
       expect(postPrismaMock.vote.update).toHaveBeenCalledWith({
@@ -573,7 +573,7 @@ describe('PostService', () => {
       await expect(
         service.vote(postId, voteDownDTO, userMock),
       ).resolves.toEqual({
-        message: 'Voted !',
+        message: 'Voté !',
         score: 0,
       });
       expect(postPrismaMock.vote.create).not.toHaveBeenCalled();

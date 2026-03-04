@@ -1,4 +1,4 @@
-name: E2E Tests with Docker
+name: Integration Tests with Docker
 
 on:
   push:
@@ -44,5 +44,5 @@ jobs:
       - name: Run seed
         run: npx prisma db seed
 
-      - name: Run E2E tests
-        run: npm run test:e2e
+      - name: Run integration tests
+        run: npm run test:int

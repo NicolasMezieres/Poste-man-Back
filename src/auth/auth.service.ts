@@ -93,7 +93,7 @@ export class AuthService {
       },
     });
     return {
-      message: 'Vôtre compte à été créer !',
+      message: 'Votre compte a été activé !',
     };
   }
   async signin(dto: SignInDTO, res: Response) {
@@ -106,7 +106,7 @@ export class AuthService {
     if (!existingUser) {
       throw new UnauthorizedException('Identifiant ou mot de passe incorrecte');
     } else if (existingUser.isActive === false) {
-      throw new UnauthorizedException(`Vôtre compte n'est pas activer`);
+      throw new UnauthorizedException(`Votre compte n'est pas activé`);
     }
 
     const isSamePassword = await argon.verify(
@@ -134,7 +134,7 @@ export class AuthService {
       const token = await this.signToken(existingEmail, '10m');
       await this.email.forgetPassword(existingEmail, token.connexion_token);
     } else if (existingEmail && !existingEmail.isActive) {
-      throw new ForbiddenException('Your account is not activate');
+      throw new ForbiddenException("Votre compte n'est pas activé");
     }
     return {
       message: 'Un email a été envoyé',
@@ -146,6 +146,6 @@ export class AuthService {
       where: { id: user.id },
       data: { password: hash },
     });
-    return { message: 'Vôtre mot de passe à été modifier' };
+    return { message: 'Votre mot de passe a été modifié' };
   }
 }

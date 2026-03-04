@@ -17,7 +17,6 @@ import { queryMessage, queryPage, UserWithRole } from 'src/utils/type';
 import {
   ApiCreatedResponse,
   ApiForbiddenResponse,
-  ApiNoContentResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
 } from '@nestjs/swagger';
@@ -27,9 +26,9 @@ import {
 export class MessageController {
   constructor(private readonly messageService: MessageService) {}
 
-  @ApiOkResponse({ description: 'Messages of project' })
-  @ApiNotFoundResponse({ description: 'Project not found !' })
-  @ApiForbiddenResponse({ description: 'You are unauthorized !' })
+  @ApiOkResponse({ description: 'Messages du project' })
+  @ApiNotFoundResponse({ description: 'Project introuvable !' })
+  @ApiForbiddenResponse({ description: "Vous n'êtes pas dans le projet" })
   @Get('/project/:projectId')
   projectMessages(
     @Param('projectId') projectId: string,
@@ -38,6 +37,10 @@ export class MessageController {
   ) {
     return this.messageService.projectMessages(projectId, user, query);
   }
+
+  @ApiOkResponse({ description: 'Nom du projet' })
+  @ApiNotFoundResponse({ description: 'Project introuvable' })
+  @ApiForbiddenResponse({ description: "Vous n'êtes pas dans le projet" })
   @Get('/project/:projectId/name')
   projectName(
     @Param('projectId') projectId: string,
@@ -46,6 +49,8 @@ export class MessageController {
     return this.messageService.projectName(projectId, user);
   }
 
+  @ApiOkResponse({ description: 'Liste des message par utilisateur' })
+  @ApiNotFoundResponse({ description: 'Utilisateur introuvable !' })
   @UseGuards(AdminGuard)
   @Get('/user/:userId')
   getListMessageByUser(
@@ -56,9 +61,9 @@ export class MessageController {
   }
 
   @ApiCreatedResponse({
-    description: 'The message has been successfully created.',
+    description: 'Message créer !',
   })
-  @ApiNotFoundResponse({ description: 'Project not found !' })
+  @ApiNotFoundResponse({ description: 'Projet introuvable !' })
   @Post('/project/:projectId')
   createMessage(
     @Param('projectId') projectId: string,
@@ -68,9 +73,9 @@ export class MessageController {
     return this.messageService.createMessage(dto, projectId, user);
   }
 
-  @ApiNotFoundResponse({ description: 'Message not found !' })
-  @ApiForbiddenResponse({ description: 'You are unauthorized !' })
-  @ApiNoContentResponse({ description: 'Message deleted !' })
+  @ApiOkResponse({ description: 'Message supprimer !' })
+  @ApiNotFoundResponse({ description: 'Message introuvable !' })
+  @ApiForbiddenResponse({ description: "Vous n'êtes pas autoriser !" })
   @Delete('/:messageId')
   deleteMessage(
     @Param('messageId') messageId: string,
@@ -79,9 +84,9 @@ export class MessageController {
     return this.messageService.deleteMessage(messageId, user);
   }
 
-  @ApiNotFoundResponse({ description: 'Project not found' })
-  @ApiForbiddenResponse({ description: 'You are unauthorized !' })
-  @ApiNoContentResponse({ description: 'Message deleted !' })
+  @ApiNotFoundResponse({ description: 'Projet introuvable !' })
+  @ApiForbiddenResponse({ description: "Vous n'êtes pas autoriser !" })
+  @ApiOkResponse({ description: 'Messages supprimer !' })
   @Delete('/project/:projectId')
   deleteAllMessage(
     @Param('projectId') projectId: string,
