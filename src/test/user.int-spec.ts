@@ -1,5 +1,5 @@
 import { NotFoundException } from '@nestjs/common';
-import { app, cookie, cookieAdmin, prisma } from './setup.e2e';
+import { app, cookie, cookieAdmin, prisma } from './setup.int';
 import * as req from 'supertest';
 import { resMessageType } from 'src/utils/type';
 describe('Section (e2e)', () => {
@@ -341,6 +341,27 @@ describe('Section (e2e)', () => {
     it('Should succes', async () => {
       return req(app.getHttpServer())
         .delete(path + `${userId}/delete`)
+        .set('Cookie', cookieAdmin)
+        .expect(200);
+    });
+  });
+  describe('/ (GET) detailUser', () => {
+    const path = '/user/userId/detail';
+    it('Should fail, need an cookie admin', async () => {
+      return req(app.getHttpServer())
+        .get(path)
+        .set('Cookie', cookie)
+        .expect(401);
+    });
+    it('Should fail, user not found', async () => {
+      return req(app.getHttpServer())
+        .get(path)
+        .set('Cookie', cookieAdmin)
+        .expect(404);
+    });
+    it('Should succes', async () => {
+      return req(app.getHttpServer())
+        .get(`/user/${userId}/detail`)
         .set('Cookie', cookieAdmin)
         .expect(200);
     });

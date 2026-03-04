@@ -8,7 +8,7 @@ import { EmailService } from 'src/email/email.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { resMessageType } from 'src/utils/type';
 import * as request from 'supertest';
-import { app, bearerToken, prisma } from './setup.e2e';
+import { app, bearerToken, cookie, prisma } from './setup.int';
 
 const signupDTO = {
   firstName: 'firstName',
@@ -296,6 +296,23 @@ describe('AuthController (e2e)', () => {
         .patch(path)
         .set('Authorization', `Bearer ${bearerToken.connexion_token}`)
         .send({ password: 'StrongP@ssword73' })
+        .expect(200);
+    });
+  });
+  describe('/ (GET) Log', () => {
+    const path = '/auth/log';
+    it('Should fail, need a cookie', async () => {
+      return request(app.getHttpServer())
+        .get(path)
+        .expect(401)
+        .expect((err: resMessageType) =>
+          expect(err.body.message).toContain('Unauthorized'),
+        );
+    });
+    it('Should return a message', async () => {
+      return request(app.getHttpServer())
+        .get(path)
+        .set('Cookie', cookie)
         .expect(200);
     });
   });

@@ -7,7 +7,7 @@ import {
   getLink,
   getProject,
   prisma,
-} from './setup.e2e';
+} from './setup.int';
 import { resMessageType } from 'src/utils/type';
 import { NotFoundException } from '@nestjs/common';
 describe('Project (e2e) ', () => {
@@ -456,6 +456,76 @@ describe('Project (e2e) ', () => {
         .expect((res: resMessageType) =>
           expect(res.body.message).toContain('supprimé'),
         );
+    });
+  });
+  describe('/ (GET) Get Detail project', () => {
+    const path = '/project/projectId/detail';
+    it('Should fail, need an admin cookie', async () => {
+      return request(app.getHttpServer())
+        .get(path)
+        .set('Cookie', cookie)
+        .expect(401);
+    });
+    it('Should fail, project not found', async () => {
+      return request(app.getHttpServer())
+        .get(path)
+        .set('Cookie', cookieAdmin)
+        .expect(404);
+    });
+    it('Should succes', async () => {
+      return request(app.getHttpServer())
+        .get(`/project/${projectId}/detail`)
+        .set('Cookie', cookieAdmin)
+        .expect(200);
+    });
+  });
+  describe('/ (GET) Get List Member', () => {
+    const path = '/project/projectId/listMember';
+    it('Should fail, need an admin cookie', async () => {
+      return request(app.getHttpServer())
+        .get(path)
+        .set('Cookie', cookie)
+        .expect(401);
+    });
+    it('Should fail, project not found', async () => {
+      return request(app.getHttpServer())
+        .get(path)
+        .set('Cookie', cookieAdmin)
+        .expect(404);
+    });
+    it('Should succes', async () => {
+      return request(app.getHttpServer())
+        .get(`/project/${projectId}/listMember`)
+        .set('Cookie', cookieAdmin)
+        .expect(200);
+    });
+  });
+  describe('/ (GET) Get Project List By User', () => {
+    const path = '/project/projectListByUser/userId';
+    it('Should fail, need an admin cookie', async () => {
+      return request(app.getHttpServer())
+        .get(path)
+        .set('Cookie', cookie)
+        .expect(401);
+    });
+    it('Should fail, user not found', async () => {
+      return request(app.getHttpServer())
+        .get(path)
+        .set('Cookie', cookieAdmin)
+        .expect(404);
+    });
+    it('Should succes', async () => {
+      const existingUser = await prisma.user.findFirst({
+        where: { email: 'email2@email.com' },
+        select: { id: true },
+      });
+      if (!existingUser) {
+        throw new NotFoundException('user not found');
+      }
+      return request(app.getHttpServer())
+        .get(`/project/projectListByUser/${existingUser.id}`)
+        .set('Cookie', cookieAdmin)
+        .expect(200);
     });
   });
 });

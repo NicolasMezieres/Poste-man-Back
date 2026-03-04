@@ -23,8 +23,9 @@ export const projectPrismaMock = {
     update: jest.fn(),
     findUnique: jest.fn(),
   },
-  post: { deleteMany: jest.fn(), updateMany: jest.fn() },
+  post: { deleteMany: jest.fn(), updateMany: jest.fn(), count: jest.fn() },
   section: { deleteMany: jest.fn(), updateMany: jest.fn() },
   message: { deleteMany: jest.fn(), updateMany: jest.fn() },
+  user: { findUnique: jest.fn() },
   $transaction: jest.fn(),
 };

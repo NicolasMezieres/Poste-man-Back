@@ -15,6 +15,7 @@ import { WsException } from '@nestjs/websockets';
 import { roleProject } from 'src/utils/enum';
 import { NotificationService } from 'src/notification/notification.service';
 import { notificationServiceMock } from './mock/message.notification.mock';
+import { messageMock } from './mock/message.mock';
 
 describe('MessageService', () => {
   let service: MessageService;
@@ -434,6 +435,40 @@ describe('MessageService', () => {
       await expect(
         service.joinRoomMessage(socketMock, projectId, userMock),
       ).rejects.toEqual(new WsException("Vous n'êtes pas membre !"));
+    });
+  });
+  describe('Get List Message By User', () => {
+    it('Should return fail, user not found', async () => {
+      jest.spyOn(messagePrismaMock.user, 'findUnique').mockReturnValue(null);
+      await expect(
+        service.getListMessageByUser('userId', { page: 0 }),
+      ).rejects.toEqual(new NotFoundException('Utilisateur introuvable !'));
+    });
+    it('Should return list message empty', async () => {
+      jest
+        .spyOn(messagePrismaMock.user, 'findUnique')
+        .mockReturnValue(userMock);
+      jest.spyOn(messagePrismaMock.message, 'count').mockReturnValue(0);
+      await expect(
+        service.getListMessageByUser('userId', { page: 0 }),
+      ).resolves.toEqual({ data: [], isEndList: true, totalMessage: 0 });
+      expect(messagePrismaMock.message.findMany).not.toHaveBeenCalled();
+    });
+    it('Should return list message', async () => {
+      jest
+        .spyOn(messagePrismaMock.user, 'findUnique')
+        .mockReturnValue(userMock);
+      jest.spyOn(messagePrismaMock.message, 'count').mockReturnValue(1);
+      jest
+        .spyOn(messagePrismaMock.message, 'findMany')
+        .mockReturnValue([messageMock]);
+      await expect(
+        service.getListMessageByUser('userId', { page: 0 }),
+      ).resolves.toEqual({
+        data: [messageMock],
+        isEndList: true,
+        totalMessage: 1,
+      });
     });
   });
 });

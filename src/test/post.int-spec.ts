@@ -1,5 +1,5 @@
 import * as req from 'supertest';
-import { app, cookie, cookieAdmin, cookieOtherUser, prisma } from './setup.e2e';
+import { app, cookie, cookieAdmin, cookieOtherUser, prisma } from './setup.int';
 import { resMessageType } from 'src/utils/type';
 import { NotFoundException } from '@nestjs/common';
 describe('Post (e2e)', () => {

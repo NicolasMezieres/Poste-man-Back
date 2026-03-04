@@ -2,6 +2,7 @@ import {
   createLinkProjectMock,
   dataMemberMock,
   messageProjectMock,
+  projectMock,
   searchAdminMock,
   searchMock,
 } from './project.mock';
@@ -25,4 +26,7 @@ export const projectServiceMock = {
   removeByAdmin: jest.fn().mockResolvedValue(messageProjectMock),
   kickUser: jest.fn().mockResolvedValue(messageProjectMock),
   listMember: jest.fn().mockResolvedValue(dataMemberMock),
+  getDetail: jest.fn().mockResolvedValue({ data: projectMock }),
+  getListMember: jest.fn().mockResolvedValue({ data: dataMemberMock.data }),
+  getProjectListByUser: jest.fn().mockResolvedValue({ data: [] }),
 };

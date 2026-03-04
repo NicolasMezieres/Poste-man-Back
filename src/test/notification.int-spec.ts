@@ -1,6 +1,6 @@
 import { resMessageType } from 'src/utils/type';
 import * as req from 'supertest';
-import { app, cookie, prisma } from './setup.e2e';
+import { app, cookie, prisma } from './setup.int';
 import { NotFoundException } from '@nestjs/common';
 describe('Notification (e2e)', () => {
   let notificationId: number;

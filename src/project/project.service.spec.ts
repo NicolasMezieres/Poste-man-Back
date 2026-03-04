@@ -19,6 +19,7 @@ import { PostGateway } from 'src/post/post.gateway';
 import { postGatewayMock } from 'src/post/mock/post.gateway.mock';
 import { MessageGateway } from 'src/message/message.gateway';
 import { messageGatewayMock } from 'src/message/mock/message.gateway.mock';
+import { projectMock } from './mock/project.mock';
 describe('ProjectService', () => {
   let service: ProjectService;
   beforeEach(async () => {
@@ -34,7 +35,9 @@ describe('ProjectService', () => {
 
     service = module.get<ProjectService>(ProjectService);
   });
-
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
   it('should be defined', () => {
     expect(service).toBeDefined();
   });
@@ -497,6 +500,99 @@ describe('ProjectService', () => {
       await expect(
         service.kickUser(projectId, userId, userMock),
       ).rejects.toEqual(new ForbiddenException('Utilisateur introuvable'));
+    });
+  });
+  describe('Get Detail', () => {
+    it('Should fail, project not found', async () => {
+      jest.spyOn(projectPrismaMock.project, 'findUnique').mockReturnValue(null);
+      await expect(service.getDetail(projectId)).rejects.toEqual(
+        new NotFoundException('Projet introuvable !'),
+      );
+      expect(
+        projectPrismaMock.user_Has_Project.findFirst,
+      ).not.toHaveBeenCalled();
+      expect(projectPrismaMock.post.count).not.toHaveBeenCalled();
+    });
+    it('Should fail, author not found', async () => {
+      jest
+        .spyOn(projectPrismaMock.project, 'findUnique')
+        .mockReturnValue(projectMock);
+      jest
+        .spyOn(projectPrismaMock.user_Has_Project, 'findFirst')
+        .mockReturnValue(null);
+      await expect(service.getDetail(projectId)).rejects.toEqual(
+        new NotFoundException('Auteur introuvable!'),
+      );
+      expect(projectPrismaMock.post.count).not.toHaveBeenCalled();
+    });
+    it('Should return detail project', async () => {
+      jest
+        .spyOn(projectPrismaMock.project, 'findUnique')
+        .mockReturnValue(projectMock);
+      jest
+        .spyOn(projectPrismaMock.user_Has_Project, 'findFirst')
+        .mockReturnValue({ user: { username: userMock.username } });
+      jest.spyOn(projectPrismaMock.post, 'count').mockReturnValue(0);
+      const data = {
+        author: userMock.username,
+        totalPost: 0,
+        totalSection: projectMock._count.section,
+        updatedAt: projectMock.updatedAt,
+        createdAt: projectMock.createdAt,
+        projectName: projectMock.name,
+      };
+      await expect(service.getDetail(projectMock.id)).resolves.toEqual({
+        data,
+      });
+    });
+  });
+  describe('Get Project List By User', () => {
+    it('Should fail user nor found', async () => {
+      jest.spyOn(projectPrismaMock.user, 'findUnique').mockReturnValue(null);
+      await expect(
+        service.getProjectListByUser('userId', { page: 0 }),
+      ).rejects.toEqual(new NotFoundException('Utilisateur introuvable'));
+    });
+    it('Should return project list empty', async () => {
+      jest
+        .spyOn(projectPrismaMock.user, 'findUnique')
+        .mockReturnValue(userMock);
+      jest.spyOn(projectPrismaMock.project, 'count').mockReturnValue(0);
+      await expect(
+        service.getProjectListByUser('userId', { page: 0 }),
+      ).resolves.toEqual({ data: [], totalProject: 0, isEndList: true });
+    });
+    it('Should return project list', async () => {
+      jest
+        .spyOn(projectPrismaMock.user, 'findUnique')
+        .mockReturnValue(userMock);
+      jest.spyOn(projectPrismaMock.project, 'count').mockReturnValue(1);
+      jest.spyOn(projectPrismaMock.project, 'findMany').mockReturnValue([
+        {
+          ...projectMock,
+          users: [{ user: { username: projectMock.users.user.username } }],
+          section: [{ _count: { post: 1 } }],
+        },
+      ]);
+      const data = [
+        {
+          name: projectMock.name,
+          moderator: projectMock.users.user.username,
+          createdAt: projectMock.createdAt,
+          updatedAt: projectMock.updatedAt,
+          id: projectMock.id,
+          totalMember: projectMock._count.users,
+          totalSection: projectMock._count.section,
+          totalPost: 1,
+        },
+      ];
+      await expect(
+        service.getProjectListByUser('userId', { page: 0 }),
+      ).resolves.toEqual({
+        data,
+        totalProject: 1,
+        isEndList: true,
+      });
     });
   });
 });

@@ -191,4 +191,18 @@ describe('UserService', () => {
       ).resolves.toEqual({ message: 'Avatar modifié' });
     });
   });
+  describe('Detail User', () => {
+    it('Should fail, user not found', async () => {
+      jest.spyOn(mockPrisma.user, 'findUnique').mockReturnValue(null);
+      await expect(service.detailUser('userId')).rejects.toEqual(
+        new NotFoundException('Utilisateur introuvable'),
+      );
+    });
+    it('Should return detail user', async () => {
+      jest.spyOn(mockPrisma.user, 'findUnique').mockReturnValue(userMock);
+      await expect(service.detailUser(userMock.id)).resolves.toEqual({
+        data: userMock,
+      });
+    });
+  });
 });
