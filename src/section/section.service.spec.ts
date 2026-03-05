@@ -123,7 +123,11 @@ describe('SectionService', () => {
       });
 
       expect(prisma.section.findFirst).toHaveBeenCalledWith({
-        where: { name: mockCreateDTO.name, project: { id: 'project-1' } },
+        where: {
+          name: mockCreateDTO.name,
+          project: { id: 'project-1' },
+          isArchive: false,
+        },
         select: { id: true },
       });
 
