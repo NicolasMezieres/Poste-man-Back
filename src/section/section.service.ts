@@ -61,7 +61,7 @@ export class SectionService {
       throw new NotFoundException('Projet introuvable');
     }
     const existingSection = await this.prisma.section.findFirst({
-      where: { name: dto.name, project: { id: projectId } },
+      where: { name: dto.name, project: { id: projectId }, isArchive: false },
       select: { id: true },
     });
     if (existingSection) {
