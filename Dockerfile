@@ -1,5 +1,7 @@
 FROM node:22-alpine
 
+RUN apt-get update
+
 WORKDIR /usr/src/app
 
 COPY package*.json ./
