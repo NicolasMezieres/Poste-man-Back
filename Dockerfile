@@ -1,6 +1,6 @@
 FROM node:22-alpine
 
-RUN apt-get update
+RUN apk update
 
 WORKDIR /usr/src/app
 
