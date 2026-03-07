@@ -32,7 +32,7 @@ import { APP_GUARD } from '@nestjs/core';
     UserModule,
     PostModule,
     ThrottlerModule.forRoot({
-      throttlers: [{ ttl: 30000, limit: 10 }],
+      throttlers: [{ ttl: 30000, limit: 15 }],
       errorMessage: 'Trop de requête, réessayer ultérieurement',
     }),
   ],

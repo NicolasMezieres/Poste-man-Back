@@ -22,6 +22,9 @@ describe('PostGateway', () => {
     gateway = module.get<PostGateway>(PostGateway);
     gateway.server = serverMock;
   });
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
   const projectId = 'id';
   const postMock: postType = {
     text: 'text',
@@ -48,11 +51,12 @@ describe('PostGateway', () => {
   });
   describe('emit New Post', () => {
     it('Should Emit New Post', () => {
-      expect(gateway.emitNewPost(postMock, projectId));
+      expect(gateway.emitNewPost(postMock, projectId, 'sectionId'));
       expect(serverMock.to).toHaveBeenCalledWith(postRoom);
       expect(serverMock.emit).toHaveBeenCalledWith('post', {
         action: 'create',
         post: postMock,
+        sectionId: 'sectionId',
       });
     });
   });
@@ -78,11 +82,12 @@ describe('PostGateway', () => {
   });
   describe('emit Transfert Post', () => {
     it('Should Emit Post Transfered', () => {
-      expect(gateway.emitTransfertPost(postMock.id, projectId));
+      expect(gateway.emitTransfertPost(postMock, projectId, 'sectionId'));
       expect(serverMock.to).toHaveBeenCalledWith(postRoom);
       expect(serverMock.emit).toHaveBeenCalledWith('post', {
         action: 'transfert',
-        post: { id: postMock.id },
+        post: postMock,
+        sectionId: 'sectionId',
       });
     });
   });
@@ -99,9 +104,12 @@ describe('PostGateway', () => {
   });
   describe('emit Reset Post', () => {
     it('Should emit Post Reseted', () => {
-      expect(gateway.emitResetPost(projectId));
+      expect(gateway.emitResetPost(projectId, 'sectionId'));
       expect(serverMock.to).toHaveBeenCalledWith(postRoom);
-      expect(serverMock.emit).toHaveBeenCalledWith('post', { action: 'reset' });
+      expect(serverMock.emit).toHaveBeenCalledWith('post', {
+        action: 'reset',
+        sectionId: 'sectionId',
+      });
     });
   });
   describe('emit Update Many Post (ban or unBan post)', () => {
@@ -122,6 +130,17 @@ describe('PostGateway', () => {
       expect(serverMock.emit).toHaveBeenCalledWith('post', {
         action: 'kickUser',
         userId: 'userId',
+      });
+    });
+  });
+  describe('Emit Transfert All Post', () => {
+    it('Should emit transfertPosts', () => {
+      gateway.emitTransfertAllPost(projectId, [postMock], 'sectionId');
+      expect(serverMock.to).toHaveBeenCalledWith(postRoom);
+      expect(serverMock.emit).toHaveBeenCalledWith('post', {
+        action: 'transfertPosts',
+        posts: [postMock],
+        sectionId: 'sectionId',
       });
     });
   });
