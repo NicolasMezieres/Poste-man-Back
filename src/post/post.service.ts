@@ -176,6 +176,16 @@ export class PostService {
         section: { select: { projectId: true } },
         id: true,
         userId: true,
+        user: { select: { username: true, id: true } },
+        vote: { select: { isUp: true } },
+        text: true,
+        isVisible: true,
+        isArchive: true,
+        createdAt: true,
+        updatedAt: true,
+        poseX: true,
+        poseY: true,
+        score: true,
       },
     });
     if (!existingPost) {
@@ -214,8 +224,9 @@ export class PostService {
       data: { sectionId: existingSection.id, updatedAt: new Date() },
     });
     this.socket.emitTransfertPost(
-      existingPost.id,
+      existingPost,
       existingPost.section.projectId,
+      existingSection.id,
     );
     return { message: 'Post transferer !' };
   }
@@ -229,7 +240,16 @@ export class PostService {
     }
     const existingSection = await this.prisma.section.findUnique({
       where: { id: sectionId },
-      select: { id: true, projectId: true },
+      select: {
+        id: true,
+        projectId: true,
+        post: {
+          include: {
+            user: { select: { username: true, id: true } },
+            vote: { select: { isUp: true } },
+          },
+        },
+      },
     });
     if (!existingSection) {
       throw new NotFoundException('Section introuvable !');
@@ -267,7 +287,12 @@ export class PostService {
       where: { sectionId },
       data: { sectionId: moveSectionId },
     });
-    this.socket.emitResetPost(existingSection.projectId);
+    this.socket.emitResetPost(existingSection.projectId, existingSection.id);
+    this.socket.emitTransfertAllPost(
+      existingSection.projectId,
+      existingSection.post,
+      existingMoveSection.id,
+    );
     return { message: 'Les posts ont changées de section !' };
   }
 
@@ -452,7 +477,7 @@ export class PostService {
       where: { sectionId: existingSection.id },
       data: { isVisible: false, updatedAt: new Date(), isArchive: true },
     });
-    this.socket.emitResetPost(existingSection.projectId);
+    this.socket.emitResetPost(existingSection.projectId, existingSection.id);
     return { message: 'Tout les posts on été supprimer !' };
   }
   async joinRoomPost(client: Socket, projectId: string, user: User) {

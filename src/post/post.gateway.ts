@@ -61,17 +61,28 @@ export class PostGateway {
       .to(`post/${projectId}`)
       .emit('post', { action: 'delete', post: { id: postId } });
   }
-  emitTransfertPost(postId: string, projectId: string) {
+  emitTransfertPost(post: postType, projectId: string, sectionId: string) {
     this.server
       .to(`post/${projectId}`)
-      .emit('post', { action: 'transfert', post: { id: postId } });
+      .emit('post', { action: 'transfert', post, sectionId });
   }
   emitVotePost(postId: string, score: number, projectId: string) {
     this.server
       .to(`post/${projectId}`)
       .emit('post', { action: 'vote', post: { id: postId, score } });
   }
-  emitResetPost(projectId: string) {
-    this.server.to(`post/${projectId}`).emit('post', { action: 'reset' });
+  emitResetPost(projectId: string, sectionId: string) {
+    this.server
+      .to(`post/${projectId}`)
+      .emit('post', { action: 'reset', sectionId });
+  }
+  emitTransfertAllPost(
+    projectId: string,
+    posts: postType[],
+    sectionId: string,
+  ) {
+    this.server
+      .to(`post/${projectId}`)
+      .emit('post', { action: 'transfertPosts', posts, sectionId });
   }
 }
