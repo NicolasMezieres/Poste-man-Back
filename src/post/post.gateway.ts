@@ -36,10 +36,10 @@ export class PostGateway {
     return this.post.joinRoomPost(client, projectId, user);
   }
 
-  emitNewPost(post: postType, projectId: string) {
+  emitNewPost(post: postType, projectId: string, sectionId: string) {
     this.server
       .to(`post/${projectId}`)
-      .emit('post', { action: 'create', post });
+      .emit('post', { action: 'create', post, sectionId });
   }
   emitUpdatePost(post: postType, projectId: string) {
     this.server

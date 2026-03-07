@@ -48,11 +48,12 @@ describe('PostGateway', () => {
   });
   describe('emit New Post', () => {
     it('Should Emit New Post', () => {
-      expect(gateway.emitNewPost(postMock, projectId));
+      expect(gateway.emitNewPost(postMock, projectId, 'sectionId'));
       expect(serverMock.to).toHaveBeenCalledWith(postRoom);
       expect(serverMock.emit).toHaveBeenCalledWith('post', {
         action: 'create',
         post: postMock,
+        sectionId: 'sectionId',
       });
     });
   });

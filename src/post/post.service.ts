@@ -102,7 +102,11 @@ export class PostService {
       },
       omit: { userId: true, sectionId: true },
     });
-    this.socket.emitNewPost(newPost, existingSection.projectId);
+    this.socket.emitNewPost(
+      newPost,
+      existingSection.projectId,
+      existingSection.id,
+    );
     return { message: 'Post créer !' };
   }
   async update(postId: string, dto: postDTO, user: User) {
