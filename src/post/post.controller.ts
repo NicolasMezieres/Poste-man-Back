@@ -23,7 +23,9 @@ import {
   ApiOkResponse,
 } from '@nestjs/swagger';
 import { movePostDTO } from './dto/move.post.dto';
+import { Throttle } from '@nestjs/throttler';
 
+@Throttle({ default: { limit: 30, ttl: 30000 } })
 @UseGuards(JwtGuard)
 @Controller('post')
 export class PostController {
